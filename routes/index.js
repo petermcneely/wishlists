@@ -1,16 +1,36 @@
+'use strict'
+
 var express = require('express');
 var router = express.Router();
-var controller = require('../controllers/homeController');
+var OccasionsController = require('../controllers/occasionsController');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {s
-  	res.render('index', { title: 'Express' });
+router.get('/', function(req, res, next) {
+  	var controller = new OccasionsController();
+  	controller.index().then(
+  		function (success) {
+  			res.send(success);
+  		}
+	).catch(
+		function (error) {
+			res.send(error);
+		}
+	);
 });
 
-/* GET test with MongoDB */
-router.get('/test', function(req, res, next) {
-	controller.test();
-	res.send('in test');
+/* GET create */
+router.get('/create', function(req, res, next) {
+	var date = new Date();
+  	var controller = new OccasionsController();
+	controller.create('Occasion', date).then(
+		function (success) {
+			res.send(success);
+		}
+	).catch(
+		function (error) {
+			res.send(error);
+		}
+	);
 });
 
 module.exports = router;
