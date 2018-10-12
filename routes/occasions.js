@@ -21,21 +21,7 @@ router.get('/', function(req, res, next) {
 
 /* GET new occasion. */
 router.get('/new', function (req, res, next) {
-	res.send(`
-    <h1>New Occasion</h1>
-    <form action="/occasions/new" method="POST">
-      <div>
-        <label for="name">Name your occasion</label>
-        <input id="name" name="name" type="text" />
-      </div>
-      <div>
-      	<label for="occurrence">When does your occasion take place?</label>
-      	<input id="occurrence" name="occurrence" type="date" />
-      </div>
-      <input type="submit" value="Submit" />
-      <input type="hidden" name="_csrf" value="${req.csrfToken()}" />
-    </form>
-  `);
+	res.render('occasions/new', {csrfToken: req.csrfToken()})
 })
 
 /* POST new occasion */
