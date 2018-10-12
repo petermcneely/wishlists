@@ -3,14 +3,14 @@
 var express = require('express');
 var router = express.Router();
 var urlencodedParser = express.urlencoded({extended: false});
-var OccasionsController = require('../controllers/occasionsController');
+var OccasionsService = require('../services/occasionsService');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  	var controller = new OccasionsController();
-  	controller.index().then(
+  	var service = new OccasionsService();
+  	service.index().then(
   		function (success) {
-  			res.send(success);
+  			res.render('occasions/index', {occasions: success});
   		}
 	).catch(
 		function (error) {
@@ -30,10 +30,10 @@ router.post('/new', urlencodedParser, function(req, res) {
 		return res.sendStatus(400);
 	}
 
-  	var controller = new OccasionsController();
-	controller.create(req.body.name, req.body.occurrence).then(
+  	var service = new OccasionsService();
+	service.create(req.body.name, req.body.occurrence).then(
 		function (success) {
-			res.send(success);
+			res.redirect('/occasions');
 		}
 	).catch(
 		function (error) {
@@ -41,5 +41,23 @@ router.post('/new', urlencodedParser, function(req, res) {
 		}
 	);
 });
+
+/* DELETE occasion.*/
+router.delete('/delete/:id', function (req, res) {
+	if (!req.params || !req.params.id) {
+		return res.sendStatus(400);
+	}
+
+	var service = new OccasionsService();
+	service.delete(req.params.id).then(
+		function (success) {
+			res.redirect('/occasions');
+		}
+	).catch(
+		function (error) {
+			res.send(error);
+		}
+	);
+})
 
 module.exports = router;

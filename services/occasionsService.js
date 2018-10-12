@@ -3,7 +3,7 @@
 var connect = require('../utils/mongoUtils');
 var mongodb = require('mongodb');
 
-module.exports = class OccasionsController {
+module.exports = class OccasionsService {
 	constructor() {
 		this.tableName = 'occasions';
 	}
