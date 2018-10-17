@@ -18,7 +18,7 @@ module.exports = class OccasionsService {
 				const db = client.db('wishlists');
 				return db.collection(this.tableName).insertOne({
 					name: name,
-					occurrence: occurrence
+					occurrence: new Date(occurrence)
 				}).then(
 					function (result) {
 						client.close();
@@ -58,6 +58,23 @@ module.exports = class OccasionsService {
 
 	/*
 	id: unique identifier of the occasion document
+	*/
+	get(id) {
+		return connect().then(
+			function (client) {
+				const db = client.db('wishlists');
+				var objectId = new mongodb.ObjectID(id);
+				return db.collection(this.tableName).findOne(objectId).then(
+						function (occasion) {
+							return occasion;
+						}
+					);
+			}.bind(this)
+		);
+	}
+
+	/*
+	id: unique identifier of the occasion document
 	name: new name to update the occasion to (optional)
 	occurrence: new name to update the occasion to (optional)
 	*/
@@ -73,11 +90,9 @@ module.exports = class OccasionsService {
 				if (occurrence) {
 					updateObject.occurrence = occurrence;
 				}
-
-				return db.collection(this.tableName).findOneAndUpdate(
-					objectId,
-					{$set: updateObject},
-					{returnOriginal: false}
+				return db.collection(this.tableName).updateOne(
+					{_id: objectId},
+					{$set: updateObject}
 				).then(
 					function (result) {
 						var value = result.value;

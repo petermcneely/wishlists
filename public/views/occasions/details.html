@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<title>Occasion - Wishlists</title>
+	</head>
+	<body>
+	    <h1>Current Occasion</h1>
+	    <form onsubmit="return false">
+	      <div>
+	        <label for="name">Name your occasion</label>
+	        <input id="name" name="name" type="text" value="{{occasion.name}}" />
+	      </div>
+	      <div>
+	      	<label for="occurrence">When does your occasion take place?</label>
+	      	<input id="occurrence" name="occurrence" type="date" value="{{occasion.occurrence}}" />
+	      </div>
+	      <button type="button" onclick="update()">Submit</button>
+	      <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+	    </form>
+	    <p id="message"></p>
+	</body>
+	<script>
+		function update() {
+			var body = {
+				name: document.getElementById("name").value,
+				occurrence: document.getElementById("occurrence").value
+			};
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					document.getElementById("message").innerHTML = this.responseText;
+					return false;
+				}
+			};
+			xhttp.open("PUT", "/occasions/{{occasion._id}}", true);
+			xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			xhttp.setRequestHeader("X-CSRF-TOKEN", document.getElementById("_csrf").value);
+			xhttp.send(JSON.stringify(body));
+
+			return false;
+		}
+	</script>
+</html>
