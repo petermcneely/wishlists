@@ -1,5 +1,8 @@
+<!doctype html>
+{{>navbar}}
+<h1>Occasions</h1>
+<a href='/occasions/new'>Create New</a>
 <table>
-	<caption>Occasions</caption>
 	<thead>
 		<tr>
 			<th>Name</th>
@@ -8,10 +11,15 @@
 	</thead>
 	<tbody>
 		{{#occasions}}
-			<tr>
+			<tr id="{{_id}}">
 				<td>{{name}}</td>
 				<td>{{occurrence}}</td>
+				<td><a href='/occasions/{{_id}}'>Details</a>
+				<td onclick="doDelete('{{_id}}')">Delete</td>
 			</tr>
 		{{/occasions}}
+		<input type="hidden" id="_csrf" value="{{csrfToken}}"/>
 	</tbody>
 </table>
+<p id="message"></p>
+<script type="text/javascript" src="../../javascripts/occasions/index.js"></script>

@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
   	var service = new OccasionsService();
   	service.index().then(
   		function (success) {
-  			res.render('occasions/index', {occasions: success});
+  			res.render('occasions/index', { partials: {navbar: '../partials/navbar'}, occasions: success, csrfToken: req.csrfToken()});
   		}
 	).catch(
 		function (error) {
@@ -91,7 +91,7 @@ router.post('/new', urlencodedParser, function(req, res) {
 });
 
 /* DELETE occasion.*/
-router.delete('/delete/:id([a-zA-Z0-9]{24})', function (req, res) {
+router.delete('/:id([a-zA-Z0-9]{24})', function (req, res) {
 	if (!req.params || !req.params.id) {
 		res.status(400);
 		res.render('errors/400', {message: 'Missing the required id.'});
@@ -100,7 +100,7 @@ router.delete('/delete/:id([a-zA-Z0-9]{24})', function (req, res) {
 	var service = new OccasionsService();
 	service.delete(req.params.id).then(
 		function (success) {
-			res.redirect('/occasions');
+			res.sendStatus(200);
 		}
 	).catch(
 		function (error) {

@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(csrf({cookie: true}));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'public/views'));
 app.engine('html', engines.mustache);
 app.set('view engine', 'html');
