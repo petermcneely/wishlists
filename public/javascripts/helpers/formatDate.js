@@ -3,11 +3,11 @@
 	Array.prototype.forEach.call(dates, function (element) {
 		var date = new Date(element.textContent !== "" ? element.textContent : element.defaultValue);
 		var padZero = function (number) {
-			number = number + 1;
+			number = number;
 			return number < 10 ? "0" + number : number;
 		};
 
-		var formattedDate = date.getUTCFullYear() + "-" + padZero(date.getUTCMonth()) + "-" + padZero(date.getUTCDate());
+		var formattedDate = date.getUTCFullYear() + "-" + padZero(date.getUTCMonth() + 1) + "-" + padZero(date.getUTCDate());
 
 		if (element.textContent !== "")
 		{
