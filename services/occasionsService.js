@@ -42,7 +42,6 @@ module.exports = class OccasionsService {
 				const db = client.db('wishlists');
 				return db.collection(this.tableName).find().toArray().then(
 					function (success) {
-						console.log(success);
 						client.close();
 						return success;
 					}
@@ -88,7 +87,7 @@ module.exports = class OccasionsService {
 					updateObject.name = name;
 				}
 				if (occurrence) {
-					updateObject.occurrence = occurrence;
+					updateObject.occurrence = new Date(occurrence);
 				}
 				return db.collection(this.tableName).updateOne(
 					{_id: objectId},
@@ -96,15 +95,11 @@ module.exports = class OccasionsService {
 				).then(
 					function (result) {
 						var value = result.value;
-						console.log("Successfully updated the document.");
-						console.log(result);
 						client.close();
 						return value;
 					}
 				).catch(
 					function (error) {
-						console.log("Can't update document.");
-						console.log(error);
 						client.close();
 					}
 				);
@@ -120,7 +115,8 @@ module.exports = class OccasionsService {
 			function (client) {
 				const db = client.db('wishlists');
 				var objectId = new mongodb.ObjectID(id);
-				return db.collection(this.tableName).findOneAndDelete(objectId)
+				return db.collection(this.tableName).deleteOne(
+					{_id: objectId})
 				.then(
 					function () {
 						console.log("Successfully deleted");

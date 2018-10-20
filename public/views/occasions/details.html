@@ -1,23 +1,19 @@
-<!doctype html>
-<html>
-	<head>
-		<title>Occasion - Wishlists</title>
-	</head>
-	<body>
-	    <h1>Current Occasion</h1>
-	    <form onsubmit="return false">
-	      <div>
-	        <label for="name">Name your occasion</label>
-	        <input id="name" name="name" type="text" value="{{occasion.name}}" />
-	      </div>
-	      <div>
-	      	<label for="occurrence">When does your occasion take place?</label>
-	      	<input id="occurrence" name="occurrence" type="date" value="{{occasion.occurrence}}" />
-	      </div>
-	      <button type="button" onclick="update('{{occasion._id}}')">Submit</button>
-	      <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
-	    </form>
-	    <p id="message"></p>
-	</body>
-	<script type="text/javascript" src="../../javascripts/occasions/details.js"></script>
-</html>
+<h1>Current Occasion</h1>
+<div id="message" class="invisible"><span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span></div>
+<form class="form-inline" onsubmit="return update('{{occasion._id}}')">
+  <div class="form-group mx-sm-3">
+    <label class="form-label mx-sm-3" for="name">Name</label>
+    <input class="form-control" id="name" name="name" type="text" value="{{occasion.name}}" />
+  </div>
+  <div class="form-group mx-sm-3">
+  	<label class="form-label mx-sm-3" for="occurrence">Occurrence</label>
+  	<input class="form-control date" id="occurrence" name="occurrence" type="date" value="{{occasion.occurrence}}" />
+  </div>
+  <input class="btn btn-success mx-sm-3" type="submit" value="Update"/>
+  <input class="btn btn-danger mx-sm-3" type="button" value="Delete" onclick="return doDelete('{{occasion._id}}')"/>
+  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+</form>
+<br/>
+{{>wishlists}}
+
+<script type="text/javascript" src="../../javascripts/occasions/details.js"></script>

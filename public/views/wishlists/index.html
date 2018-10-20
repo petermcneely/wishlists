@@ -1,0 +1,24 @@
+<div class="container-fluid">
+  <h4>Wishlists for this occasion</h4>
+  <a href='{{occasion._id}}/wishlists/new'>Create New</a>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Owner</th>
+          <th scope="col">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#wishlists}}
+          <tr scope="row">
+            <td>{{name}}</td>
+            <td>{{owner}}</td>
+            <td><a href="wishlists/{{_id}}"><span class="fa fa-eye"></span></a></td>
+          </tr>
+        {{/wishlists}}
+      </tbody>
+    </table>
+  </div>
+</div>

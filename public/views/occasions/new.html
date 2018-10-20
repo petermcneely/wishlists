@@ -1,21 +1,17 @@
-<!doctype html>
-<html>
-	<head>
-		<title>New Occasion - Wishlists</title>
-	</head>
-	<body>
-	    <h1>New Occasion</h1>
-	    <form action="/occasions/new" method="POST">
-	      <div>
-	        <label for="name">Name your occasion</label>
-	        <input id="name" name="name" type="text" />
-	      </div>
-	      <div>
-	      	<label for="occurrence">When does your occasion take place?</label>
-	      	<input id="occurrence" name="occurrence" type="date" />
-	      </div>
-	      <input type="submit" value="Submit" />
-	      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-	    </form>
-	</body>
-</html>
+<h1>New Occasion</h1>
+<p id="message"></p>
+<form class="form-inline" action="/occasions/new" method="POST">
+  <div class="form-group mx-sm-3">
+    <label class="form-label mx-sm-3" for="name">Name</label>
+    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Birthday" />
+  </div>
+  <div class="form-group mx-sm-3">
+  	<label class="form-label mx-sm-3" for="occurrence">Occurrence Date</label>
+  	<input class="form-control" id="occurrence" name="occurrence" type="date" />
+  </div>
+  <input class="btn btn-success mx-sm-3" type="submit" value="Create" />
+  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel()" />
+  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+</form>
+
+<script type="text/javascript" src="../../javascripts/occasions/new.js"></script>

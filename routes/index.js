@@ -6,16 +6,7 @@ var OccasionsService = require('../services/occasionsService');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  	var controller = new OccasionsService();
-  	controller.index().then(
-  		function (success) {
-  			res.send(success);
-  		}
-	).catch(
-		function (error) {
-			res.send(error);
-		}
-	);
+  	res.render('templates/shell', {partials: {page: '../home/index'}, title: 'Wishlists'});
 });
 
 module.exports = router;
