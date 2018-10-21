@@ -23,10 +23,7 @@ router.get('/', function(req, res, next) {
 
 /* GET occasion. */
 router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
-	if (!req.params || !req.params.occasionId) {
-		res.status(400);
-		res.render('errors/400', {message: 'Missing the required occasionId parameter.'});
-	}
+
 	var service = new OccasionsService();
 	service.get(req.params.occasionId).then(
 		function (occasion) {
@@ -93,10 +90,6 @@ router.post('/new', urlencodedParser, function(req, res) {
 
 /* DELETE occasion.*/
 router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
-	if (!req.params || !req.params.occasionId) {
-		res.status(400);
-		res.render('errors/400', {message: 'Missing the required occasionId.'});
-	}
 
 	var service = new OccasionsService();
 	service.delete(req.params.occasionId).then(

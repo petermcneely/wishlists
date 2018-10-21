@@ -2,6 +2,7 @@
 
 var connect = require('../utils/mongoUtils');
 var mongodb = require('mongodb');
+var ItemsService = require('./ItemsService');
 
 module.exports = class WishlistsService {
 	constructor() {
@@ -36,11 +37,11 @@ module.exports = class WishlistsService {
 		);
 	}
 
-	index() {
+	index(occasionId) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
-				return db.collection(this.tableName).find().toArray().then(
+				return db.collection(this.tableName).find({occasionId: new mongodb.ObjectID(occasionId)}).toArray().then(
 					function (success) {
 						client.close();
 						return success;
@@ -64,9 +65,15 @@ module.exports = class WishlistsService {
 				const db = client.db('wishlists');
 				var objectId = new mongodb.ObjectID(id);
 				return db.collection(this.tableName).findOne(objectId).then(
-						function (occasion) {
-							return occasion;
-						}
+						function (wishlist) {
+							var service = new ItemsService();
+							return service.index(wishlist._id).then(
+								function (items) {
+									wishlist.items = items;
+									return wishlist;
+								}.bind(this)
+							);
+						}.bind(this)
 					);
 			}.bind(this)
 		);

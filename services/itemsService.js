@@ -2,24 +2,27 @@
 
 var connect = require('../utils/mongoUtils');
 var mongodb = require('mongodb');
-var WishlistsService = require('./wishlistsService');
 
-module.exports = class OccasionsService {
+module.exports = class WishlistsService {
 	constructor() {
-		this.tableName = 'occasions';
+		this.tableName = 'withlistItems';
 	}
 
 	/*
-	name: name of the occasion
-	occurrence: date of the occasion
+	name: name of the wishlist item
+	comments: comments on the wishlist item
+	link: link to the wishlist item
+	wishlistId: the unique identifier of the associated wishlist.
 	*/
-	create(name, occurrence) {
+	create(name, comments, link, wishlistId) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
 				return db.collection(this.tableName).insertOne({
 					name: name,
-					occurrence: new Date(occurrence)
+					comments: comments,
+					link: link,
+					wishlistId: new mongodb.ObjectID(wishlistId)
 				}).then(
 					function (result) {
 						client.close();
@@ -28,7 +31,7 @@ module.exports = class OccasionsService {
 				)
 				.catch(
 					function (error) {
-						console.log("Can't connect to the occasions collection.");
+						console.log("Can't connect to the wishlists collection.");
 						console.log(error);
 						client.close();
 					}
@@ -37,11 +40,11 @@ module.exports = class OccasionsService {
 		);
 	}
 
-	index() {
+	index(wishlistId) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
-				return db.collection(this.tableName).find().toArray().then(
+				return db.collection(this.tableName).find({wishlistId: new mongodb.ObjectID(wishlistId)}).toArray().then(
 					function (success) {
 						client.close();
 						return success;
@@ -57,7 +60,7 @@ module.exports = class OccasionsService {
 	}
 
 	/*
-	id: unique identifier of the occasion document
+	id: unique identifier of the wishlist item document
 	*/
 	get(id) {
 		return connect().then(
@@ -65,37 +68,38 @@ module.exports = class OccasionsService {
 				const db = client.db('wishlists');
 				var objectId = new mongodb.ObjectID(id);
 				return db.collection(this.tableName).findOne(objectId).then(
-						function (occasion) {
-							var service = new WishlistsService();
-							return service.index(occasion._id).then(
-								function (wishlists) {
-									occasion.wishlists = wishlists;
-									return occasion;
-								}.bind(this)
-							);
-						}.bind(this)
+						function (wishlist) {
+							return wishlist;
+						}
 					);
 			}.bind(this)
 		);
 	}
 
 	/*
-	id: unique identifier of the occasion document
-	name: new name to update the occasion to (optional)
-	occurrence: new name to update the occasion to (optional)
+	id: unique identifier of the wishlist item document
+	name: new name to update the wishlist item to (optional)
+	comments: new comments to update (optional)
+	link: new link to update (optional)
 	*/
-	update(id, name, occurrence) {
+	update(id, name, comments, link) {
 		return connect().then(
 			function (client) {
-				const db = client.db('wishlists');
-				var objectId = new mongodb.ObjectID(id);
-				var updateObject = {};
-				if (name){
+				var updateObject = {
+
+				};
+				if (name) {
 					updateObject.name = name;
 				}
-				if (occurrence) {
-					updateObject.occurrence = new Date(occurrence);
+				if (comments) {
+					updateObject.comments = comments;
 				}
+				if (link) {
+					updateObject.link = link;
+				}
+
+				const db = client.db('wishlists');
+				var objectId = new mongodb.ObjectID(id);
 				return db.collection(this.tableName).updateOne(
 					{_id: objectId},
 					{$set: updateObject}
@@ -115,7 +119,7 @@ module.exports = class OccasionsService {
 	}
 
 	/*
-	id: the unique identifier of the occasion document
+	id: the unique identifier of the wishlist item document
 	*/
 	delete(id) {
 		return connect().then(

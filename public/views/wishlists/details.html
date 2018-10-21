@@ -1,1 +1,16 @@
-details.html
+<h1>Current Wishlist</h1>
+<div id="message" class="invisible"><span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span></div>
+<form class="form-inline" onsubmit="return update()">
+  <div class="form-group mx-sm-3">
+    <label class="form-label mx-sm-3" for="name">Name</label>
+    <input class="form-control" id="name" name="name" type="text" value="{{wishlist.name}}" />
+  </div>
+  <input class="btn btn-success mx-sm-3" type="submit" value="Update"/>
+  <input class="btn btn-danger mx-sm-3" type="button" value="Delete" onclick="return doDelete('{{wishlist.occasionId}}')"/>
+  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+</form>
+<br/>
+{{>items}}
+
+<script type="text/javascript" src="/javascripts/wishlists/details.js"></script>
+<script type="text/javascript" src="/javascripts/helpers/alertHandler.js"></script>

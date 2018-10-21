@@ -1,7 +1,6 @@
 function update() {
 	var body = {
-		name: document.getElementById("name").value,
-		occurrence: document.getElementById("occurrence").value
+		name: document.getElementById("name").value
 	};
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function () {
@@ -17,12 +16,12 @@ function update() {
 	return false;
 }
 
-function doDelete() {
+function doDelete(occasionId) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
-				window.location.replace("/occasions");
+				window.location.replace("/occasions/" + occasionId);
 			}
 			else if (this.status == 500 || this.status == 404) {
 				document.getElementById("message").textContent = this.responseText;	

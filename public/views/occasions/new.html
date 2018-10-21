@@ -1,6 +1,6 @@
 <h1>New Occasion</h1>
 <p id="message"></p>
-<form class="form-inline" action="/occasions/new" method="POST">
+<form class="form-inline" method="POST">
   <div class="form-group mx-sm-3">
     <label class="form-label mx-sm-3" for="name">Name</label>
     <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Birthday" />
@@ -14,4 +14,4 @@
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 </form>
 
-<script type="text/javascript" src="../../javascripts/occasions/new.js"></script>
+<script type="text/javascript" src="/javascripts/occasions/new.js"></script>

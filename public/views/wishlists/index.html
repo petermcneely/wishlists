@@ -11,13 +11,13 @@
         </tr>
       </thead>
       <tbody>
-        {{#wishlists}}
+        {{#occasion.wishlists}}
           <tr scope="row">
             <td>{{name}}</td>
             <td>{{owner}}</td>
-            <td><a href="wishlists/{{_id}}"><span class="fa fa-eye"></span></a></td>
+            <td><a href="{{occasion._id}}/wishlists/{{_id}}"><span class="fa fa-eye"></span></a></td>
           </tr>
-        {{/wishlists}}
+        {{/occasion.wishlists}}
       </tbody>
     </table>
   </div>
