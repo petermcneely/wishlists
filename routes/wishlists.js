@@ -91,8 +91,10 @@ router.delete('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
 
 router.use('/:wishlistId([a-zA-Z0-9]{24})/items', function (req, res, next) {
 	req.wishlistId = req.params.wishlistId;
-	req.breadcrumbs[2].label = 'Wishlist';
-	req.breadcrumbs.splice(3, 1);
+	if (req.breadcrumbs) {
+		req.breadcrumbs[2].label = 'Wishlist';
+		req.breadcrumbs.splice(3, 1);
+	}
 	next()
 }, items);
 

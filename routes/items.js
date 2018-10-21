@@ -7,12 +7,19 @@ var ItemsService = require('../services/itemsService');
 
 /* GET wishlist item. */
 router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
-	req.breadcrumbs[3] = 'Item';
+	req.breadcrumbs[3].label = 'Item';
 	var service = new ItemsService();
 	service.get(req.params.itemId).then(
 		function (item) {
 			if (item) {
-				res.render('templates/shell', {partials: {page: '../items/details'}, breadcrumbs: req.breadcrumbs, title: item.name + ' - Wishlists', csrfToken: req.csrfToken()});
+				res.render('templates/shell', {
+					partials: {page: '../items/details'}, 
+					breadcrumbs: req.breadcrumbs, 
+					title: item.name + ' - Wishlists', 
+					occasionId: req.occasionId,
+					item: item, 
+					csrfToken: req.csrfToken()
+				});
 			}
 			else {
 				res.status(404);
@@ -29,9 +36,9 @@ router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 
 /* PUT updated wishlist item. */
 router.put('/:itemId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
-	if (!req.body || (!req.body.name || !req.body.comments || !req.body.link)) {
+	if (!req.body || (!req.body.name && !req.body.comments && !req.body.link)) {
 		res.status(400);
-		res.render('errors/400', {message: 'An updated name, comments, or link must be sent to update the wishlist item.'});
+		return res.render('errors/400', {message: 'An updated name, comments, or link must be sent to update the wishlist item.'});
 	}
 
 	var service = new ItemsService();
@@ -42,14 +49,21 @@ router.put('/:itemId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
 	).catch(
 		function (error) {
 			res.status(500);
-			res.send({message: error});
+			return res.send({message: error});
 		}
 	);
 });
 
 /* GET new wishlist item. */
 router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {partials: {page: '../items/new'}, breadcrumbs: req.breadcrumbs, title: 'New Wishlist Item - Wishlists', wishlistId: req.wishlistId, csrfToken: req.csrfToken()})
+	res.render('templates/shell', {
+		partials: {page: '../items/new'},
+		breadcrumbs: req.breadcrumbs,
+		title: 'New Wishlist Item - Wishlists',
+		occasionId: req.occasionId,
+		wishlistId: req.wishlistId,
+		csrfToken: req.csrfToken()
+	});
 })
 
 /* POST new wishlist item */

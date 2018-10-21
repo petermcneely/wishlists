@@ -106,8 +106,10 @@ router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 
 router.use('/:occasionId([a-zA-Z0-9]{24})/wishlists', function (req, res, next) {
 	req.occasionId = req.params.occasionId;
-	req.breadcrumbs[1].label = 'Details';
-	req.breadcrumbs.splice(2, 1);
+	if (req.breadcrumbs) {
+		req.breadcrumbs[1].label = 'Details';
+		req.breadcrumbs.splice(2, 1);
+	}
 	next()
 }, wishlists);
 

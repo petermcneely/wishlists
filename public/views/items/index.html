@@ -9,7 +9,6 @@
 					<th scope="col">Comments</th>
 					<th scope="col">Link</th>
 					<th scope="col">Details</th>
-					<th scope="col">Delete</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -17,9 +16,8 @@
 					<tr scope="row">
 						<td>{{name}}</td>
 						<td>{{comments}}</td>
-						<td><a href='{{link}}'>{{link}}</a></td>
-						<td><a href='items/{{_id}}'><span class="fa fa-eye"></span></a></td>
-						<td onclick="doDelete('{{_id}}'"><span title="Delete {{name}}" class="fa fa-trash fa-2x"></span></td>
+						<td><a href='{{link}}' target="_blank">{{link}}</a></td>
+						<td><a href='{{wishlist._id}}/items/{{_id}}'><span class="fa fa-eye fa-2x"></span></a></td>
 					</tr>
 				{{/wishlist.items}}
 			</tbody>
