@@ -2,6 +2,7 @@
 
 var express = require('express');
 var router = express.Router();
+var wishlists = require('./wishlists');
 var urlencodedParser = express.urlencoded({extended: true});
 var OccasionsService = require('../services/occasionsService');
 
@@ -21,13 +22,13 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET occasion. */
-router.get('/:id([a-zA-Z0-9]{24})', function (req, res) {
-	if (!req.params || !req.params.id) {
+router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
+	if (!req.params || !req.params.occasionId) {
 		res.status(400);
-		res.render('errors/400', {message: 'Missing the required id parameter.'});
+		res.render('errors/400', {message: 'Missing the required occasionId parameter.'});
 	}
 	var service = new OccasionsService();
-	service.get(req.params.id).then(
+	service.get(req.params.occasionId).then(
 		function (occasion) {
 			if (occasion) {
 				res.render('templates/shell', {partials: {page: '../occasions/details', wishlists: '../wishlists/index'}, title: occasion.name + ' - Wishlists', occasion: occasion, csrfToken: req.csrfToken()});
@@ -46,14 +47,14 @@ router.get('/:id([a-zA-Z0-9]{24})', function (req, res) {
 });
 
 /* PUT updated occasion. */
-router.put('/:id([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
+router.put('/:occasionId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
 	if (!req.body || (!req.body.name && !req.body.occurrence)) {
 		res.status(400);
 		res.render('errors/400', {message: 'An updated name or occurrence date must be sent to update the occasion.'});
 	}
 
 	var service = new OccasionsService();
-	service.update(req.params.id, req.body.name, req.body.occurrence).then(
+	service.update(req.params.occasionId, req.body.name, req.body.occurrence).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the occasion.'});
 		}
@@ -91,14 +92,14 @@ router.post('/new', urlencodedParser, function(req, res) {
 });
 
 /* DELETE occasion.*/
-router.delete('/:id([a-zA-Z0-9]{24})', function (req, res) {
-	if (!req.params || !req.params.id) {
+router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
+	if (!req.params || !req.params.occasionId) {
 		res.status(400);
-		res.render('errors/400', {message: 'Missing the required id.'});
+		res.render('errors/400', {message: 'Missing the required occasionId.'});
 	}
 
 	var service = new OccasionsService();
-	service.delete(req.params.id).then(
+	service.delete(req.params.occasionId).then(
 		function (success) {
 			res.sendStatus(200);
 		}
@@ -108,6 +109,11 @@ router.delete('/:id([a-zA-Z0-9]{24})', function (req, res) {
 			res.render('errors/500', {error: error});
 		}
 	);
-})
+});
+
+router.use('/:occasionId([a-zA-Z0-9]{24})/wishlists', function (req, res, next) {
+	req.occasionId = req.params.occasionId;
+	next()
+}, wishlists);
 
 module.exports = router;
