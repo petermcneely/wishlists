@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
   	var service = new OccasionsService();
   	service.index().then(
   		function (success) {
-  			res.render('templates/shell', { partials: {page: '../occasions/index'}, title: 'Occasions - Wishlists', occasions: success});
+  			res.render('templates/shell', { partials: {page: '../occasions/index'}, title: 'Occasions - Wishlists', breadcrumbs: req.breadcrumbs, occasions: success});
   		}
 	).catch(
 		function (error) {
@@ -23,12 +23,12 @@ router.get('/', function(req, res, next) {
 
 /* GET occasion. */
 router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
-
+	req.breadcrumbs[1].label = 'Details';
 	var service = new OccasionsService();
 	service.get(req.params.occasionId).then(
 		function (occasion) {
 			if (occasion) {
-				res.render('templates/shell', {partials: {page: '../occasions/details', wishlists: '../wishlists/index'}, title: occasion.name + ' - Wishlists', occasion: occasion, csrfToken: req.csrfToken()});
+				res.render('templates/shell', {partials: {page: '../occasions/details', wishlists: '../wishlists/index'}, breadcrumbs: req.breadcrumbs, title: occasion.name + ' - Wishlists', occasion: occasion, csrfToken: req.csrfToken()});
 			}
 			else {
 				res.status(404);
@@ -65,7 +65,7 @@ router.put('/:occasionId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res
 
 /* GET new occasion. */
 router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {partials: {page: '../occasions/new'}, title: 'New Occasion - Wishlists', csrfToken: req.csrfToken()})
+	res.render('templates/shell', {partials: {page: '../occasions/new'}, title: 'New Occasion - Wishlists', breadcrumbs: req.breadcrumbs, csrfToken: req.csrfToken()})
 })
 
 /* POST new occasion */
@@ -106,6 +106,8 @@ router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 
 router.use('/:occasionId([a-zA-Z0-9]{24})/wishlists', function (req, res, next) {
 	req.occasionId = req.params.occasionId;
+	req.breadcrumbs[1].label = 'Details';
+	req.breadcrumbs.splice(2, 1);
 	next()
 }, wishlists);
 

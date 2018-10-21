@@ -8,12 +8,12 @@ var WishlistsService = require('../services/wishlistsService');
 
 /* GET wishlist. */
 router.get('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
-
+	req.breadcrumbs[2].label = 'Wishlist';
 	var service = new WishlistsService();
 	service.get(req.params.wishlistId).then(
 		function (wishlist) {
 			if (wishlist) {
-				res.render('templates/shell', {partials: {page: '../wishlists/details', items: '../items/index'}, title: wishlist.name + ' - Wishlists', wishlist: wishlist, csrfToken: req.csrfToken()});
+				res.render('templates/shell', {partials: {page: '../wishlists/details', items: '../items/index'}, breadcrumbs: req.breadcrumbs, title: wishlist.name + ' - Wishlists', wishlist: wishlist, csrfToken: req.csrfToken()});
 			}
 			else {
 				res.status(404);
@@ -50,7 +50,7 @@ router.put('/:wishlistId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res
 
 /* GET new wishlist. */
 router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {partials: {page: '../wishlists/new'}, title: 'New Wishlist - Wishlists', occasionId: req.occasionId, csrfToken: req.csrfToken()})
+	res.render('templates/shell', {partials: {page: '../wishlists/new'}, breadcrumbs: req.breadcrumbs, title: 'New Wishlist - Wishlists', occasionId: req.occasionId, csrfToken: req.csrfToken()})
 })
 
 /* POST new wishlist */
@@ -91,6 +91,8 @@ router.delete('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
 
 router.use('/:wishlistId([a-zA-Z0-9]{24})/items', function (req, res, next) {
 	req.wishlistId = req.params.wishlistId;
+	req.breadcrumbs[2].label = 'Wishlist';
+	req.breadcrumbs.splice(3, 1);
 	next()
 }, items);
 

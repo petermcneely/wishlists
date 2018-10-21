@@ -7,12 +7,12 @@ var ItemsService = require('../services/itemsService');
 
 /* GET wishlist item. */
 router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
-
+	req.breadcrumbs[3] = 'Item';
 	var service = new ItemsService();
 	service.get(req.params.itemId).then(
 		function (item) {
 			if (item) {
-				res.render('templates/shell', {partials: {page: '../items/details'}, title: item.name + ' - Wishlists', csrfToken: req.csrfToken()});
+				res.render('templates/shell', {partials: {page: '../items/details'}, breadcrumbs: req.breadcrumbs, title: item.name + ' - Wishlists', csrfToken: req.csrfToken()});
 			}
 			else {
 				res.status(404);
@@ -49,7 +49,7 @@ router.put('/:itemId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
 
 /* GET new wishlist item. */
 router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {partials: {page: '../items/new'}, title: 'New Wishlist Item - Wishlists', wishlistId: req.wishlistId, csrfToken: req.csrfToken()})
+	res.render('templates/shell', {partials: {page: '../items/new'}, breadcrumbs: req.breadcrumbs, title: 'New Wishlist Item - Wishlists', wishlistId: req.wishlistId, csrfToken: req.csrfToken()})
 })
 
 /* POST new wishlist item */
