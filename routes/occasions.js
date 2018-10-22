@@ -11,7 +11,13 @@ router.get('/', function(req, res, next) {
   	var service = new OccasionsService();
   	service.index().then(
   		function (success) {
-  			res.render('templates/shell', { partials: {page: '../occasions/index'}, title: 'Occasions - Wishlists', breadcrumbs: req.breadcrumbs, occasions: success});
+  			res.render('templates/shell', { 
+  				partials: {page: '../occasions/index'}, 
+  				title: 'Occasions - Wishlists', 
+  				breadcrumbs: req.breadcrumbs, 
+  				user: req.user,
+  				occasions: success
+  			});
   		}
 	).catch(
 		function (error) {
@@ -28,7 +34,15 @@ router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 	service.get(req.params.occasionId).then(
 		function (occasion) {
 			if (occasion) {
-				res.render('templates/shell', {partials: {page: '../occasions/details', wishlists: '../wishlists/index'}, breadcrumbs: req.breadcrumbs, title: occasion.name + ' - Wishlists', occasion: occasion, csrfToken: req.csrfToken()});
+				res.render('templates/shell', {
+					partials: {page: '../occasions/details', 
+					wishlists: '../wishlists/index'}, 
+					breadcrumbs: req.breadcrumbs, 
+					user: req.user,
+					title: occasion.name + ' - Wishlists', 
+					occasion: occasion, 
+					csrfToken: req.csrfToken()
+				});
 			}
 			else {
 				res.status(404);
@@ -65,7 +79,12 @@ router.put('/:occasionId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res
 
 /* GET new occasion. */
 router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {partials: {page: '../occasions/new'}, title: 'New Occasion - Wishlists', breadcrumbs: req.breadcrumbs, csrfToken: req.csrfToken()})
+	res.render('templates/shell', {
+		partials: {page: '../occasions/new'}, 
+		title: 'New Occasion - Wishlists', 
+		breadcrumbs: req.breadcrumbs, 
+		user: req.user,
+		csrfToken: req.csrfToken()})
 })
 
 /* POST new occasion */

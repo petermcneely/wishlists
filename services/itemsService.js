@@ -5,7 +5,7 @@ var mongodb = require('mongodb');
 
 module.exports = class WishlistsService {
 	constructor() {
-		this.tableName = 'withlistItems';
+		this.tableName = 'wishlistItems';
 	}
 
 	/*

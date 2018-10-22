@@ -15,6 +15,7 @@ router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 				res.render('templates/shell', {
 					partials: {page: '../items/details'}, 
 					breadcrumbs: req.breadcrumbs, 
+					user: req.user,
 					title: item.name + ' - Wishlists', 
 					occasionId: req.occasionId,
 					item: item, 
@@ -59,6 +60,7 @@ router.get('/new', function (req, res, next) {
 	res.render('templates/shell', {
 		partials: {page: '../items/new'},
 		breadcrumbs: req.breadcrumbs,
+		user: req.user,
 		title: 'New Wishlist Item - Wishlists',
 		occasionId: req.occasionId,
 		wishlistId: req.wishlistId,
