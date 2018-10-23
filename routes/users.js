@@ -2,14 +2,20 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 var UserService = require('../services/usersService');
+var ensure = require('connect-ensure-login');
 
 router.get('/sign-up',
 	function (req, res) {
-		res.render('templates/shell', {
-			partials: {page: '../users/signUp'},
-			user: req.user,
-			csrfToken: req.csrfToken()
-		});
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      res.redirect('profile');
+    }
+    else {
+  		res.render('templates/shell', {
+  			partials: {page: '../users/signUp'},
+  			user: req.user,
+  			csrfToken: req.csrfToken()
+  		});
+    }
 	});
 
 router.post('/sign-up',
@@ -42,13 +48,14 @@ router.post('/sign-in',
   });
   
 router.get('/sign-out',
+  ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
   function(req, res){
     req.logout();
     res.redirect('/');
   });
 
 router.get('/profile',
-  require('connect-ensure-login').ensureLoggedIn({redirectTo: 'sign-in'}),
+  ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
   function(req, res){
     res.render('templates/shell', {
     	partials: {page: '../users/profile'},

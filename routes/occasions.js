@@ -5,6 +5,7 @@ var router = express.Router();
 var wishlists = require('./wishlists');
 var urlencodedParser = express.urlencoded({extended: true});
 var OccasionsService = require('../services/occasionsService');
+var ensure = require('connect-ensure-login');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -31,7 +32,7 @@ router.get('/', function(req, res, next) {
 router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 	req.breadcrumbs[1].label = 'Details';
 	var service = new OccasionsService();
-	service.get(req.params.occasionId).then(
+	service.get(req.params.occasionId, req.user ? req.user._id : null).then(
 		function (occasion) {
 			if (occasion) {
 				res.render('templates/shell', {
@@ -58,14 +59,14 @@ router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 });
 
 /* PUT updated occasion. */
-router.put('/:occasionId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
+router.put('/:occasionId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), urlencodedParser, function (req, res) {
 	if (!req.body || (!req.body.name && !req.body.occurrence)) {
 		res.status(400);
 		res.render('errors/400', {message: 'An updated name or occurrence date must be sent to update the occasion.'});
 	}
 
 	var service = new OccasionsService();
-	service.update(req.params.occasionId, req.body.name, req.body.occurrence).then(
+	service.update(req.user._id, req.params.occasionId, req.body.name, req.body.occurrence).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the occasion.'});
 		}
@@ -76,6 +77,8 @@ router.put('/:occasionId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res
 		}
 	);
 });
+
+router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
 
 /* GET new occasion. */
 router.get('/new', function (req, res, next) {
@@ -95,7 +98,7 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new OccasionsService();
-	service.create(req.body.name, req.body.occurrence).then(
+	service.create(req.user._id, req.body.name, req.body.occurrence).then(
 		function (success) {
 			res.redirect('/occasions');
 		}
@@ -108,10 +111,10 @@ router.post('/new', urlencodedParser, function(req, res) {
 });
 
 /* DELETE occasion.*/
-router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
+router.delete('/:occasionId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
 	var service = new OccasionsService();
-	service.delete(req.params.occasionId).then(
+	service.delete(req.params.occasionId, req.user._id).then(
 		function (success) {
 			res.sendStatus(200);
 		}
@@ -121,6 +124,18 @@ router.delete('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 			res.render('errors/500', {error: error});
 		}
 	);
+});
+
+/* GET invite page. */
+router.get('/:occasionId([a-zA-Z0-9]{24})/share', function (req, res) {
+
+});
+
+/* POST invite to send. */
+// Responsible for creating occasion shares for system users.
+// Responsible for emailing share link to emails.
+router.post('/:occasionId([a-zA-Z0-9]{24})/share', function (req, res) {
+
 });
 
 router.use('/:occasionId([a-zA-Z0-9]{24})/wishlists', function (req, res, next) {

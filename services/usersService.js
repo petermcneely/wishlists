@@ -1,7 +1,8 @@
 'use strict'
 
 var connect = require('../utils/mongoUtils');
-var mongodb = require('mongodb');
+const mongodb = require('mongodb');
+const bcrypt = require('bcrypt');
 
 module.exports = class WishlistsService {
 	constructor() {
@@ -48,41 +49,54 @@ module.exports = class WishlistsService {
 			});
 		}
 
-		return connect().then(
-			function (client) {
-				const db = client.db('wishlists');
-				var user = db.collection(this.tableName).findOne({email: email}).then(
-					function (user) {
-						if (user) {
-							return new Promise((resolve, reject) => {
-								reject("A user with that email already exists.");
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			var user = db.collection(this.tableName).findOne({email: email}, function (err, user) {
+				if (err) {
+					console.log(err);
+					client.close();
+				}
+				else {
+					if (user) {
+						client.close();
+						return new Promise((resolve, reject) => {
+							reject("A user with that email already exists.");
+						});
+					}
+
+					this.hashPassword(password, function (err, hash) {
+						if (err) {
+							console.log(err);
+							client.close();
+						}
+						else {
+							this.saveUser(db, email, hash, function (err, result) {
+								client.close();
+								if (err) {
+									console.log(err);
+								}
+								else {
+									return result.insertedId;
+								}
 							});
 						}
+					}.bind(this));
+				}
+			}.bind(this));
+		}.bind(this)).catch(function (err) {
+			console.log(err);
+		});
+	}
 
-						return db.collection(this.tableName).insertOne({
-							email: email,
-							password: password
-						}).then(
-							function (result) {
-								client.close();
-								return result.insertedId;
-							}
-						)
-						.catch(
-							function (error) {
-								console.log("Can't connect to the users collection.");
-								console.log(error);
-								client.close();
-							}
-						);
-					}.bind(this),
-					function (err) {
-						console.log(err);
-						client.close();
-					}
-				);
-			}.bind(this)
-		);
+	hashPassword(password, callback) {
+		bcrypt.hash(password, 10, callback);
+	}
+
+	saveUser(db, email, hash, callback) {
+		db.collection(this.tableName).insertOne({
+			email: email,
+			password: hash
+		}, callback);
 	}
 
 	updateEmail(email) {

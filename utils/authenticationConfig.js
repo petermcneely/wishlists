@@ -1,6 +1,7 @@
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var UsersService = require('../services/usersService');
+const bcrypt = require('bcrypt');
 
 // Configure the local strategy for use by Passport.
 passport.use(new Strategy({ usernameField: 'email'},
@@ -9,8 +10,11 @@ passport.use(new Strategy({ usernameField: 'email'},
     service.findByEmail(email).then(
       function (user) {
         if (!user) { return cb(null, false); }
-        if (user.password != password) { return cb(null, false); }
-        return cb(null, user);
+        bcrypt.compare(password, user.password, function(err, res) {
+          if (err) {return cb(err);}
+          if (!res) {return cb(null, false);}
+          return cb(null, user);
+        }.bind(this));
       },
       function (err) {
         if (err) {

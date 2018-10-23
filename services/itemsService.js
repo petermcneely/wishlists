@@ -141,4 +141,17 @@ module.exports = class WishlistsService {
 				);
 		}.bind(this));
 	}
+
+	/*
+	wishlistIds: the unique identifiers of the associated wishlist document. Must be ObjectIDs.
+	*/
+	deleteAssociated(wishlistIds) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			return db.collection(this.tableName).deleteMany({wishlistId: {$in: wishlistIds}}).then(function () {
+				console.log("Successfully deleted all items associated with the specified wishlists.");
+				client.close();
+			}.bind(this));
+		}.bind(this));
+	}
 }

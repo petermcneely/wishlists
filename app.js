@@ -9,7 +9,7 @@ var csrf = require('csurf');
 var logger = require('morgan');
 var engines = require('consolidate');
 var breadcrumbMaker = require('./utils/breadcrumbMaker');
-var authConfig = require('./authentication/config');
+var authConfig = require('./utils/authenticationConfig');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

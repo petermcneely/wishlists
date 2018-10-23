@@ -10,14 +10,16 @@ module.exports = class WishlistsService {
 	}
 
 	/*
+	userId: the id of the creating user.
 	name: name of the wishlist
 	occasionId: the unique identifier of the associated occasion.
 	*/
-	create(name, occasionId) {
+	create(userId, name, occasionId) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
 				return db.collection(this.tableName).insertOne({
+					userId: new mongodb.ObjectID(userId),
 					name: name,
 					occasionId: new mongodb.ObjectID(occasionId)
 				}).then(
@@ -110,26 +112,47 @@ module.exports = class WishlistsService {
 	}
 
 	/*
-	id: the unique identifier of the occasion document
+	id: the unique identifier of the wishlist document
 	*/
 	delete(id) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
 				var objectId = new mongodb.ObjectID(id);
-				return db.collection(this.tableName).deleteOne(
-					{_id: objectId})
-				.then(
-					function () {
-						console.log("Successfully deleted");
+				var service = new ItemsService();
+				return service.deleteAssociated([objectId]).then(function (success) {
+					db.collection(this.tableName).deleteOne({_id: objectId}).then(function () {
+						console.log("Successfully deleted the wishlist.");
 						client.close();
-					}
-				).catch(
-					function (error) {
+					}).catch(function(err){
 						console.log(error);
 						client.close();
-					}
-				);
+					});
+				}.bind(this));
+		}.bind(this));
+	}
+
+	/*
+	occasionId: the unique identifier of the associated occasion document. Must be an ObjectID
+	*/
+	deleteAssociated(occasionId) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			db.collection(this.tableName).find({occasionId: occasionId}).toArray().then(function (results) {
+				var service = new ItemsService();
+				service.deleteAssociated(results.map(e => e._id)).then(function () {
+					db.collection(this.tableName).deleteMany({occasionId: occasionId}).then(function (success) {
+						console.log("Successully deleted the associated wishlists.");
+						client.close();
+					}.bind(this)).catch(function (err) {
+						console.log(err);
+						client.close();
+					});
+				}.bind(this)).catch(function (err) {
+					console.log(err);
+					client.close();
+				});
+			}.bind(this));
 		}.bind(this));
 	}
 }
