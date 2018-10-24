@@ -59,24 +59,23 @@ module.exports = class OccasionsService {
 	}
 
 	/*
+	userId: unique identifier of the requesting user
 	id: unique identifier of the occasion document
 	*/
-	get(id, userId) {
-		return this.owns(id, userId).then(function (res) {
-			return connect().then(function (client) {
-				const db = client.db('wishlists');
-				var objectId = new mongodb.ObjectID(id);
-				return db.collection(this.tableName).findOne(objectId).then(function (occasion) {
-					if (occasion) {
-						occasion.owns = res;
-						var service = new WishlistsService();
-						return service.index(occasion._id).then(function (wishlists) {
-							occasion.wishlists = wishlists;
-							return occasion;
-						}.bind(this)).catch(e => console.log(e));
-					}
-					return occasion;
-				}.bind(this)).catch(e => console.log(e));
+	get(userId, id) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			var objectId = new mongodb.ObjectID(id);
+			return db.collection(this.tableName).findOne(objectId).then(function (occasion) {
+				if (occasion) {
+					occasion.owns = occasion.userId.equals(userId);
+					var service = new WishlistsService();
+					return service.index(occasion._id).then(function (wishlists) {
+						occasion.wishlists = wishlists;
+						return occasion;
+					}.bind(this)).catch(e => console.log(e));
+				}
+				return occasion;
 			}.bind(this)).catch(e => console.log(e));
 		}.bind(this)).catch(e => console.log(e));
 	}
@@ -87,7 +86,7 @@ module.exports = class OccasionsService {
 	occurrence: new name to update the occasion to (optional)
 	*/
 	update(userId, id, name, occurrence) {
-		return this.owns(id, userId).then(function (res) {
+		return this.owns(userId, id).then(function (res) {
 			if (res) {
 				return connect().then(function (client) {
 					const db = client.db('wishlists');
@@ -108,8 +107,8 @@ module.exports = class OccasionsService {
 	/*
 	id: the unique identifier of the occasion document
 	*/
-	delete(id, userId) {
-		return this.owns(id, userId).then(function (res) {
+	delete(userId, id) {
+		return this.owns(userId, id).then(function (res) {
 			if (res) {
 				return connect().then(function (client) {
 					const db = client.db('wishlists');
@@ -123,14 +122,14 @@ module.exports = class OccasionsService {
 							console.log(err);
 							client.close();
 						});
-					}.bind(this)).catch(e => console.log(err));
-				}.bind(this));
+					}.bind(this)).catch(e => console.log(e));
+				}.bind(this)).catch(e => console.log(e));
 			}
 		}.bind(this)).catch(e => console.log(e));
 	}
 
 	// checks if the requesting userId owns the occasion.
-	owns(id, userId) {
+	owns(userId, id) {
 		return connect().then(function (client) {
 			if (!userId) {
 				client.close();
@@ -138,7 +137,7 @@ module.exports = class OccasionsService {
 			}
 			const db = client.db('wishlists');
 			var objectId = new mongodb.ObjectID(id);
-			return this.get(id).then(function (occasion){
+			return db.collection(this.tableName).findOne(objectId).then(function (occasion){
 				if (occasion) {
 					return occasion.userId.equals(userId);
 				}

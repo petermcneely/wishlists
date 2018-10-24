@@ -3,11 +3,13 @@
 <form class="form-inline" onsubmit="return update()">
   <div class="form-group mx-sm-3">
     <label class="form-label mx-sm-3" for="name">Name</label>
-    <input class="form-control" id="name" name="name" type="text" value="{{wishlist.name}}" autofocus/>
+    <input class="form-control" id="name" name="name" type="text" value="{{wishlist.name}}" autofocus {{^wishlist.owns}}readonly{{/wishlist.owns}}/>
   </div>
+  {{#wishlist.owns}}
   <input class="btn btn-success mx-sm-3" type="submit" value="Update"/>
   <input class="btn btn-danger mx-sm-3" type="button" value="Delete" onclick="return doDelete('{{wishlist.occasionId}}')"/>
   <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+  {{/wishlist.owns}}
 </form>
 <br/>
 {{>items}}

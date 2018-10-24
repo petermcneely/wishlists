@@ -59,77 +59,77 @@ module.exports = class WishlistsService {
 	}
 
 	/*
+	userId: unique identifier of the requesting user
 	id: unique identifier of the wishlist document
 	*/
-	get(id) {
-		return connect().then(
-			function (client) {
-				const db = client.db('wishlists');
-				var objectId = new mongodb.ObjectID(id);
-				return db.collection(this.tableName).findOne(objectId).then(
-						function (wishlist) {
-							var service = new ItemsService();
-							return service.index(wishlist._id).then(
-								function (items) {
-									wishlist.items = items;
-									return wishlist;
-								}.bind(this)
-							);
-						}.bind(this)
-					);
-			}.bind(this)
-		);
+	get(userId, id) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			var objectId = new mongodb.ObjectID(id);
+			return db.collection(this.tableName).findOne(objectId).then(function (wishlist) {
+				if (wishlist) {
+					wishlist.owns = wishlist.userId.equals(userId);
+					var service = new ItemsService();
+					return service.index(wishlist._id).then(function (items) {
+						wishlist.items = items;
+						return wishlist;
+					}.bind(this)).catch(err => console.log(err));
+				}
+				else {
+					return new Promise((res, rej) => rej("Unable to find that wishlist."));
+				}
+			}.bind(this)).catch(err => console.log(err));
+		}.bind(this)).catch(err => console.log(err));
 	}
 
 	/*
 	id: unique identifier of the wishlist document
 	name: new name to update the wishlist to (required)
 	*/
-	update(id, name) {
-		return connect().then(
-			function (client) {
-				if (!name)
-					return null;
+	update(userId, id, name) {
+		return this.owns(userId, id).then(function (res) {
+			if (res) {
+				return connect().then(function (client) {
+					if (!name)
+						return null;
 
-				const db = client.db('wishlists');
-				var objectId = new mongodb.ObjectID(id);
-				return db.collection(this.tableName).updateOne(
-					{_id: objectId},
-					{$set: {name: name}}
-				).then(
-					function (result) {
+					const db = client.db('wishlists');
+					var objectId = new mongodb.ObjectID(id);
+					return db.collection(this.tableName).updateOne({_id: objectId}, {$set: {name: name}}).then(function (result) {
 						var value = result.value;
 						client.close();
 						return value;
-					}
-				).catch(
-					function (error) {
+					}.bind(this)).catch((e) => {
 						client.close();
-					}
-				);
-			}.bind(this)
-		);
+						console.log(e);
+					});
+				}.bind(this)).catch(e => console.log(e));
+			}
+		}.bind(this)).catch(e => console.log(e));
 	}
 
 	/*
 	id: the unique identifier of the wishlist document
 	*/
-	delete(id) {
-		return connect().then(
-			function (client) {
-				const db = client.db('wishlists');
-				var objectId = new mongodb.ObjectID(id);
-				var service = new ItemsService();
-				return service.deleteAssociated([objectId]).then(function (success) {
-					db.collection(this.tableName).deleteOne({_id: objectId}).then(function () {
-						console.log("Successfully deleted the wishlist.");
-						client.close();
-					}).catch(function(err){
-						console.log(error);
-						client.close();
-					});
-				}.bind(this));
-		}.bind(this));
+	delete(userId, id) {
+		return this.owns(userId, id).then(function (res) {
+			if (res) {
+				return connect().then(function (client) {
+					const db = client.db('wishlists');
+					var objectId = new mongodb.ObjectID(id);
+					var service = new ItemsService();
+					return service.deleteAssociated([objectId]).then(function (success) {
+						db.collection(this.tableName).deleteOne({_id: objectId}).then(function () {
+							console.log("Successfully deleted the wishlist.");
+							client.close();
+						}).catch(function(err){
+							console.log(error);
+							client.close();
+						});
+					}.bind(this)).catch(e => console.log(e));
+				}.bind(this)).catch(e => console.log(e));
+			}
+		}.bind(this)).catch(e => console.log(e));
 	}
 
 	/*
@@ -152,7 +152,27 @@ module.exports = class WishlistsService {
 					console.log(err);
 					client.close();
 				});
-			}.bind(this));
-		}.bind(this));
+			}.bind(this)).catch(e => console.log(e));
+		}.bind(this)).catch(e => console.log(e));
+	}
+
+	// checks if the requesting userId owns the wishlist
+	owns(userId, id) {
+		return connect().then(function(client) {
+			if (!userId) {
+				client.close();
+				return false;
+			}
+			const db = client.db('wishlists');
+			var objectId = new mongodb.ObjectID(id);
+			return db.collection(this.tableName).findOne(objectId).then(function (wishlist) {
+				if (wishlist) {
+					return wishlist.userId.equals(userId);
+				}
+				else {
+					return new Promise((result, reject) => reject("Unable to find that wishlist."));
+				}
+			}.bind(this)).catch(err => console.log(err));
+		}.bind(this)).catch(err => console.log(err));
 	}
 }

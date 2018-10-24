@@ -4,13 +4,14 @@ var express = require('express');
 var router = express.Router();
 var items = require('./items');
 var urlencodedParser = express.urlencoded({extended: true});
+var ensure = require('connect-ensure-login');
 var WishlistsService = require('../services/wishlistsService');
 
 /* GET wishlist. */
 router.get('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
 	req.breadcrumbs[2].label = 'Wishlist';
 	var service = new WishlistsService();
-	service.get(req.params.wishlistId).then(
+	service.get(req.user ? req.user._id : null, req.params.wishlistId).then(
 		function (wishlist) {
 			if (wishlist) {
 				res.render('templates/shell', {
@@ -36,14 +37,14 @@ router.get('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
 });
 
 /* PUT updated wishlist. */
-router.put('/:wishlistId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
+router.put('/:wishlistId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), urlencodedParser, function (req, res) {
 	if (!req.body || !req.body.name) {
 		res.status(400);
 		res.render('errors/400', {message: 'An updated name or occurrence date must be sent to update the wishlist.'});
 	}
 
 	var service = new WishlistsService();
-	service.update(req.params.wishlistId, req.body.name).then(
+	service.update(req.user._id, req.params.wishlistId, req.body.name).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the wishlist.'});
 		}
@@ -54,6 +55,8 @@ router.put('/:wishlistId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res
 		}
 	);
 });
+
+router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
 
 /* GET new wishlist. */
 router.get('/new', function (req, res, next) {
@@ -75,7 +78,7 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new WishlistsService();
-	service.create(req.body.name, req.occasionId).then(
+	service.create(req.user._id, req.body.name, req.occasionId).then(
 		function (success) {
 			res.redirect('/occasions/' + req.occasionId);
 		}
@@ -88,10 +91,10 @@ router.post('/new', urlencodedParser, function(req, res) {
 });
 
 /* DELETE wishlist.*/
-router.delete('/:wishlistId([a-zA-Z0-9]{24})', function (req, res) {
+router.delete('/:wishlistId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
 	var service = new WishlistsService();
-	service.delete(req.params.wishlistId).then(
+	service.delete(req.user._id, req.params.wishlistId).then(
 		function (success) {
 			res.sendStatus(200);
 		}

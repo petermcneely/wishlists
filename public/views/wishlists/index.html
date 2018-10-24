@@ -1,12 +1,13 @@
 <div class="container-fluid">
   <h4>Wishlists for this occasion</h4>
+  {{#user}}
   <a href='{{occasion._id}}/wishlists/new'>Create New</a>
+  {{/user}}
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col">Owner</th>
           <th scope="col">Details</th>
         </tr>
       </thead>
@@ -14,7 +15,6 @@
         {{#occasion.wishlists}}
           <tr scope="row">
             <td>{{name}}</td>
-            <td>{{owner}}</td>
             <td><a href="{{occasion._id}}/wishlists/{{_id}}"><span class="fa fa-eye fa-2x"></span></a></td>
           </tr>
         {{/occasion.wishlists}}

@@ -32,7 +32,7 @@ router.get('/', function(req, res, next) {
 router.get('/:occasionId([a-zA-Z0-9]{24})', function (req, res) {
 	req.breadcrumbs[1].label = 'Details';
 	var service = new OccasionsService();
-	service.get(req.params.occasionId, req.user ? req.user._id : null).then(
+	service.get(req.user ? req.user._id : null, req.params.occasionId).then(
 		function (occasion) {
 			if (occasion) {
 				res.render('templates/shell', {
@@ -114,7 +114,7 @@ router.post('/new', urlencodedParser, function(req, res) {
 router.delete('/:occasionId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
 	var service = new OccasionsService();
-	service.delete(req.params.occasionId, req.user._id).then(
+	service.delete(req.user._id, req.params.occasionId).then(
 		function (success) {
 			res.sendStatus(200);
 		}

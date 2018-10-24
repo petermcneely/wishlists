@@ -1,6 +1,8 @@
 <div class="container-fluid">
 	<h4>Wishlist Items</h4>
+	{{#wishlist.owns}}
 	<a href='{{wishlist._id}}/items/new'>Create New</a>
+	{{/wishlist.owns}}
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<thead>

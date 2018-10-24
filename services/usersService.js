@@ -25,6 +25,16 @@ module.exports = class WishlistsService {
 		);
 	}
 
+	getUsersById(ids) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			return db.collection(this.tableName).find({_id: {$in: ids}}).toArray().then(function (users) {
+				client.close();
+				return users;
+			}.bind(this)).catch(e => console.log(e));
+		}.bind(this)).catch(e => console.log(e));
+	}
+
 	findById(id) {
 		return connect().then(
 			function (client) {
