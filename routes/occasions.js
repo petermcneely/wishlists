@@ -126,16 +126,37 @@ router.delete('/:occasionId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo
 	);
 });
 
-/* GET invite page. */
-router.get('/:occasionId([a-zA-Z0-9]{24})/share', function (req, res) {
-
-});
-
-/* POST invite to send. */
-// Responsible for creating occasion shares for system users.
+/* POST emails to send.*/
 // Responsible for emailing share link to emails.
-router.post('/:occasionId([a-zA-Z0-9]{24})/share', function (req, res) {
+router.post('/:occasionId([a-zA-Z0-9]{24})/share', urlencodedParser, ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
+	var sendService = require('../services/emails/sendService');
+	var shareFactory = require('../services/emails/occasions/shareFactory');
+	var UsersService = require('../services/UsersService');
+	
+	var usersService = new UsersService();
+
+	usersService.findById(req.user._id).then(function (user) {
+		if (user) {
+			sendService.sendEmail({
+				from: user.email,
+				to: req.body.emails,
+				subject: shareFactory.getSubjectLine(),
+				html: shareFactory.getBody(user.email, req.protocol + '://' + req.get('Host') + '/occasions/' + req.params.occasionId)
+			}).then(function () {
+				res.status(200);
+				res.send({message: 'Successfully shared the occasion!'});
+			}.bind(this)).catch(function (e) {
+				res.status(500);
+				res.send({message: 'An error occurred while sharing the occasion.'});
+				console.log(e);	
+			}.bind(this));
+		}
+		else {
+			res.status(500);
+			res.send({message: 'Cannot find the user trying to share the occasion.'});
+		}
+	}.bind(this));
 });
 
 router.use('/:occasionId([a-zA-Z0-9]{24})/wishlists', function (req, res, next) {

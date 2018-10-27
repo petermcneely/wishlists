@@ -20,7 +20,8 @@
     "morgan": "~1.9.0",
     "mustache": "latest",
     "passport": "latest",
-    "passport-local": "latest"
+    "passport-local": "latest",
+    "sendgrid": "5.2.3"
   },
   "devDependencies": {
     "opn": "latest"
