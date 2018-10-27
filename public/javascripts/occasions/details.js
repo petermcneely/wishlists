@@ -70,12 +70,35 @@ function remove(index) {
 	itemToRemove.parentNode.parentNode.removeChild(itemToRemove.parentNode);
 }
 
+function gatherEmails() {
+	var recipientList = document.getElementById('recipientList');
+	var recipients = recipientList.children;
+	var emails = [];
+	for (var i = 0, j = 0; i < recipients.length; j++) {
+		emails[j] = recipients[i].firstChild.textContent;
+		recipients[i].parentNode.removeChild(recipients[i]);
+	}
+	return emails;
+}
+
+function sendEmails(emails) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function () {
+		if (this.readyState == 4) {
+
+			if (this.readyState == 4 && (this.status == 200 || this.status == 500)) {
+				showAlert(JSON.parse(this.response).message, this.status);
+			}
+		}
+	};s
+	xhttp.open("POST", window.location.href + "/share", true);
+	xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+	xhttp.setRequestHeader("X-CSRF-TOKEN", document.getElementById("_csrf").value);
+	xhttp.send(JSON.stringify({emails: emails}));
+}
+
 function ok()
 {
 	$('#shareModal').modal('hide');
-	var recipientList = document.getElementById('recipientList');
-	var recipients = recipientList.children;
-	for (var i = 0; i < recipients.length;) {
-		recipients[i].parentNode.removeChild(recipients[i]);
-	}
+	sendEmails(gatherEmails());
 }
