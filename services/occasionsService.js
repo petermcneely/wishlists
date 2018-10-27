@@ -66,14 +66,66 @@ module.exports = class OccasionsService {
 		return connect().then(function (client) {
 			const db = client.db('wishlists');
 			var objectId = new mongodb.ObjectID(id);
+			let promises = [];
+			promises.push(db.collection(this.tableName).findOne(objectId));
+			if (userId) {
+
+				let UsersService = require('../services/usersService');
+				let usersService = new UsersService();
+				promises.push(usersService.findById(userId));
+			}
+			return Promise.all(promises).then(function (results) {
+				var occasion = results[0];
+				var user = userId ? results[1] : null;
+
+				if (occasion) {
+					occasion.owns = occasion.userId.equals(userId);
+
+					let promises = [];
+
+					var wishListService = new WishlistsService();
+					promises.push(wishListService.index(occasion._id));
+
+					if (user) {
+						var OccasionSharesService = require('../services/OccasionSharesService');
+						var occasionSharesService = new OccasionSharesService();
+						promises.push(occasionSharesService.get(occasion._id, occasion.userId, user.email));
+					}
+
+					return Promise.all(promises).then(function (results) {
+						occasion.wishlists = results[0];
+
+						if (results.length > 1) {
+							occasion.sharedWithUser = results[1] || occasion.owns;
+						}
+
+						return occasion;
+					}.bind(this)).catch(e => console.log(e));
+				}
+				return occasion;
+			}.bind(this)).catch(e => console.log(e));
+
+
+
+
 			return db.collection(this.tableName).findOne(objectId).then(function (occasion) {
 				if (occasion) {
 					occasion.owns = occasion.userId.equals(userId);
-					var service = new WishlistsService();
-					return service.index(occasion._id).then(function (wishlists) {
+					
+					var wishListService = new WishlistsService();
+
+					var promises = [];
+
+					promises.push(wishListService.index(occasion._id).then(function (wishlists) {
 						occasion.wishlists = wishlists;
 						return occasion;
-					}.bind(this)).catch(e => console.log(e));
+					}.bind(this)).catch(e => console.log(e)));
+
+					if (userId) {
+						promises.push(occasionSharesService.get())
+					}
+
+					return Promise.all(promises);
 				}
 				return occasion;
 			}.bind(this)).catch(e => console.log(e));

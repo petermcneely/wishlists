@@ -1,8 +1,18 @@
 <div class="container-fluid">
   <h4>Wishlists for this occasion</h4>
-  {{#user}}
+  
+  {{#occasion.sharedWithUser}}
   <a href='{{occasion._id}}/wishlists/new'>Create New</a>
+  {{/occasion.sharedWithUser}}
+  {{^occasion.sharedWithUser}}
+  {{#user}}
+  <em>This occasion hasn't been shared with you.</em>
   {{/user}}
+  {{/occasion.sharedWithUser}}
+  {{^user}}
+  <p><a href='/users/sign-up'>Sign Up</a> or <a href='/users/sign-in'>Sign In</a> to create a new wishlist.</p>
+  {{/user}}
+
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>

@@ -128,6 +128,7 @@ router.delete('/:occasionId([a-zA-Z0-9]{24})', ensure.ensureLoggedIn({redirectTo
 
 /* POST emails to send.*/
 // Responsible for emailing share link to emails.
+// Responsible for saving the records of occasion shares.
 router.post('/:occasionId([a-zA-Z0-9]{24})/share', urlencodedParser, ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
 	var sendService = require('../services/emails/sendService');
@@ -144,8 +145,16 @@ router.post('/:occasionId([a-zA-Z0-9]{24})/share', urlencodedParser, ensure.ensu
 				subject: shareFactory.getSubjectLine(),
 				html: shareFactory.getBody(user.email, req.protocol + '://' + req.get('Host') + '/occasions/' + req.params.occasionId)
 			}).then(function () {
-				res.status(200);
-				res.send({message: 'Successfully shared the occasion!'});
+				var OccasionSharesService = require('../services/occasionSharesService');
+				var occasionSharesService = new OccasionSharesService();
+				occasionSharesService.create(req.params.occasionId, req.user._id, req.body.emails).then(function () {
+					res.status(200);
+					res.send({message: 'Successfully shared the occasion!'});
+				}.bind(this)).catch(function (e) {
+					res.status(500);
+					res.send({message: 'An internal error occurred but, your emails were sent!'});
+					console.log(e);
+				});
 			}.bind(this)).catch(function (e) {
 				res.status(500);
 				res.send({message: 'An error occurred while sharing the occasion.'});

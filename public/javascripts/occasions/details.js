@@ -90,7 +90,7 @@ function sendEmails(emails) {
 				showAlert(JSON.parse(this.response).message, this.status);
 			}
 		}
-	};s
+	};
 	xhttp.open("POST", window.location.href + "/share", true);
 	xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 	xhttp.setRequestHeader("X-CSRF-TOKEN", document.getElementById("_csrf").value);
