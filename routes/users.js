@@ -21,15 +21,16 @@ router.get('/sign-up',
 router.post('/sign-up',
 	function (req, res) {
 		var service = new UserService();
-    service.createUser(req.body.email, req.body.password, req.body.retypePassword).then(
-      function (success) {
-        res.redirect('sign-in');
-      },
-      function (error) {
-        console.log(error);
-        res.redirect('sign-up');
-      }
-    );
+    service.createUser(req.body.email, req.body.password, req.body.retypePassword).then(function (response) {
+        if (response.message) {
+          res.status(500).json({message: response.message});
+        }
+        else {
+          res.redirect('sign-in');
+        }
+      }).catch(function (error) {
+        res.status(500).json({message: "An internal error has occurred."});
+      });
 	});
 
 router.get('/sign-in',
@@ -42,10 +43,7 @@ router.get('/sign-in',
   });
   
 router.post('/sign-in', 
-  passport.authenticate('local', { failureRedirect: 'sign-in' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+  passport.authenticate('local', { successRedirect: '/' }));
   
 router.get('/sign-out',
   ensure.ensureLoggedIn({redirectTo: 'sign-in'}),

@@ -4,9 +4,40 @@ var connect = require('../utils/mongoUtils');
 const mongodb = require('mongodb');
 const bcrypt = require('bcrypt');
 
-module.exports = class WishlistsService {
+module.exports = class UsersService {
 	constructor() {
 		this.tableName = 'users';
+
+		this.checkPassword = function (password) {
+			let lengthRequirement = 8;
+
+			if (!password || password.length < lengthRequirement) {
+				return "Password needs to be at least eight characters long.";
+			}
+
+			let rules = [
+				{
+					pattern: RegExp(/\d/),
+					message: "Pasword needs to have at least one number."
+				},
+				{
+					pattern: RegExp(/[a-z]/),
+					message: "Password needs to have at least one lower case letter."
+				},
+				{
+					pattern: RegExp(/[A-Z]/),
+					message: "Password needs to have at least one upper case letter."
+				}
+			];
+
+			for (var i = 0; i < rules.length; ++i) {
+				if (!rules[i].pattern.test(password)) {
+					return rules[i].message;
+				}				
+			}
+
+			return null;
+		}
 	}
 
 	findByEmail(email) {
@@ -55,47 +86,45 @@ module.exports = class WishlistsService {
 	createUser(email, password, retypePassword) {
 		if (password !== retypePassword) {
 			return new Promise((resolve, reject) => {
-				reject("Passwords do not match.");
+				resolve({message: "Passwords do not match."});
 			});
 		}
 
-		return connect().then(function (client) {
-			const db = client.db('wishlists');
-			var user = db.collection(this.tableName).findOne({email: email}, function (err, user) {
-				if (err) {
-					console.log(err);
-					client.close();
-				}
-				else {
+		var message = this.checkPassword(password);
+		if (message) {
+			return new Promise((resolve, reject) => {
+				resolve({message: message});
+			})
+		}
+		else {
+			return connect().then(function (client) {
+				const db = client.db('wishlists');
+				return db.collection(this.tableName).findOne({email: email}).then(function (user) {
 					if (user) {
 						client.close();
-						return new Promise((resolve, reject) => {
-							reject("A user with that email already exists.");
+						return new Promise((res, rej) => {
+							res({message: "A user with that email already exists."});
 						});
 					}
 
-					this.hashPassword(password, function (err, hash) {
-						if (err) {
-							console.log(err);
+					return this.hashPassword(password).then(function (hash) {
+						return this.saveUser(db, email, hash).then(function (result) {
 							client.close();
-						}
-						else {
-							this.saveUser(db, email, hash, function (err, result) {
-								client.close();
-								if (err) {
-									console.log(err);
-								}
-								else {
-									return result.insertedId;
-								}
-							});
-						}
+							return result.insertedId;
+						}.bind(this)).catch(function (e) {
+							console.log(e);
+							client.close();
+						}.bind(this));
+					}.bind(this)).catch(function (e) {
+						console.log(e);
+						client.close();
 					}.bind(this));
-				}
-			}.bind(this));
-		}.bind(this)).catch(function (err) {
-			console.log(err);
-		});
+				}.bind(this)).catch(function (e) {
+					console.log(e);
+					client.close();
+				});
+			}.bind(this)).catch(e => console.log(e));
+		}		
 	}
 
 	hashPassword(password, callback) {

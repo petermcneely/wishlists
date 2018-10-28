@@ -1,21 +1,29 @@
 <h1 class="text-center">Sign Up</h1>
 <div class="row">
 	<div class="offset-md-5 col-md-2">
-		<form method="POST">
+		<div id="message" class="invisible"><span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span></div>
+		<form onsubmit="return signup();">
 			<div class="form-group">
 				<label class="form-label" for="email">Email</label>
 				<input class="form-control" id="email" name="email" type="email" placeholder="user@domain.com" autofocus/>
 			</div>
 			<div class="form-group">
 				<label class="form-label" for="password">Password</label>
-				<input class="form-control" id="password" name="password" type="password"/>
+				<input class="form-control" id="password" name="password" type="password" oninput="inspectPassword()"/>
+				<p class="text-danger my-sm-2" id="passwordError"></p>
 			</div>
 			<div class="form-group">
 				<label class="form-label" for="retypePassword">Retype Password</label>
-				<input class="form-control" id="retypePassword" name="retypePassword" type="password"/>
+				<input class="form-control" id="retypePassword" name="retypePassword" type="password" oninput="inspectRetype()"/>
+				<p class="text-danger my-sm-2" id="retypePasswordError"></p>
 			</div>
 			<input class="btn btn-success" type="submit" value="Sign Up"/>
-	  		<input type="hidden" name="_csrf" value="{{csrfToken}}" />
+	  		<input type="hidden" name="_csrf" id="_csrf" value="{{csrfToken}}" />
 		</form>
 	</div>
 </div>
+
+
+<script type="text/javascript" src="/javascripts/users/signup.js"></script>
+<script type="text/javascript" src="/javascripts/helpers/passwordInspector.js"></script>
+<script type="text/javascript" src="/javascripts/helpers/alertHandler.js"></script>

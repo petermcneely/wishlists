@@ -5,7 +5,7 @@ function showAlert(message, status) {
 	if (status == 200) {
 		element.className += " alert-success";
 	}
-	else if (status == 500) {
+	else if (status == 500 || status == 401) {
 		element.className += " alert-danger";
 	}
 	messageText.textContent = message;
