@@ -66,20 +66,45 @@ module.exports = class WishlistsService {
 		return connect().then(function (client) {
 			const db = client.db('wishlists');
 			var objectId = new mongodb.ObjectID(id);
-			return db.collection(this.tableName).findOne(objectId).then(function (wishlist) {
+
+			let UsersService = require('./UsersService');
+			let usersService = new UsersService();
+
+			let promises = [];
+
+			promises.push(db.collection(this.tableName).findOne(objectId));
+			promises.push(usersService.findById(userId));
+
+			return Promise.all(promises).then(function (results){
+				let wishlist = results[0];
+				let user = results[1];
 				if (wishlist) {
 					wishlist.owns = wishlist.userId.equals(userId);
-					var service = new ItemsService();
-					return service.index(wishlist._id).then(function (items) {
-						wishlist.items = items;
+
+					let itemsService = new ItemsService();
+					let OccasionsService = require('./OccasionsService');
+					let occasionsService = new OccasionsService();
+					let promises = [];
+					promises.push(itemsService.index(userId, wishlist._id));
+					promises.push(occasionsService.owns(userId, wishlist.occasionId));
+
+					if (user) {
+						let OccasionSharesService = require('./OccasionSharesService');
+						let occasionSharesService = new OccasionSharesService();
+						promises.push(occasionSharesService.get(wishlist.occasionId.toString(), user.email));
+					}
+
+					return Promise.all(promises).then(function (results) {
+						wishlist.items = results[0];
+						wishlist.sharedWithUser = (results[2] !== null) || results[1];
 						return wishlist;
-					}.bind(this)).catch(err => console.log(err));
+					}.bind(this)).catch(e => console.log(e));
 				}
 				else {
 					return new Promise((res, rej) => rej("Unable to find that wishlist."));
 				}
-			}.bind(this)).catch(err => console.log(err));
-		}.bind(this)).catch(err => console.log(err));
+			}.bind(this)).catch(e => console.log(e));
+		}.bind(this)).catch(e => console.log(e));
 	}
 
 	/*

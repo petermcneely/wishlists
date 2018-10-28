@@ -147,7 +147,7 @@ router.post('/:occasionId([a-zA-Z0-9]{24})/share', urlencodedParser, ensure.ensu
 			}).then(function () {
 				var OccasionSharesService = require('../services/occasionSharesService');
 				var occasionSharesService = new OccasionSharesService();
-				occasionSharesService.create(req.params.occasionId, req.user._id, req.body.emails).then(function () {
+				occasionSharesService.create(req.params.occasionId, req.body.emails).then(function () {
 					res.status(200);
 					res.send({message: 'Successfully shared the occasion!'});
 				}.bind(this)).catch(function (e) {

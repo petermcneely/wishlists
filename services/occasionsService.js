@@ -89,10 +89,12 @@ module.exports = class OccasionsService {
 					if (user) {
 						var OccasionSharesService = require('../services/OccasionSharesService');
 						var occasionSharesService = new OccasionSharesService();
-						promises.push(occasionSharesService.get(occasion._id, occasion.userId, user.email));
+						promises.push(occasionSharesService.get(id, user.email));
 					}
 
 					return Promise.all(promises).then(function (results) {
+						console.log(results);
+
 						occasion.wishlists = results[0];
 
 						if (results.length > 1) {
@@ -101,31 +103,6 @@ module.exports = class OccasionsService {
 
 						return occasion;
 					}.bind(this)).catch(e => console.log(e));
-				}
-				return occasion;
-			}.bind(this)).catch(e => console.log(e));
-
-
-
-
-			return db.collection(this.tableName).findOne(objectId).then(function (occasion) {
-				if (occasion) {
-					occasion.owns = occasion.userId.equals(userId);
-					
-					var wishListService = new WishlistsService();
-
-					var promises = [];
-
-					promises.push(wishListService.index(occasion._id).then(function (wishlists) {
-						occasion.wishlists = wishlists;
-						return occasion;
-					}.bind(this)).catch(e => console.log(e)));
-
-					if (userId) {
-						promises.push(occasionSharesService.get())
-					}
-
-					return Promise.all(promises);
 				}
 				return occasion;
 			}.bind(this)).catch(e => console.log(e));

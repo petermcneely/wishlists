@@ -1,20 +1,20 @@
 'use strict'
 
 const connect = require('../utils/mongoUtils');
+var mongodb = require('mongodb');
 
 module.exports = class OccasionSharesService {
 	constructor() {
 		this.tableName = 'occasionShares';
 	}
 
-	create(occasionId, userId, emails) {
+	create(occasionId, emails) {
 		return connect().then(function (client) {
 			const db = client.db('wishlists');
 			var promises = [];
 			emails.forEach(function (email) {
 				var occasionShare = {
 					occasionId: occasionId,
-					userId: userId,
 					email: email
 				};
 
@@ -33,20 +33,20 @@ module.exports = class OccasionSharesService {
 		}.bind(this)).catch(e => console.log(e));
 	}
 
-	get(occasionId, userId, email) {
+	get(occasionId, email) {
 		return connect().then(function (client) {
 			const db = client.db('wishlists');
-			db.collection(this.tableName).findOne({occasionId: occasionId, userId: userId, email: email}).then(function (result) {
+			return db.collection(this.tableName).findOne({occasionId: occasionId, email: email}).then(function (result) {
 				client.close();
 				return result;
 			}.bind(this)).catch(err => console.log(err));
 		}.bind(this)).catch(err => console.log(err));
 	}
 
-	delete(occasionId, userId, email) {
+	delete(occasionId, email) {
 		return connect().then(function (client) {
 			const db = client.db('wishlists');
-			db.collection(this.tableName).deleteOne({occasionId: occasionId, userId: userId, email: email}).then(function () {
+			db.collection(this.tableName).deleteOne({occasionId: occasionId, email: email}).then(function () {
 				console.log("Successully deleted the share.");
 				client.close();
 			}.bind(this)).catch(err => console.log(err));
