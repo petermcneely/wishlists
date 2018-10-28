@@ -2,6 +2,9 @@
 {{#user}}
 <a href='/occasions/new'>Create New</a>
 {{/user}}
+{{^user}}
+<p><a href='/users/sign-up'>Sign Up</a> or <a href='/users/sign-in'>Sign In</a> to create a new occasion.</p>
+{{/user}}
 <div class="table-responsive">
 	<table class="table table-striped">
 		<thead>
