@@ -90,7 +90,6 @@ router.post('/new', urlencodedParser, function(req, res) {
 
 /* DELETE wishlist item.*/
 router.delete('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
-
 	var service = new ItemsService();
 	service.delete(req.params.itemId).then(
 		function (success) {
@@ -102,6 +101,30 @@ router.delete('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 			res.render('errors/500', {error: error});
 		}
 	);
+});
+
+router.put('/:itemId([a-zA-Z0-9]{24})/claim', function (req, res) {
+	var service = new ItemsService();
+	service.claim(req.params.itemId, req.user ? req.user._id : null).then(() => {
+		res.status(200);
+		res.send({message: "You successfully claimed the wishlist item!"});
+	}).catch(e => {
+		res.status(500);
+		res.send({message: "An error occurred while claiming the wishlist item."});
+		console.log(e);
+	});
+});
+
+router.put('/:itemId([a-zA-Z0-9]{24})/unclaim', function (req, res) {
+	var service = new ItemsService();
+	service.unclaim(req.params.itemId, req.user ? req.user._id : null).then(() => {
+		res.status(200);
+		res.send({message: "You successfully unclaimed the wishlist item!"});
+	}).catch(e => {
+		res.status(500);
+		res.send({message: "An error occurred while unclaiming the wishlist item."});
+		console.log(e);
+	});
 });
 
 module.exports = router;

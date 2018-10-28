@@ -8,8 +8,8 @@
   {{#wishlist.owns}}
   <input class="btn btn-success mx-sm-3" type="submit" value="Update"/>
   <input class="btn btn-danger mx-sm-3" type="button" value="Delete" onclick="return doDelete('{{wishlist.occasionId}}')"/>
-  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
   {{/wishlist.owns}}
+  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
 </form>
 <br/>
 {{>items}}

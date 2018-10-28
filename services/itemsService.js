@@ -40,12 +40,19 @@ module.exports = class WishlistsService {
 		);
 	}
 
-	index(wishlistId) {
+	index(userId, wishlistId) {
 		return connect().then(
 			function (client) {
 				const db = client.db('wishlists');
 				return db.collection(this.tableName).find({wishlistId: new mongodb.ObjectID(wishlistId)}).toArray().then(
 					function (success) {
+						success.forEach(function (e) {
+							if (e.claimed && e.claimed.by.equals(userId)) {
+								console.log(e.claimed.by);
+								console.log(userId);
+								e.claimedByUser = true;
+							}
+						}.bind(this));
 						client.close();
 						return success;
 					}
@@ -153,5 +160,44 @@ module.exports = class WishlistsService {
 				client.close();
 			}.bind(this));
 		}.bind(this));
+	}
+
+	claim(id, userId) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			console.log(id);
+			return db.collection(this.tableName).updateOne(
+				{_id: new mongodb.ObjectID(id)},
+				{$set: {claimed: { by: userId, at: new Date()}}}).then(function (result) {
+					if (result.writeConcernError) {
+						return new Promise((res, rej) => rej(result.writeConcernError.errmsg));
+					}
+					else if (result.writeError) {
+						return new Promise((res, rej) => rej(result.writeError.errmsg));
+					}
+					else {
+						return new Promise((res, rej) => res("Successfully claimed the wishlist item!"));
+					}
+			}.bind(this)).catch(e => console.log(e));
+		}.bind(this)).catch(e => console.log(e));
+	}
+
+	unclaim(id, userId) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			return db.collection(this.tableName).updateOne(
+				{_id: new mongodb.ObjectID(id), "claimed.by" : userId},
+				{$set: {claimed: null}}).then(function (result) {
+					if (result.writeConcernError) {
+						return new Promise((res, rej) => rej(result.writeConcernError.errmsg));
+					}
+					else if (result.writeError) {
+						return new Promise((res, rej) => rej(result.writeError.errmsg));
+					}
+					else {
+						return new Promise((res, rej) => res("Successfully unclaimed the wishlist item!"));
+					}
+			}.bind(this)).catch(e => console.log(e));
+		}.bind(this)).catch(e => console.log(e));
 	}
 }
