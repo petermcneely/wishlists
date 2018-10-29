@@ -61,4 +61,17 @@ router.get('/profile',
     });
   });
 
+router.get('/forgot-password', (res, req) => {
+  res.render('templates/shell', {partials: {page: '../users/forgotPassword'}, csrfToken: req.csrfToken()});
+});
+
+router.post('/forgot-password', function (req, res) {
+  var service = new UsersService();
+  service.overwritePassword(req.body.email).then(function () {
+
+  }.bind(this)).catch(function (error) {
+    res.render('errors/500');
+  });
+});
+
 module.exports = router;

@@ -138,6 +138,10 @@ module.exports = class UsersService {
 		}, callback);
 	}
 
+	overwritePassword(email) {
+		
+	}
+
 	updateEmail(email) {
 
 	}
