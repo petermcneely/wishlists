@@ -21,6 +21,7 @@
     "mustache": "latest",
     "passport": "latest",
     "passport-local": "latest",
+    "randomstring" : "1.1.5",
     "sendgrid": "5.2.3"
   },
   "devDependencies": {

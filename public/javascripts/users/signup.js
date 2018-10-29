@@ -6,8 +6,15 @@ function signup() {
 	};
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange =function () {
-		if (this.readyState === 4 && this.status === 500) {
-			showAlert(JSON.parse(this.response).message, this.status);
+		console.log(this.readyState);
+		if (this.readyState === 4) {
+			console.log(this.status);
+			if (this.status === 500) {
+				showAlert(JSON.parse(this.response).message, this.status);	
+			}
+			else if (this.status === 200) {
+				window.location.href = '/users/sign-in';
+			}
 		}
 	};
 	xhttp.open("POST", window.location.href, true);
