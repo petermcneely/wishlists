@@ -106,18 +106,22 @@ module.exports = class UsersService {
 							res({message: "A user with that email already exists."});
 						});
 					}
-
-					return this.hashPassword(password).then(function (hash) {
-						return this.saveUser(db, email, hash).then(function (result) {
+					this.hashPassword(password, function (err, hash) {
+						if (err) {
+							console.log(err);
 							client.close();
-							return result.insertedId;
-						}.bind(this)).catch(function (e) {
-							console.log(e);
-							client.close();
-						}.bind(this));
-					}.bind(this)).catch(function (e) {
-						console.log(e);
-						client.close();
+						}
+						else {
+							this.saveUser(db, email, hash, function (err, result) {
+								client.close();
+								if (err) {
+									console.log(err);
+								}
+								else {
+									return result.insertedId;
+								}
+							}.bind(this));
+						}
 					}.bind(this));
 				}.bind(this)).catch(function (e) {
 					console.log(e);
@@ -136,6 +140,28 @@ module.exports = class UsersService {
 			email: email,
 			password: hash
 		}, callback);
+	}
+
+	overwritePassword(email, callback) {
+		let passwordGenerator = require('generate-password');
+		var newPassword = passwordGenerator.generate({length: 12, numbers: true, uppercase: true, strict: true});
+		this.hashPassword(newPassword, function (err, hash) {
+			connect().then(function (client) {
+				const db = client.db('wishlists');
+
+				var date = new Date();
+				date.setDate(date.getDate() + 1);
+
+				db.collection(this.tableName).updateOne({email: email}, {$set: {password: hash, passwordExpiry: date}}).then(function (result) {
+					if (result.nModified === 0) {
+						callback("Unable to update the password; an internal error occurred.");
+					}
+					else {
+						callback(null, newPassword);
+					}
+				}.bind(this)).catch(e => callback(e));
+			}.bind(this)).catch(e => callback(e));
+		}.bind(this));
 	}
 
 	updateEmail(email) {

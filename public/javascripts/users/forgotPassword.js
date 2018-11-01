@@ -1,17 +1,11 @@
-function signin() {
+function forgotPassword() {
 	let body = {
-		email: document.getElementById("email").value,
-		password: document.getElementById("password").value
+		email: document.getElementById("email").value
 	};
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange =function () {
-		if (this.readyState === 4) {
-			if (this.status === 401) {
-				showAlert(this.response, this.status);	
-			}
-			else if (this.status === 200) {
-				window.location.href = '/';
-			}
+		if (this.readyState === 4 && (this.status == 200 || this.status == 500)) {
+			showAlert(JSON.parse(this.response).message, this.status);
 		}
 	};
 	xhttp.open("POST", window.location.href, true);

@@ -22,13 +22,14 @@ router.post('/sign-up',
 	function (req, res) {
 		var service = new UserService();
     service.createUser(req.body.email, req.body.password, req.body.retypePassword).then(function (response) {
-        if (response.message) {
+        if (response && response.message) {
           res.status(500).json({message: response.message});
         }
         else {
-          res.redirect('sign-in');
+          res.sendStatus(200);
         }
       }).catch(function (error) {
+        console.log(error);
         res.status(500).json({message: "An internal error has occurred."});
       });
 	});
@@ -42,8 +43,15 @@ router.get('/sign-in',
     });
   });
   
-router.post('/sign-in', 
-  passport.authenticate('local', { successRedirect: '/' }));
+router.post('/sign-in', function (req, res, next) {
+  passport.authenticate('local', function (err, user, info) {
+    if (err || !user) {return res.status(401).send("Invalid username or password.");}
+    req.logIn(user, function (err) {
+      if (err) {return next(err);}
+      return res.sendStatus(200);
+    })
+  })(req, res, next);
+});
   
 router.get('/sign-out',
   ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
@@ -60,5 +68,34 @@ router.get('/profile',
     	user: req.user
     });
   });
+
+router.get('/forgot-password', (req, res) => {
+  res.render('templates/shell', {partials: {page: '../users/forgotPassword'}, csrfToken: req.csrfToken()});
+});
+
+router.post('/forgot-password', function (req, res) {
+  var service = new UserService();
+  service.overwritePassword(req.body.email, function (err, password) {
+    if (err) {
+      console.log(err);
+      res.render('errors/500');
+    }
+    else {
+      var sendService = require('../services/emails/sendService');
+      var forgotPasswordFactory = require('../services/emails/users/forgotPasswordFactory');
+      sendService.sendEmail({
+        from: 'pete.mcneely@gmail.com',
+        to: req.body.email,
+        subject: forgotPasswordFactory.getSubjectLine(),
+        html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in')
+      }).then(() => {
+        res.status(200).send({message: 'Successfully sent you and email!'});
+      }).catch((e) => {
+        console.log(e);
+        res.status(500).send({message: 'And internal error has occurred.'});
+      });
+    }
+  }.bind(this));
+});
 
 module.exports = router;
