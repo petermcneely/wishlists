@@ -45,8 +45,7 @@ router.get('/sign-in',
   
 router.post('/sign-in', function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
-    if (err) {return next(err);}
-    if (!user) { return res.sendStatus(401); }
+    if (err || !user) {return res.status(401).send("Invalid username or password.");}
     req.logIn(user, function (err) {
       if (err) {return next(err);}
       return res.sendStatus(200);

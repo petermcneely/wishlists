@@ -10,6 +10,13 @@ passport.use(new Strategy({ usernameField: 'email'},
     service.findByEmail(email).then(
       function (user) {
         if (!user) { return cb(null, false); }
+
+        var now = new Date();
+        if (user.passwordExpiry && user.passwordExpiry < now)
+        {
+          return cb("Your password has expired.");
+        }
+
         bcrypt.compare(password, user.password, function(err, res) {
           if (err) {return cb(err);}
           if (!res) {return cb(null, false);}

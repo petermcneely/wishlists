@@ -1,8 +1,14 @@
 <h1 class="text-center">Sign In</h1>
 <div class="row">
+	<div class="offset-md-4 col-md-4">
+		<div id="message" class="invisible">
+			<span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span>
+		</div>
+	</div>
+</div>
+<div class="row">
 	<div class="offset-md-5 col-md-2">
 		{{^user}}
-		<div id="message" class="invisible"><span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span></div>
 		<form onsubmit="return signin();">
 			<div class="form-group">
 				<label class="form-label" for="email">Email</label>
@@ -12,8 +18,10 @@
 				<label class="form-label" for="password">Password</label>
 				<input class="form-control" id="password" name="password" type="password"/>
 			</div>
-			<input class="btn btn-success" type="submit" value="Sign In"/>
-			<a class="mx-sm-4" href="forgot-password">Forgot your password?</a>
+			<div>
+				<a href="forgot-password">Forgot your password?</a>
+			</div>
+			<input class="my-sm-4 btn btn-success" type="submit" value="Sign In"/>
 	  		<input type="hidden" name="_csrf" id="_csrf" value="{{csrfToken}}" />
 		</form>
 		{{/user}}

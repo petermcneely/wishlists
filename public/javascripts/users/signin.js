@@ -7,7 +7,7 @@ function signin() {
 	xhttp.onreadystatechange =function () {
 		if (this.readyState === 4) {
 			if (this.status === 401) {
-				showAlert("Invalid username or password.", this.status);	
+				showAlert(this.response, this.status);	
 			}
 			else if (this.status === 200) {
 				window.location.href = '/';

@@ -143,12 +143,16 @@ module.exports = class UsersService {
 	}
 
 	overwritePassword(email, callback) {
-		let randomString = require('randomString');
-		var newPassword = randomString.generate({length: 12});
+		let passwordGenerator = require('generate-password');
+		var newPassword = passwordGenerator.generate({length: 12, numbers: true, uppercase: true, strict: true});
 		this.hashPassword(newPassword, function (err, hash) {
 			connect().then(function (client) {
 				const db = client.db('wishlists');
-				db.collection(this.tableName).updateOne({email: email}, {$set: {password: hash}}).then(function (result) {
+
+				var date = new Date();
+				date.setDate(date.getDate() + 1);
+
+				db.collection(this.tableName).updateOne({email: email}, {$set: {password: hash, passwordExpiry: date}}).then(function (result) {
 					if (result.nModified === 0) {
 						callback("Unable to update the password; an internal error occurred.");
 					}
