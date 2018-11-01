@@ -106,23 +106,17 @@ module.exports = class UsersService {
 							res({message: "A user with that email already exists."});
 						});
 					}
-					this.hashPassword(password, function (err, hash) {
-						if (err) {
-							console.log(err);
+					return this.hashPassword(password).then(function (hash) {
+						return this.saveUser(db, email, hash).then(function (result) {
+							return result.insertedId;
+						}.bind(this)).catch(function (e) {
+							console.log(e);
 							client.close();
-						}
-						else {
-							this.saveUser(db, email, hash, function (err, result) {
-								client.close();
-								if (err) {
-									console.log(err);
-								}
-								else {
-									return result.insertedId;
-								}
-							}.bind(this));
-						}
-					}.bind(this));
+						});
+					}.bind(this)).catch(function (e) {
+						console.log(e);
+						client.close();
+					});
 				}.bind(this)).catch(function (e) {
 					console.log(e);
 					client.close();
@@ -131,44 +125,76 @@ module.exports = class UsersService {
 		}		
 	}
 
-	hashPassword(password, callback) {
-		bcrypt.hash(password, 10, callback);
+	hashPassword(password) {
+		return bcrypt.hash(password, 10);
 	}
 
-	saveUser(db, email, hash, callback) {
-		db.collection(this.tableName).insertOne({
+	saveUser(db, email, hash) {
+		return db.collection(this.tableName).insertOne({
 			email: email,
 			password: hash
-		}, callback);
+		});
 	}
 
 	overwritePassword(email, callback) {
 		let passwordGenerator = require('generate-password');
 		var newPassword = passwordGenerator.generate({length: 12, numbers: true, uppercase: true, strict: true});
-		this.hashPassword(newPassword, function (err, hash) {
-			connect().then(function (client) {
+		return this.hashPassword(newPassword).then(function (hash) {
+			return connect().then(function (client) {
 				const db = client.db('wishlists');
 
 				var date = new Date();
 				date.setDate(date.getDate() + 1);
 
-				db.collection(this.tableName).updateOne({email: email}, {$set: {password: hash, passwordExpiry: date}}).then(function (result) {
+				return db.collection(this.tableName).updateOne({email: email}, {$set: {password: hash, passwordExpiry: date}}).then(function (result) {
 					if (result.nModified === 0) {
-						callback("Unable to update the password; an internal error occurred.");
+						return new Promise((res, rej) => rej("Unable to update the password; an internal error occurred."));
 					}
 					else {
-						callback(null, newPassword);
+						return new Promise((res, rej) => res(newPassword));
 					}
 				}.bind(this)).catch(e => callback(e));
 			}.bind(this)).catch(e => callback(e));
-		}.bind(this));
+		}.bind(this)).catch(e => console.log(e));
+	}
+
+	changePassword(currentPassword, newPassword, newRetypePassword, userId) {
+		if (newPassword !== newRetypePassword) {
+			return new Promise((resolve, reject) => {
+				resolve({message: "Passwords do not match."});
+			});
+		}
+		var message = this.checkPassword(newPassword);
+		if (message) {
+			return new Promise((resolve, reject) => {
+				resolve({message: message});
+			})
+		}
+		else {
+			return connect().then(function (client) {
+				const db = client.db('wishlists');
+				return this.hashPassword(newPassword).then(function (hash) {
+					return db.collection(this.tableName).updateOne({_id: userId}, {$set: {password: hash, passwordExpiry: null}}).then(function (result) {
+						if (result.nModified === 0) {
+							return new Promise((res, rej) => rej("Unable to update the password; an internal error occurred."));
+						}
+						else {
+							return new Promise((res, rej) => res());
+						}
+					}.bind(this)).catch(function (e) {
+						console.log(e);
+						client.close();
+					});
+				}.bind(this)).catch(function (e) {
+					client.close();
+					console.log(e);
+				});
+			}.bind(this)).catch(e => console.log(e));
+		}
+
 	}
 
 	updateEmail(email) {
 
-	}
-
-	updatePassword(currentPassword, newPassword, retypePassword) {
-		
 	}
 }
