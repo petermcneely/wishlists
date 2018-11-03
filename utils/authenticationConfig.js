@@ -17,6 +17,11 @@ passport.use(new Strategy({ usernameField: 'email'},
           return cb("Your password has expired.");
         }
 
+        if (!user.verified)
+        {
+          return cb("Your email is unverified.");
+        }
+
         bcrypt.compare(password, user.password, function(err, res) {
           if (err) {return cb(err);}
           if (!res) {return cb(null, false);}

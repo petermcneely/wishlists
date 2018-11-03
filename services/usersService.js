@@ -129,10 +129,21 @@ module.exports = class UsersService {
 		return bcrypt.hash(password, 10);
 	}
 
+	encryptVerificationParameters(email) {
+		let crypto = require('crypto-promise');
+		return crypto.cipher('aes256', process.env.CRYPTO_SECRET)(email);
+	}
+
+	decryptVerificationParameters(encrypted) {
+		let crypto = require('crypto-promise');
+		return crypto.decipher('aes256', process.env.CRYPTO_SECRET)(encrypted, 'hex');
+	}
+
 	saveUser(db, email, hash) {
 		return db.collection(this.tableName).insertOne({
 			email: email,
-			password: hash
+			password: hash,
+			verified: false
 		});
 	}
 
@@ -209,5 +220,29 @@ module.exports = class UsersService {
 				client.close();
 			});
 		}.bind(this)).catch(e => console.log(e));
+	}
+
+	verify(token) {
+		return this.decryptVerificationParameters(token).then(function (email) {
+			if (email.toString()) {
+				return connect().then(function (client) {
+					const db = client.db('wishlists');
+					return db.collection(this.tableName).updateOne({email: email.toString()}, {$set: {verified: true}}).then(function (result) {
+						if (result.nModified === 0) {
+							return new Promise((res, rej) => rej("Unable to verify the email; an internal error occurred."));
+						}
+						else {
+							return new Promise((res, rej) => res());
+						}
+					}.bind(this)).catch(function (e) {
+						console.log(e);
+						client.close();
+					});
+				}.bind(this));
+			}
+			else {
+				return new Promise((res, rej) => rej({message: "No valid token was sent to verify."}));
+			}
+		}.bind(this));
 	}
 }

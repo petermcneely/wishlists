@@ -5,16 +5,9 @@ function signup() {
 		retypePassword: document.getElementById("retypePassword").value
 	};
 	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange =function () {
-		console.log(this.readyState);
-		if (this.readyState === 4) {
-			console.log(this.status);
-			if (this.status === 500) {
-				showAlert(JSON.parse(this.response).message, this.status);	
-			}
-			else if (this.status === 200) {
-				window.location.href = '/users/sign-in';
-			}
+	xhttp.onreadystatechange = function () {
+		if (this.readyState === 4 && (this.status === 200 || this.status === 500)) {
+			showAlert(JSON.parse(this.response).message, this.status);	
 		}
 	};
 	xhttp.open("POST", window.location.href, true);
