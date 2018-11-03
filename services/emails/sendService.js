@@ -32,7 +32,7 @@ var sendEmail = function (content) {
 			console.log(response.statusCode);
 	  		console.log(response.body);
 	  		console.log(response.headers);
-		}).catch(e => console.log(e));
+		});
 	}
 }
 
