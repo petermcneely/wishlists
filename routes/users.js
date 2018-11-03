@@ -111,4 +111,21 @@ router.post('/change-password', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), 
   }.bind(this));
 });
 
+router.put('/change-email', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function (req, res) {
+  var service = new UserService();
+  service.changeEmail(req.body.newEmail, req.user._id).then(function (response) {
+    if (response && response.message)
+    {
+      res.status(500).send({message: message});
+    }
+    else
+    {
+      res.status(200).send({message: 'Successfully changed your email!'});
+    }
+  }.bind(this)).catch(function (e) {
+    console.log(e);
+    res.status(500).send({message: 'An internal error has occurred.'});
+  }.bind(this));
+});
+
 module.exports = router;

@@ -194,7 +194,20 @@ module.exports = class UsersService {
 
 	}
 
-	updateEmail(email) {
-
+	changeEmail(email, userId) {
+		return connect().then(function (client) {
+			const db = client.db('wishlists');
+			return db.collection(this.tableName).updateOne({_id: userId}, {$set: {email: email}}).then(function (result) {
+				if (result.nModified === 0) {
+					return new Promise((res, rej) => rej("Unable to update the email; an internal error occurred."));
+				}
+				else {
+					return new Promise((res, rej) => res());
+				}
+			}.bind(this)).catch(function (e) {
+				console.log(e);
+				client.close();
+			});
+		}.bind(this)).catch(e => console.log(e));
 	}
 }
