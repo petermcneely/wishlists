@@ -15,7 +15,7 @@ var findByEmail = function (email) {
 		});
 	}).catch(e => {
 		console.log(e);
-		this.client.close();
+		if (this.client) this.client.close();
 	});
 }
 
@@ -29,7 +29,7 @@ var findById = function (id) {
 		});
 	}).catch(e => {
 		console.log(e);
-		this.client.close();
+		if (this.client) this.client.close();
 	});
 }
 
@@ -43,7 +43,7 @@ var saveUser = function (email, hash) {
 		});
 	}).catch(e => {
 		console.log(e);
-		this.client.close();
+		if (this.client) this.client.close();
 	});
 }
 
@@ -61,7 +61,7 @@ var updateUser = function (query, where) {
 			}
 		}).catch(e => {
 			console.log(e);
-			this.client.close();
+			if (this.client) this.client.close();
 		})
 	});
 }

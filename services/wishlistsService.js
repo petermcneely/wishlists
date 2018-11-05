@@ -1,61 +1,19 @@
 'use strict'
 
-var connect = require('../utils/mongoUtils');
-var mongodb = require('mongodb');
-var ItemsService = require('./ItemsService');
+const dal = require('../DAL/occasions');
 
 module.exports = class WishlistsService {
-	constructor() {
-		this.tableName = 'wishlists';
-	}
-
 	/*
 	userId: the id of the creating user.
 	name: name of the wishlist
 	occasionId: the unique identifier of the associated occasion.
 	*/
 	create(userId, name, occasionId) {
-		return connect().then(
-			function (client) {
-				const db = client.db('wishlists');
-				return db.collection(this.tableName).insertOne({
-					userId: new mongodb.ObjectID(userId),
-					name: name,
-					occasionId: new mongodb.ObjectID(occasionId)
-				}).then(
-					function (result) {
-						client.close();
-						return result.insertedId;
-					}
-				)
-				.catch(
-					function (error) {
-						console.log("Can't connect to the wishlists collection.");
-						console.log(error);
-						client.close();
-					}
-				);
-			}.bind(this)
-		);
+		return dal.createWishlist(userId, name, occasionId);
 	}
 
 	index(occasionId) {
-		return connect().then(
-			function (client) {
-				const db = client.db('wishlists');
-				return db.collection(this.tableName).find({occasionId: new mongodb.ObjectID(occasionId)}).toArray().then(
-					function (success) {
-						client.close();
-						return success;
-					}
-				).catch(
-					function (error) {
-						console.log(error);
-						client.close();
-					}
-				)
-			}.bind(this)
-		);
+		return dal.getWishlists(occasionId);
 	}
 
 	/*
