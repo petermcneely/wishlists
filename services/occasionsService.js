@@ -38,13 +38,9 @@ module.exports = class OccasionsService {
 				occasion.owns = occasion.userId.equals(userId);
 				occasion.sharedWithUser = false;
 				if (user) {
-					for (var i = 0; i < occasion.shares.length; ++i)
-					{
-						if (occasions.shares[i] === user.email) {
-							occasion.sharedWithUser = true;
-							break;
-						}
-					}
+					occasions.shares.forEach(element => {
+						occasion.sharedWithUser = occasion.sharedWithUser || element === user.email;
+					});
 				}
 
 				occasion.sharedWithUser = occasion.sharedWithUser || occasion.owns;
@@ -62,13 +58,13 @@ module.exports = class OccasionsService {
 		var updateObject = {};
 		if (name) { updateObject.name = name; }
 		if (occurrence) { updateObject.occurrence = new Date(occurrence); }
-		return dal.updateOccasion({_id: new mongodb.ObjectID(id), userId: new mongodb.ObjectID(userId)}, updateObject);
+		return dal.updateOccasion({id: id, userId: userId}, updateObject);
 	}
 
 	/*
 	id: the unique identifier of the occasion document
 	*/
 	delete(userId, id) {
-		return dal.deleteOccasion({_id: new mongodb.ObjectID(id), userId: new mongodb.ObjectID(userId)});
+		return dal.deleteOccasion({id: id, userId: userId});
 	}
 }

@@ -1,7 +1,6 @@
 'use strict'
 
 const dal = require('../DAL/users');
-const mongodb = require('mongodb');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto-promise');
 const checkPassword = require('../utils/passwordChecker');
