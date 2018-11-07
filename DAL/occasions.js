@@ -111,31 +111,124 @@ var getItems = function (id, wishlistName, userId) {
 
 var getItem = function (id, wishlistName, name) {
 	return boilerPlate(collection => {
-		return collection.findOne({_id: newMongodb.ObjectID(id), "wishlists.name": wishlistName, "wishlists.items.name": name}, {"wishlists.items.$": 1});
+		return collection.findOne({_id: new mongodb.ObjectID(id), "wishlists.name": wishlistName}, {"wishlists.items": 1}).then(occasion => {
+			if (occasion) {
+				for (var i= 0; i < occasion.wishlists.items.length; ++i) {
+					if (occasion.wishlists.items[i].name === name) {
+						return Promise.resolve(occasion.wishlist.items[i]);
+					}
+				}
+			}
+			return Promise.reject();
+		});
 	});
 }
 
-var updateItem = function (id, wishlistName, oldName, newName, comments, link) {
+var updateItem = function (id, wishlistName, name, updateObject) {
 	return boilerPlate(collection => {
-		return;
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			wishlists: {
+				$elemMatch: {
+					name: wishlistName, 
+					"items.name": name
+				}
+			}
+		}, 
+		{
+			$set: {
+				"wishlists.$[outer].items.$[inner]": updateObject
+			}
+		}, 
+		{
+			arrayFilters: [
+				{"outer.name": wishlistName}, 
+				{"inner.name": name}
+			]
+		});
 	});
 }
 
 var deleteItem = function (id, wishlistName, name) {
 	return boilerPlate(collection => {
-		return;
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			wishlists: {
+				$elemMatch: {
+					name: wishlistName, 
+					"items.name": name
+				}
+			}
+		}, 
+		{
+			$pull: {
+				"wishlists.$[outer].items.$[inner].name": name
+			}
+		}, 
+		{
+			arrayFilters: [
+				{"outer.name": wishlistName}, 
+				{"inner.name": name}
+			]
+		});
 	});
 }
 
 var claimItem = function (id, wishlistName, name, userId) {
 	return boilerPlate(collection => {
-		return;
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			wishlists: {
+				$elemMatch: {
+					name: wishlistName, 
+					"items.name": name
+				}
+			}
+		}, 
+		{
+			$set: {
+				"wishlists.$[outer].items.$[inner].claimed": {
+					by: new mongodb.ObjectID(userId),
+					at: new Date()
+				}
+			}
+		}, 
+		{
+			arrayFilters: [
+				{"outer.name": wishlistName}, 
+				{"inner.name": name}
+			]
+		});
 	});
 }
 
 var unclaimItem = function (id, wishlistName, name, userId) {
 	return boilerPlate(collection => {
-		return;
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			wishlists: {
+				$elemMatch: {
+					name: wishlistName,
+					items: {
+						$elemMatch: {
+							name: name,
+							"claimed.by": new mongodb.ObjectID(userId)
+						}
+					}
+				}
+			}
+		}, 
+		{
+			$set: {
+				"wishlists.$[outer].items.$[inner].claimed": null
+			}
+		}, 
+		{
+			arrayFilters: [
+				{"outer.name": wishlistName}, 
+				{"inner.name": name}
+			]
+		});
 	});
 }
 
