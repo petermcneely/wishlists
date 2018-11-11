@@ -2,30 +2,24 @@
 
 var dal = require('../DAL/occasions');
 
-module.exports = class WishlistsService {
+module.exports = class ItemsService {
 
-	create(id, wishlistName, name, comments, link) {
-		return dal.createItem(id, wishlistName, name, comments, link);
+	create(id, wishlistSlug, name, comments, link) {
+		return dal.createItem(id, wishlistSlug, name, comments, link);
 	}
 
-	index(id, wishlistName, userId) {
-		return dal.getItems(id, wishlistName, userId).then(wishlists => {
-			wishlists.forEach(e => {
-				if (e.claimed && e.claimed.by.equals(userId)) {
-					e.claimedByUser = true;
-				}
-			});
-			return wishlists;
+	get(id, wishlistSlug, itemSlug, userId) {
+		return dal.getItem(id, wishlistSlug, itemSlug).then(response => {
+			if (response) {
+				response.item.owns = response.userId.equals(userId);
+				return response.item;	
+			}
 		});
 	}
 
-	get(id, wishlistName, name) {
-		return dal.getItem(id, wishlistName, name);
-	}
-
-	update(id, wishlistName, oldName, newName, comments, link) {
+	update(id, wishlistSlug, itemSlug, newName, comments, link) {
 		var updateObject = {};
-		if (name) {
+		if (newName) {
 			updateObject.name = newName;
 		}
 		if (comments) {
@@ -35,18 +29,18 @@ module.exports = class WishlistsService {
 			updateObject.link = link;
 		}
 
-		return dal.updateItem(id, wishlistName, oldName, updateObject);
+		return dal.updateItem(id, wishlistSlug, itemSlug, updateObject);
 	}
 
-	delete(id, wishlistName, name) {
-		return dal.deleteItem(id, wishlistName, name);
+	delete(id, wishlistSlug, itemSlug) {
+		return dal.deleteItem(id, wishlistSlug, itemSlug);
 	}
 
-	claim(id, wishlistName, name, userId) {
-		return dal.claimItem(id, wishlistName, name, userId);
+	claim(id, wishlistSlug, itemSlug, userId) {
+		return dal.claimItem(id, wishlistSlug, itemSlug, userId);
 	}
 
-	unclaim(id, wishlistName, name, userId) {
-		return dal.unclaimItem(id, wishlistName, name, userId);
+	unclaim(id, wishlistSlug, itemSlug, userId) {
+		return dal.unclaimItem(id, wishlistSlug, itemSlug, userId);
 	}
 }

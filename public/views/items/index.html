@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<h4>Wishlist Items</h4>
 	{{#wishlist.owns}}
-	<a href='{{wishlist._id}}/items/new'>Create New</a>
+	<a href='{{wishlist.slug}}/items/new'>Create New</a>
 	{{/wishlist.owns}}
 	<div class="table-responsive">
 		<table class="table table-striped">
@@ -27,17 +27,17 @@
 						<td>{{name}}</td>
 						<td>{{comments}}</td>
 						<td><a href='{{link}}' target="_blank">{{link}}</a></td>
-						<td><a href='{{wishlist._id}}/items/{{_id}}'><span class="fa fa-eye fa-2x"></span></a></td>
+						<td><a href='{{wishlist.slug}}/items/{{slug}}'><span class="fa fa-eye fa-2x"></span></a></td>
 						{{#user._id}}
 						{{^wishlist.owns}}
 						<td id="status">{{#claimed}}Claimed{{/claimed}}{{^claimed}}Unclaimed{{/claimed}}</td>
 						{{#wishlist.sharedWithUser}}
 						<td>
 							{{^claimed}}
-							<button class="btn btn-success" id="actionButton" onclick="claim('{{_id}}')">Claim</button>
+							<button class="btn btn-success" id="actionButton" onclick="claim('{{slug}}')">Claim</button>
 							{{/claimed}}
 							{{#claimedByUser}}
-							<button class="btn btn-danger" id="actionButton" onclick="unclaim('{{_id}}')">Unclaim</button>
+							<button class="btn btn-danger" id="actionButton" onclick="unclaim('{{slug}}')">Unclaim</button>
 							{{/claimedByUser}}
 						</td>
 						{{/wishlist.sharedWithUser}}

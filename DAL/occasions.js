@@ -1,121 +1,199 @@
 'use strict'
 
-const collection = require('./collection');
 const mongodb = require('mongodb');
+const slugify = require('slugify');
+const TableCall = require('./tableCall');
 
-const tableName = 'occasions';
-
-var boilerPlate = function (cb) {
-	this.client = null;
-	return collection(tableName).then(obj => {
-		this.client = obj.client;
-		return cb(obj.collection).then(result => {
-			this.client.close();
-			return result;
-		}).catch(e => {
-			console.log(e);
-			if (this.client) this.client.close();
-		});
-	});
-}
+const tcInstance = new TableCall("occasions");
 
 var createOccasion = function (userId, name, occurrence) {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.insertOne({userId: new mongodb.ObjectID(userId), name: name, occurrence: new Date(occurrence)});
 	});
 }
 
 var getOccasions = function () {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.find({}, {name: 1, occurrence: 1}).toArray();
 	});
 }
 
 var getOccasion = function (id) {
-	return boilerPlate(collection => {
-		return collection.findOne(new mongodb.ObjectID(id), {name: 1, occurrence: 1});
+	return tcInstance.call(collection => {
+		return collection.findOne(new mongodb.ObjectID(id));
 	});
 }
 
 var updateOccasion = function (query, where) {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.updateOne({_id: new mongodb.ObjectID(query.id), userId: new mongodb.ObjectID(query.userId)}, {$set: where});
 	});
 }
 
 var deleteOccasion = function (query) {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.deleteOne({_id: new mongodb.ObjectID(query.id), userId: new mongodb.ObjectID(query.userId)});
 	});
 }
 
 var createOccasionShares = function (id, emails) {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.updateOne({_id: new mongodb.ObjectID(id)}, { $push: { shares: { $each: emails } } });
 	});
 }
 
 var getOccasionShare = function (id, email) {
-	return boilerPlate(collection => {
-		return collection.findOne({_id: new mongodb.ObjectID(id), shares: email}, { "shares.$": 1 });
+	return tcInstance.call(collection => {
+		return collection.findOne({_id: new mongodb.ObjectID(id), shares: email}, {projection: { "shares.$": 1 }});
 	});
 }
 
 var deleteOccasionShare = function (id, email) {
-	return boilerPlate(collection => {
+	return tcInstance.call(collection => {
 		return collection.updateOne({_id: new mongodb.ObjectID(id)}, { $pull: { shares: email } });
 	});
 }
 
 var createWishlist = function (userId, name, occasionId) {
-	return boilerPlate(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(occasionId)}, { $push: { wishlists: { name: name, userId: new mongodb.ObjectID(userId) } } });
+	return tcInstance.call(collection => {
+		let slug = slugify(name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(occasionId)
+		}, 
+		{ 
+			$push: { 
+				wishlists: { 
+					name: name,
+					slug: slug, 
+					userId: new mongodb.ObjectID(userId) 
+				} 
+			} 
+		});
 	});
 }
 
 var getWishlists = function (id) {
-	return boilerPlate(collection => {
-		return collection.findOne({_id: new mongodb.ObjectID(id)}, {wishlists: 1});
+	return tcInstance.call(collection => {
+		return collection.findOne({
+			_id: new mongodb.ObjectID(id)
+		}, 
+		{
+			projection: {
+				wishlists: 1
+			}
+		});
 	});
 }
 
-var getWishlist = function (id, name) {
-	return boilerPlate(collection => {
-		return collection.findOne({_id: new mongodb.ObjectID(id), "wishlists.name": name}, {"wishlists.$": 1, shares: 1});
+var getWishlist = function (id, slug) {
+	return tcInstance.call(collection => {
+		return collection.findOne({
+			_id: new mongodb.ObjectID(id)
+		}, 
+		{
+			projection: {
+				wishlists: {
+					$elemMatch: {
+						slug: slug
+					}
+				}, 
+				shares: 1, 
+				userId: 1
+			}
+		});
 	});
 }
 
-var updateWishlist = function (id, userId, oldName, newName) {
-	return boilerPlate(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(id), "wishlists.userId": new mongodb.ObjectID(userId), "wishlists.name": oldName}, {$set: {"wishlists.$.name": newName}});
+var updateWishlist = function (id, userId, slug, newName) {
+	return tcInstance.call(collection => {
+		let newSlug = slugify(newName, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			wishlists: {
+				$elemMatch: {
+					userId: new mongodb.ObjectID(userId),
+				 	slug: slug
+				}
+			}
+		},
+		{
+			$set: {
+				"wishlists.$.name": newName,
+				"wishlists.$.slug": newSlug
+			}
+		});
 	});
 }
 
-var deleteWishlist = function (id, userId, name) {
-	return boilerPlate(collection => {
-		return collection.deleteOne({_id: new mongodb.ObjectID(id), "wishlists.userId": new mongodb.ObjectID(userId), "wishlists.name": name});
+var deleteWishlist = function (id, userId, slug) {
+	return tcInstance.call(collection => {
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			"wishlists.userId": new mongodb.ObjectID(userId)
+		}, 
+		{
+			$pull: {
+				wishlists: {
+					slug: slug
+				}
+			}
+		});
 	});
 }
 
-var createItem = function (id, wishlistName, name, comments, link) {
-	return boilerPlate(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(id), "wishlists.name": wishlistname}, {$push: {items: {name: name, comments: comments, link: link}}});
+var createItem = function (id, wishlistSlug, name, comments, link) {
+	return tcInstance.call(collection => {
+		let itemSlug = slugify(name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
+		return collection.updateOne({
+			_id: new mongodb.ObjectID(id), 
+			"wishlists.slug": wishlistSlug
+		}, 
+		{
+			$push: {
+				"wishlists.$.items": {
+					name: name, 
+					comments: comments, 
+					link: link,
+					slug: itemSlug
+				}
+			}
+		});
 	});
 }
 
-var getItems = function (id, wishlistName, userId) {
-	return boilerPlate(collection => {
-		return collection.find({_id: new mongodb.ObjectID(id), "wishlists.name" wishlistName}, {"wishlists.items": 1});
+var getItems = function (id, wishlistSlug, userId) {
+	return tcInstance.call(collection => {
+		return collection.find({
+			_id: new mongodb.ObjectID(id), 
+			"wishlists.slug": wishlistSlug
+		}, 
+		{
+			projection: {
+				"wishlists.$.items": 1
+			}
+		});
 	});
 }
 
-var getItem = function (id, wishlistName, name) {
-	return boilerPlate(collection => {
-		return collection.findOne({_id: new mongodb.ObjectID(id), "wishlists.name": wishlistName}, {"wishlists.items": 1}).then(occasion => {
-			if (occasion) {
-				for (var i= 0; i < occasion.wishlists.items.length; ++i) {
-					if (occasion.wishlists.items[i].name === name) {
-						return Promise.resolve(occasion.wishlist.items[i]);
+var getItem = function (id, wishlistSlug, itemSlug) {
+	return tcInstance.call(collection => {
+		return collection.findOne({
+			_id: new mongodb.ObjectID(id), 
+			"wishlists.slug": wishlistSlug
+		},
+		{
+			projection: {
+				wishlists: {
+					$elemMatch: {
+						slug: wishlistSlug
+					}
+				}
+			}
+		}).then(occasion => {
+			if (occasion && occasion.wishlists && occasion.wishlists.length) {
+				for (var i = 0; i < occasion.wishlists[0].items.length; ++i) {
+					if (occasion.wishlists[0].items[i].slug === itemSlug) {
+						return Promise.resolve({item: occasion.wishlists[0].items[i], userId: occasion.wishlists[0].userId});
 					}
 				}
 			}
@@ -124,14 +202,16 @@ var getItem = function (id, wishlistName, name) {
 	});
 }
 
-var updateItem = function (id, wishlistName, name, updateObject) {
-	return boilerPlate(collection => {
+var updateItem = function (id, wishlistSlug, itemSlug, updateObject) {
+	return tcInstance.call(collection => {
+		let newItemSlug = slugify(updateObject.name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
+		updateObject.slug = newItemSlug;
 		return collection.updateOne({
 			_id: new mongodb.ObjectID(id), 
 			wishlists: {
 				$elemMatch: {
-					name: wishlistName, 
-					"items.name": name
+					slug: wishlistSlug, 
+					"items.slug": itemSlug
 				}
 			}
 		}, 
@@ -142,46 +222,46 @@ var updateItem = function (id, wishlistName, name, updateObject) {
 		}, 
 		{
 			arrayFilters: [
-				{"outer.name": wishlistName}, 
-				{"inner.name": name}
+				{"outer.slug": wishlistSlug}, 
+				{"inner.slug": itemSlug}
 			]
 		});
 	});
 }
 
-var deleteItem = function (id, wishlistName, name) {
-	return boilerPlate(collection => {
+var deleteItem = function (id, wishlistSlug, itemSlug) {
+	return tcInstance.call(collection => {
 		return collection.updateOne({
 			_id: new mongodb.ObjectID(id), 
 			wishlists: {
 				$elemMatch: {
-					name: wishlistName, 
-					"items.name": name
+					slug: wishlistSlug
 				}
 			}
 		}, 
 		{
 			$pull: {
-				"wishlists.$[outer].items.$[inner].name": name
+				"wishlists.$[outer].items": {
+					slug: itemSlug
+				}
 			}
 		}, 
 		{
 			arrayFilters: [
-				{"outer.name": wishlistName}, 
-				{"inner.name": name}
+				{"outer.slug": wishlistSlug}
 			]
 		});
 	});
 }
 
-var claimItem = function (id, wishlistName, name, userId) {
-	return boilerPlate(collection => {
+var claimItem = function (id, wishlistSlug, itemSlug, userId) {
+	return tcInstance.call(collection => {
 		return collection.updateOne({
 			_id: new mongodb.ObjectID(id), 
 			wishlists: {
 				$elemMatch: {
-					name: wishlistName, 
-					"items.name": name
+					slug: wishlistSlug, 
+					"items.slug": itemSlug
 				}
 			}
 		}, 
@@ -195,23 +275,23 @@ var claimItem = function (id, wishlistName, name, userId) {
 		}, 
 		{
 			arrayFilters: [
-				{"outer.name": wishlistName}, 
-				{"inner.name": name}
+				{"outer.slug": wishlistSlug}, 
+				{"inner.slug": itemSlug}
 			]
 		});
 	});
 }
 
-var unclaimItem = function (id, wishlistName, name, userId) {
-	return boilerPlate(collection => {
+var unclaimItem = function (id, wishlistSlug, itemSlug, userId) {
+	return tcInstance.call(collection => {
 		return collection.updateOne({
 			_id: new mongodb.ObjectID(id), 
 			wishlists: {
 				$elemMatch: {
-					name: wishlistName,
+					slug: wishlistSlug,
 					items: {
 						$elemMatch: {
-							name: name,
+							slug: itemSlug,
 							"claimed.by": new mongodb.ObjectID(userId)
 						}
 					}
@@ -225,8 +305,8 @@ var unclaimItem = function (id, wishlistName, name, userId) {
 		}, 
 		{
 			arrayFilters: [
-				{"outer.name": wishlistName}, 
-				{"inner.name": name}
+				{"outer.slug": wishlistSlug}, 
+				{"inner.slug": itemSlug}
 			]
 		});
 	});

@@ -38,9 +38,11 @@ module.exports = class OccasionsService {
 				occasion.owns = occasion.userId.equals(userId);
 				occasion.sharedWithUser = false;
 				if (user) {
-					occasions.shares.forEach(element => {
-						occasion.sharedWithUser = occasion.sharedWithUser || element === user.email;
-					});
+					if (occasion.shares) {
+						occasion.shares.forEach(element => {
+							occasion.sharedWithUser = occasion.sharedWithUser || element === user.email;
+						});
+					}
 				}
 
 				occasion.sharedWithUser = occasion.sharedWithUser || occasion.owns;
