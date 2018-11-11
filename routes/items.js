@@ -5,11 +5,44 @@ var router = express.Router();
 var urlencodedParser = express.urlencoded({extended: true});
 var ItemsService = require('../services/itemsService');
 
+/* GET new wishlist item. */
+router.get('/new', function (req, res, next) {
+	res.render('templates/shell', {
+		partials: {page: '../items/new'},
+		breadcrumbs: req.breadcrumbs,
+		user: req.user,
+		title: 'New Wishlist Item - Wishlists',
+		occasionId: req.occasionId,
+		wishlistSlug: req.wishlistSlug,
+		csrfToken: req.csrfToken()
+	});
+})
+
+/* POST new wishlist item */
+router.post('/new', urlencodedParser, function(req, res) {
+	if (!req.body || !req.body.name) {
+		res.status(400);
+		res.render('errors/400', {message: 'Missing the required name of the wishlist item.'});
+	}
+
+  	var service = new ItemsService();
+	service.create(req.occasionId, req.wishlistSlug, req.body.name, req.body.comments, req.body.link).then(
+		function (success) {
+			res.redirect('/occasions/' + req.occasionId + '/wishlists/' + req.wishlistSlug);
+		}
+	).catch(
+		function (error) {
+			res.status(500);
+			res.render('errors/500', {error: error});
+		}
+	);
+});
+
 /* GET wishlist item. */
-router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
+router.get('/:itemSlug', function (req, res) {
 	req.breadcrumbs[3].label = 'Item';
 	var service = new ItemsService();
-	service.get(req.params.itemId).then(
+	service.get(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(
 		function (item) {
 			if (item) {
 				res.render('templates/shell', {
@@ -18,6 +51,7 @@ router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 					user: req.user,
 					title: item.name + ' - Wishlists', 
 					occasionId: req.occasionId,
+					wishlistSlug: req.wishlistSlug,
 					item: item, 
 					csrfToken: req.csrfToken()
 				});
@@ -36,14 +70,14 @@ router.get('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 });
 
 /* PUT updated wishlist item. */
-router.put('/:itemId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
+router.put('/:itemSlug', urlencodedParser, function (req, res) {
 	if (!req.body || (!req.body.name && !req.body.comments && !req.body.link)) {
 		res.status(400);
 		return res.render('errors/400', {message: 'An updated name, comments, or link must be sent to update the wishlist item.'});
 	}
 
 	var service = new ItemsService();
-	service.update(req.params.itemId, req.body.name, req.body.comments, req.body.link).then(
+	service.update(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.body.name, req.body.comments, req.body.link).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the wishlist item.'});
 		}
@@ -55,43 +89,10 @@ router.put('/:itemId([a-zA-Z0-9]{24})', urlencodedParser, function (req, res) {
 	);
 });
 
-/* GET new wishlist item. */
-router.get('/new', function (req, res, next) {
-	res.render('templates/shell', {
-		partials: {page: '../items/new'},
-		breadcrumbs: req.breadcrumbs,
-		user: req.user,
-		title: 'New Wishlist Item - Wishlists',
-		occasionId: req.occasionId,
-		wishlistId: req.wishlistId,
-		csrfToken: req.csrfToken()
-	});
-})
-
-/* POST new wishlist item */
-router.post('/new', urlencodedParser, function(req, res) {
-	if (!req.body || !req.body.name) {
-		res.status(400);
-		res.render('errors/400', {message: 'Missing the required name of the wishlist item.'});
-	}
-
-  	var service = new ItemsService();
-	service.create(req.body.name, req.body.comments, req.body.link, req.wishlistId).then(
-		function (success) {
-			res.redirect('/occasions/' + req.occasionId + '/wishlists/' + req.wishlistId);
-		}
-	).catch(
-		function (error) {
-			res.status(500);
-			res.render('errors/500', {error: error});
-		}
-	);
-});
-
 /* DELETE wishlist item.*/
-router.delete('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
+router.delete('/:itemSlug', function (req, res) {
 	var service = new ItemsService();
-	service.delete(req.params.itemId).then(
+	service.delete(req.occasionId, req.wishlistSlug, req.params.itemSlug).then(
 		function (success) {
 			res.sendStatus(200);
 		}
@@ -103,9 +104,9 @@ router.delete('/:itemId([a-zA-Z0-9]{24})', function (req, res) {
 	);
 });
 
-router.put('/:itemId([a-zA-Z0-9]{24})/claim', function (req, res) {
+router.put('/:itemSlug/claim', function (req, res) {
 	var service = new ItemsService();
-	service.claim(req.params.itemId, req.user ? req.user._id : null).then(() => {
+	service.claim(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
 		res.status(200);
 		res.send({message: "You successfully claimed the wishlist item!"});
 	}).catch(e => {
@@ -115,9 +116,9 @@ router.put('/:itemId([a-zA-Z0-9]{24})/claim', function (req, res) {
 	});
 });
 
-router.put('/:itemId([a-zA-Z0-9]{24})/unclaim', function (req, res) {
+router.put('/:itemSlug/unclaim', function (req, res) {
 	var service = new ItemsService();
-	service.unclaim(req.params.itemId, req.user ? req.user._id : null).then(() => {
+	service.unclaim(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
 		res.status(200);
 		res.send({message: "You successfully unclaimed the wishlist item!"});
 	}).catch(e => {

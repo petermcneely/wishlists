@@ -112,13 +112,7 @@ router.post('/forgot-password', function (req, res) {
 router.post('/change-password', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function (req, res) {
   var service = new UserService();
   service.changePassword(req.body.currentPassword, req.body.newPassword, req.body.retypePassword, req.user ? req.user._id : null).then(function (response) {
-    if (response && response.message) {
-      res.status(500).send({message: message});
-    }
-    else
-    {
-      res.status(200).send({message: "Successfully changed your password!"})
-    }
+    res.status(200).send({message: "Successfully changed your password!"});
   }.bind(this)).catch(function (e) {
     console.log(e);
     res.status(500).send({message: 'An internal error has occurred.'});
@@ -129,14 +123,7 @@ router.post('/change-password', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), 
 router.put('/change-email', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function (req, res) {
   var service = new UserService();
   service.changeEmail(req.body.newEmail, req.user._id).then(function (response) {
-    if (response && response.message)
-    {
-      res.status(500).send({message: message});
-    }
-    else
-    {
       res.status(200).send({message: 'Successfully changed your email!'});
-    }
   }.bind(this)).catch(function (e) {
     console.log(e);
     res.status(500).send({message: 'An internal error has occurred.'});
@@ -147,8 +134,7 @@ router.get('/verify/:token', function (req, res) {
   var service = new UserService();
   service.verify(req.params.token).then(function (response) {
     res.render('templates/shell', {
-      partials: {page: '../users/verify'},
-      message: response ? response.message : null,
+      partials: {page: '../users/verify'}
     });
   }.bind(this)).catch(function (e) {
     console.log(e);
