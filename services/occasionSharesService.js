@@ -4,15 +4,15 @@ const dal = require('../DAL/occasions');
 
 module.exports = class OccasionSharesService {
 
-	create(id, emails) {
-		return dal.createOccasionShares(id, emails);
+	create(occasionSlug, emails) {
+		return dal.createOccasionShares(occasionSlug, emails);
 	}
 
-	get(id, email) {
-		return dal.getOccasionShare(id, email);
+	get(occasionSlug, email) {
+		return dal.getOccasionShare(occasionSlug, email);
 	}
 
-	delete(id, email) {
-		return deleteOccasionShare(id, email);
+	delete(occasionSlug, email) {
+		return deleteOccasionShare(occasionSlug, email);
 	}
 }

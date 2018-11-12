@@ -19,11 +19,11 @@ module.exports = class OccasionsService {
 
 	/*
 	userId: unique identifier of the requesting user
-	id: unique identifier of the occasion document
+	slug: unique slug of the occasion document
 	*/
-	get(userId, id) {
+	get(userId, slug) {
 		let promises = [];
-		promises.push(dal.getOccasion(id));
+		promises.push(dal.getOccasion(slug));
 		if (userId) {
 
 			let UsersService = require('../services/usersService');
@@ -52,21 +52,21 @@ module.exports = class OccasionsService {
 	}
 
 	/*
-	id: unique identifier of the occasion document
+	slug: unique slug of the occasion document
 	name: new name to update the occasion to (optional)
 	occurrence: new name to update the occasion to (optional)
 	*/
-	update(userId, id, name, occurrence) {
+	update(userId, slug, name, occurrence) {
 		var updateObject = {};
 		if (name) { updateObject.name = name; }
 		if (occurrence) { updateObject.occurrence = new Date(occurrence); }
-		return dal.updateOccasion({id: id, userId: userId}, updateObject);
+		return dal.updateOccasion({slug: slug, userId: userId}, updateObject);
 	}
 
 	/*
-	id: the unique identifier of the occasion document
+	slug: the unique identifier of the occasion document
 	*/
-	delete(userId, id) {
-		return dal.deleteOccasion({id: id, userId: userId});
+	delete(userId, slug) {
+		return dal.deleteOccasion({slug: slug, userId: userId});
 	}
 }

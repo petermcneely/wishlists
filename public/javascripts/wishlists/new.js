@@ -1,3 +1,3 @@
-function cancel(occasionId) {
-	window.location.replace('/occasions/' + occasionId);
+function cancel(occasionSlug) {
+	window.location.replace('/occasions/' + occasionSlug);
 }

@@ -6,7 +6,7 @@
     <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Wishlist" autofocus/>
   </div>
   <input class="btn btn-success mx-sm-3" type="submit" value="Create" />
-  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasionId}}')" />
+  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasion.slug}}')" />
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 </form>
 

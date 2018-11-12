@@ -7,21 +7,21 @@ module.exports = class WishlistsService {
 	/*
 	userId: the id of the creating user.
 	name: name of the wishlist
-	occasionId: the unique identifier of the associated occasion.
+	occasionSlug: the unique identifier of the associated occasion.
 	*/
-	create(userId, occasionId, name) {
-		return occasionDal.createWishlist(userId, name, occasionId);
+	create(userId, occasionSlug, name) {
+		return occasionDal.createWishlist(userId, name, occasionSlug);
 	}
 
 	/*
 	userId: unique identifier of the requesting user
-	occasionId: unique identifier of the owning occasion
+	occasionSlug: unique identifier of the owning occasion
 	slug: unique slug of the wishlist in this occasion
 	*/
-	get(userId, occasionId, slug) {
+	get(userId, occasionSlug, slug) {
 		let promises = [
 			userDal.findById(userId),
-			occasionDal.getWishlist(occasionId, slug)
+			occasionDal.getWishlist(occasionSlug, slug)
 		];
 
 		return Promise.all(promises).then(results => {
@@ -53,21 +53,21 @@ module.exports = class WishlistsService {
 	}
 
 	/*
-	occasionId: unique identifier of the owning occasion
+	occasionSlug: unique identifier of the owning occasion
 	userId: the id of the requesting user; should own the wishlist
 	slug: the wishlist's current, unique slug
 	newName: the wishlist's new name
 	*/
-	update(userId, occasionId, slug, newName) {
-		return occasionDal.updateWishlist(occasionId, userId, slug, newName);
+	update(userId, occasionSlug, slug, newName) {
+		return occasionDal.updateWishlist(occasionSlug, userId, slug, newName);
 	}
 
 	/*
-	occasionId: unique identifier of the owning occasion
+	occasionSlug: unique identifier of the owning occasion
 	userId: the id of the requesting user; should own the wishlist
 	slug: the unique slug of the wishlist to delete
 	*/
-	delete(userId, occasionId, slug) {
-		return occasionDal.deleteWishlist(occasionId, userId, slug);
+	delete(userId, occasionSlug, slug) {
+		return occasionDal.deleteWishlist(occasionSlug, userId, slug);
 	}
 }

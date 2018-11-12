@@ -18,12 +18,12 @@ function update() {
 	return false;
 }
 
-function doDelete(occasionId, wishlistSlug) {
+function doDelete(occasionSlug, wishlistSlug) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
-				window.location.replace("/occasions/" + occasionId + "/wishlists/" + wishlistSlug);
+				window.location.replace("/occasions/" + occasionSlug + "/wishlists/" + wishlistSlug);
 			}
 			else if (this.status == 500 || this.status == 404) {
 				document.getElementById("message").textContent = this.responseText;	
