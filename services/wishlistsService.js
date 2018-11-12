@@ -41,6 +41,9 @@ module.exports = class WishlistsService {
 					});
 				}
 				wishlist.sharedWithUser = wishlist.sharedWithUser || occasion.userId.equals(userId);
+				wishlist.occasion = {
+					slug: occasion.slug
+				};
 				return wishlist;
 			}
 			else {

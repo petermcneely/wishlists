@@ -12,6 +12,7 @@ module.exports = class ItemsService {
 		return dal.getItem(id, wishlistSlug, itemSlug).then(response => {
 			if (response) {
 				response.item.owns = response.userId.equals(userId);
+				response.item.occasion = response.occasion;
 				return response.item;	
 			}
 		});
