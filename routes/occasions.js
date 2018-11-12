@@ -154,12 +154,10 @@ router.post('/:occasionSlug/share', urlencodedParser, ensure.ensureLoggedIn({red
 				}.bind(this)).catch(function (e) {
 					res.status(500);
 					res.send({message: 'An internal error occurred but, your emails were sent!'});
-					console.log(e);
 				});
 			}.bind(this)).catch(function (e) {
 				res.status(500);
 				res.send({message: 'An error occurred while sharing the occasion.'});
-				console.log(e);	
 			}.bind(this));
 		}
 		else {

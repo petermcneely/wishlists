@@ -11,7 +11,6 @@ router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
 
 /* GET new wishlist. */
 router.get('/new', function (req, res, next) {
-	console.log("in new");
 	res.render('templates/shell', {
 		partials: {page: '../wishlists/new'}, 
 		breadcrumbs: req.breadcrumbs, 
@@ -49,7 +48,6 @@ router.get('/:wishlistSlug', function (req, res) {
 	service.get(req.user ? req.user._id : null, req.occasionSlug, req.params.wishlistSlug).then(
 		function (wishlist) {
 			if (wishlist) {
-				console.log(wishlist);
 				res.render('templates/shell', {
 					partials: {page: '../wishlists/details', 
 					items: '../items/index'}, 

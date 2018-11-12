@@ -28,7 +28,8 @@ var getOccasions = function () {
 		}, 
 		{
 			name: 1, 
-			occurrence: 1
+			occurrence: 1,
+			slug: 1
 		}).toArray();
 	});
 }
@@ -43,8 +44,9 @@ var getOccasion = function (slug) {
 
 var updateOccasion = function (query, where) {
 	return tcInstance.call(collection => {
+		where.slug = slugme(where.name);
 		return collection.updateOne({
-			slug: slug,
+			slug: query.slug,
 			userId: new mongodb.ObjectID(query.userId)
 		}, 
 		{
@@ -56,7 +58,7 @@ var updateOccasion = function (query, where) {
 var deleteOccasion = function (query) {
 	return tcInstance.call(collection => {
 		return collection.deleteOne({
-			slug: slug,
+			slug: query.slug,
 			userId: new mongodb.ObjectID(query.userId)
 		});
 	});
@@ -139,7 +141,7 @@ var getWishlists = function (occasionSlug) {
 var getWishlist = function (occasionSlug, wishlistSlug) {
 	return tcInstance.call(collection => {
 		return collection.findOne({
-			slug: occasiouSlug
+			slug: occasionSlug
 		}, 
 		{
 			projection: {
@@ -159,7 +161,7 @@ var getWishlist = function (occasionSlug, wishlistSlug) {
 var updateWishlist = function (occasionSlug, userId, wishlistSlug, newName) {
 	return tcInstance.call(collection => {
 		return collection.updateOne({
-			slug: occasionSlug
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					userId: new mongodb.ObjectID(userId),
