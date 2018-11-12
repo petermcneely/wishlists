@@ -11,13 +11,12 @@ router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
 
 /* GET new wishlist. */
 router.get('/new', function (req, res, next) {
-	console.log("in new");
 	res.render('templates/shell', {
 		partials: {page: '../wishlists/new'}, 
 		breadcrumbs: req.breadcrumbs, 
 		user: req.user,
 		title: 'New Wishlist - Wishlists', 
-		occasionId: req.occasionId, 
+		occasionSlug: req.occasionSlug, 
 		csrfToken: req.csrfToken()
 	});
 })
@@ -30,9 +29,9 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new WishlistsService();
-	service.create(req.user._id, req.occasionId, req.body.name).then(
+	service.create(req.user._id, req.occasionSlug, req.body.name).then(
 		function (success) {
-			res.redirect('/occasions/' + req.occasionId);
+			res.redirect('/occasions/' + req.occasionSlug);
 		}
 	).catch(
 		function (error) {
@@ -43,13 +42,12 @@ router.post('/new', urlencodedParser, function(req, res) {
 });
 
 /* GET wishlist. */
-router.get('/:slug', function (req, res) {
+router.get('/:wishlistSlug', function (req, res) {
 	req.breadcrumbs[2].label = 'Wishlist';
 	var service = new WishlistsService();
-	service.get(req.user ? req.user._id : null, req.occasionId, req.params.slug).then(
+	service.get(req.user ? req.user._id : null, req.occasionSlug, req.params.wishlistSlug).then(
 		function (wishlist) {
 			if (wishlist) {
-				console.log(wishlist);
 				res.render('templates/shell', {
 					partials: {page: '../wishlists/details', 
 					items: '../items/index'}, 
@@ -73,14 +71,14 @@ router.get('/:slug', function (req, res) {
 });
 
 /* PUT updated wishlist. */
-router.put('/:slug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), urlencodedParser, function (req, res) {
+router.put('/:wishlistSlug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), urlencodedParser, function (req, res) {
 	if (!req.body || !req.body.name) {
 		res.status(400);
 		res.render('errors/400', {message: 'An updated name or occurrence date must be sent to update the wishlist.'});
 	}
 
 	var service = new WishlistsService();
-	service.update(req.user._id, req.occasionId, req.params.slug, req.body.name).then(
+	service.update(req.user._id, req.occasionSlug, req.params.wishlistSlug, req.body.name).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the wishlist.'});
 		}
@@ -93,10 +91,10 @@ router.put('/:slug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), urle
 });
 
 /* DELETE wishlist.*/
-router.delete('/:slug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
+router.delete('/:wishlistSlug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function (req, res) {
 
 	var service = new WishlistsService();
-	service.delete(req.user._id, req.occasionId, req.params.slug).then(
+	service.delete(req.user._id, req.occasionSlug, req.params.wishlistSlug).then(
 		function (success) {
 			res.sendStatus(200);
 		}
@@ -108,8 +106,8 @@ router.delete('/:slug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), f
 	);
 });
 
-router.use('/:slug/items', function (req, res, next) {
-	req.wishlistSlug = req.params.slug;
+router.use('/:wishlistSlug/items', function (req, res, next) {
+	req.wishlistSlug = req.params.wishlistSlug;
 	if (req.breadcrumbs) {
 		req.breadcrumbs[2].label = 'Wishlist';
 		req.breadcrumbs.splice(3, 1);

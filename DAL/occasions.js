@@ -6,65 +6,117 @@ const TableCall = require('./tableCall');
 
 const tcInstance = new TableCall("occasions");
 
+var slugme = function (input) {
+	return slugify(input, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
+}
+
 var createOccasion = function (userId, name, occurrence) {
 	return tcInstance.call(collection => {
-		return collection.insertOne({userId: new mongodb.ObjectID(userId), name: name, occurrence: new Date(occurrence)});
+		return collection.insertOne({
+			userId: new mongodb.ObjectID(userId),
+			name: name, 
+			slug: slugme(name),
+			occurrence: new Date(occurrence)
+		});
 	});
 }
 
 var getOccasions = function () {
 	return tcInstance.call(collection => {
-		return collection.find({}, {name: 1, occurrence: 1}).toArray();
+		return collection.find({
+
+		}, 
+		{
+			name: 1, 
+			occurrence: 1,
+			slug: 1
+		}).toArray();
 	});
 }
 
-var getOccasion = function (id) {
+var getOccasion = function (slug) {
 	return tcInstance.call(collection => {
-		return collection.findOne(new mongodb.ObjectID(id));
+		return collection.findOne({
+			slug: slug
+		});
 	});
 }
 
 var updateOccasion = function (query, where) {
 	return tcInstance.call(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(query.id), userId: new mongodb.ObjectID(query.userId)}, {$set: where});
+		where.slug = slugme(where.name);
+		return collection.updateOne({
+			slug: query.slug,
+			userId: new mongodb.ObjectID(query.userId)
+		}, 
+		{
+			$set: where
+		});
 	});
 }
 
 var deleteOccasion = function (query) {
 	return tcInstance.call(collection => {
-		return collection.deleteOne({_id: new mongodb.ObjectID(query.id), userId: new mongodb.ObjectID(query.userId)});
+		return collection.deleteOne({
+			slug: query.slug,
+			userId: new mongodb.ObjectID(query.userId)
+		});
 	});
 }
 
-var createOccasionShares = function (id, emails) {
+var createOccasionShares = function (occasionSlug, emails) {
 	return tcInstance.call(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(id)}, { $push: { shares: { $each: emails } } });
-	});
-}
-
-var getOccasionShare = function (id, email) {
-	return tcInstance.call(collection => {
-		return collection.findOne({_id: new mongodb.ObjectID(id), shares: email}, {projection: { "shares.$": 1 }});
-	});
-}
-
-var deleteOccasionShare = function (id, email) {
-	return tcInstance.call(collection => {
-		return collection.updateOne({_id: new mongodb.ObjectID(id)}, { $pull: { shares: email } });
-	});
-}
-
-var createWishlist = function (userId, name, occasionId) {
-	return tcInstance.call(collection => {
-		let slug = slugify(name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(occasionId)
+			slug: occasionSlug
+		}, 
+		{ 
+			$push: {
+				shares: { 
+					$each: emails 
+				} 
+			} 
+		});
+	});
+}
+
+var getOccasionShare = function (occasionSlug, email) {
+	return tcInstance.call(collection => {
+		return collection.findOne({
+			slug: occasionSlug,
+			shares: email
+		}, 
+		{
+			projection: { 
+				"shares.$": 1,
+				slug: 1 
+			}
+		});
+	});
+}
+
+var deleteOccasionShare = function (occasionSlug, email) {
+	return tcInstance.call(collection => {
+		return collection.updateOne({
+			slug: occasionSlug
+		}, 
+		{ 
+			$pull: { 
+				shares: email 
+			} 
+		});
+	});
+}
+
+var createWishlist = function (userId, name, occasionSlug) {
+	return tcInstance.call(collection => {
+		return collection.updateOne({
+			slug: occasionSlug
 		}, 
 		{ 
 			$push: { 
 				wishlists: { 
 					name: name,
-					slug: slug, 
+					slug: slugme(name), 
 					userId: new mongodb.ObjectID(userId) 
 				} 
 			} 
@@ -72,63 +124,64 @@ var createWishlist = function (userId, name, occasionId) {
 	});
 }
 
-var getWishlists = function (id) {
+var getWishlists = function (occasionSlug) {
 	return tcInstance.call(collection => {
 		return collection.findOne({
-			_id: new mongodb.ObjectID(id)
+			slug: occasionSlug
 		}, 
 		{
 			projection: {
-				wishlists: 1
+				wishlists: 1,
+				slug: 1
 			}
 		});
 	});
 }
 
-var getWishlist = function (id, slug) {
+var getWishlist = function (occasionSlug, wishlistSlug) {
 	return tcInstance.call(collection => {
 		return collection.findOne({
-			_id: new mongodb.ObjectID(id)
+			slug: occasionSlug
 		}, 
 		{
 			projection: {
 				wishlists: {
 					$elemMatch: {
-						slug: slug
+						slug: wishlistSlug
 					}
 				}, 
 				shares: 1, 
-				userId: 1
+				userId: 1,
+				slug: 1
 			}
 		});
 	});
 }
 
-var updateWishlist = function (id, userId, slug, newName) {
+var updateWishlist = function (occasionSlug, userId, wishlistSlug, newName) {
 	return tcInstance.call(collection => {
-		let newSlug = slugify(newName, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					userId: new mongodb.ObjectID(userId),
-				 	slug: slug
+				 	slug: wishlistSlug
 				}
 			}
 		},
 		{
 			$set: {
 				"wishlists.$.name": newName,
-				"wishlists.$.slug": newSlug
+				"wishlists.$.slug": slugme(newName)
 			}
 		});
 	});
 }
 
-var deleteWishlist = function (id, userId, slug) {
+var deleteWishlist = function (occasionSlug, userId, slug) {
 	return tcInstance.call(collection => {
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			"wishlists.userId": new mongodb.ObjectID(userId)
 		}, 
 		{
@@ -141,11 +194,10 @@ var deleteWishlist = function (id, userId, slug) {
 	});
 }
 
-var createItem = function (id, wishlistSlug, name, comments, link) {
+var createItem = function (occasionSlug, wishlistSlug, name, comments, link) {
 	return tcInstance.call(collection => {
-		let itemSlug = slugify(name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			"wishlists.slug": wishlistSlug
 		}, 
 		{
@@ -154,31 +206,32 @@ var createItem = function (id, wishlistSlug, name, comments, link) {
 					name: name, 
 					comments: comments, 
 					link: link,
-					slug: itemSlug
+					slug: slugme(name)
 				}
 			}
 		});
 	});
 }
 
-var getItems = function (id, wishlistSlug, userId) {
+var getItems = function (occasionSlug, wishlistSlug, userId) {
 	return tcInstance.call(collection => {
 		return collection.find({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			"wishlists.slug": wishlistSlug
 		}, 
 		{
 			projection: {
-				"wishlists.$.items": 1
+				"wishlists.$.items": 1,
+				slug: 1
 			}
 		});
 	});
 }
 
-var getItem = function (id, wishlistSlug, itemSlug) {
+var getItem = function (occasionSlug, wishlistSlug, itemSlug) {
 	return tcInstance.call(collection => {
 		return collection.findOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			"wishlists.slug": wishlistSlug
 		},
 		{
@@ -187,13 +240,21 @@ var getItem = function (id, wishlistSlug, itemSlug) {
 					$elemMatch: {
 						slug: wishlistSlug
 					}
-				}
+				},
+				slug: 1
 			}
 		}).then(occasion => {
 			if (occasion && occasion.wishlists && occasion.wishlists.length) {
 				for (var i = 0; i < occasion.wishlists[0].items.length; ++i) {
 					if (occasion.wishlists[0].items[i].slug === itemSlug) {
-						return Promise.resolve({item: occasion.wishlists[0].items[i], userId: occasion.wishlists[0].userId});
+						return Promise.resolve({
+							item: occasion.wishlists[0].items[i], 
+							userId: occasion.wishlists[0].userId,
+							occasion: {
+								id: occasion._id,
+								slug: occasion.slug
+							}
+						});
 					}
 				}
 			}
@@ -202,12 +263,11 @@ var getItem = function (id, wishlistSlug, itemSlug) {
 	});
 }
 
-var updateItem = function (id, wishlistSlug, itemSlug, updateObject) {
+var updateItem = function (occasionSlug, wishlistSlug, itemSlug, updateObject) {
 	return tcInstance.call(collection => {
-		let newItemSlug = slugify(updateObject.name, {replacement: "-", remove: /[*+~.()'"!:@]/g, lower: true});
-		updateObject.slug = newItemSlug;
+		updateObject.slug = slugme(updateObject.name);
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					slug: wishlistSlug, 
@@ -229,10 +289,10 @@ var updateItem = function (id, wishlistSlug, itemSlug, updateObject) {
 	});
 }
 
-var deleteItem = function (id, wishlistSlug, itemSlug) {
+var deleteItem = function (occasionSlug, wishlistSlug, itemSlug) {
 	return tcInstance.call(collection => {
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					slug: wishlistSlug
@@ -254,10 +314,10 @@ var deleteItem = function (id, wishlistSlug, itemSlug) {
 	});
 }
 
-var claimItem = function (id, wishlistSlug, itemSlug, userId) {
+var claimItem = function (occasionSlug, wishlistSlug, itemSlug, userId) {
 	return tcInstance.call(collection => {
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					slug: wishlistSlug, 
@@ -282,10 +342,10 @@ var claimItem = function (id, wishlistSlug, itemSlug, userId) {
 	});
 }
 
-var unclaimItem = function (id, wishlistSlug, itemSlug, userId) {
+var unclaimItem = function (occasionSlug, wishlistSlug, itemSlug, userId) {
 	return tcInstance.call(collection => {
 		return collection.updateOne({
-			_id: new mongodb.ObjectID(id), 
+			slug: occasionSlug,
 			wishlists: {
 				$elemMatch: {
 					slug: wishlistSlug,

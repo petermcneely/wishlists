@@ -4,20 +4,21 @@ var dal = require('../DAL/occasions');
 
 module.exports = class ItemsService {
 
-	create(id, wishlistSlug, name, comments, link) {
-		return dal.createItem(id, wishlistSlug, name, comments, link);
+	create(occasionSlug, wishlistSlug, name, comments, link) {
+		return dal.createItem(occasionSlug, wishlistSlug, name, comments, link);
 	}
 
-	get(id, wishlistSlug, itemSlug, userId) {
-		return dal.getItem(id, wishlistSlug, itemSlug).then(response => {
+	get(occasionSlug, wishlistSlug, itemSlug, userId) {
+		return dal.getItem(occasionSlug, wishlistSlug, itemSlug).then(response => {
 			if (response) {
 				response.item.owns = response.userId.equals(userId);
+				response.item.occasion = response.occasion;
 				return response.item;	
 			}
 		});
 	}
 
-	update(id, wishlistSlug, itemSlug, newName, comments, link) {
+	update(occasionSlug, wishlistSlug, itemSlug, newName, comments, link) {
 		var updateObject = {};
 		if (newName) {
 			updateObject.name = newName;
@@ -29,18 +30,18 @@ module.exports = class ItemsService {
 			updateObject.link = link;
 		}
 
-		return dal.updateItem(id, wishlistSlug, itemSlug, updateObject);
+		return dal.updateItem(occasionSlug, wishlistSlug, itemSlug, updateObject);
 	}
 
-	delete(id, wishlistSlug, itemSlug) {
-		return dal.deleteItem(id, wishlistSlug, itemSlug);
+	delete(occasionSlug, wishlistSlug, itemSlug) {
+		return dal.deleteItem(occasionSlug, wishlistSlug, itemSlug);
 	}
 
-	claim(id, wishlistSlug, itemSlug, userId) {
-		return dal.claimItem(id, wishlistSlug, itemSlug, userId);
+	claim(occasionSlug, wishlistSlug, itemSlug, userId) {
+		return dal.claimItem(occasionSlug, wishlistSlug, itemSlug, userId);
 	}
 
-	unclaim(id, wishlistSlug, itemSlug, userId) {
-		return dal.unclaimItem(id, wishlistSlug, itemSlug, userId);
+	unclaim(occasionSlug, wishlistSlug, itemSlug, userId) {
+		return dal.unclaimItem(occasionSlug, wishlistSlug, itemSlug, userId);
 	}
 }

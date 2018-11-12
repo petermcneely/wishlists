@@ -12,7 +12,7 @@ router.get('/new', function (req, res, next) {
 		breadcrumbs: req.breadcrumbs,
 		user: req.user,
 		title: 'New Wishlist Item - Wishlists',
-		occasionId: req.occasionId,
+		occasionSlug: req.occasionSlug,
 		wishlistSlug: req.wishlistSlug,
 		csrfToken: req.csrfToken()
 	});
@@ -26,9 +26,9 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new ItemsService();
-	service.create(req.occasionId, req.wishlistSlug, req.body.name, req.body.comments, req.body.link).then(
+	service.create(req.occasionSlug, req.wishlistSlug, req.body.name, req.body.comments, req.body.link).then(
 		function (success) {
-			res.redirect('/occasions/' + req.occasionId + '/wishlists/' + req.wishlistSlug);
+			res.redirect('/occasions/' + req.occasionSlug + '/wishlists/' + req.wishlistSlug);
 		}
 	).catch(
 		function (error) {
@@ -42,7 +42,7 @@ router.post('/new', urlencodedParser, function(req, res) {
 router.get('/:itemSlug', function (req, res) {
 	req.breadcrumbs[3].label = 'Item';
 	var service = new ItemsService();
-	service.get(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(
+	service.get(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(
 		function (item) {
 			if (item) {
 				res.render('templates/shell', {
@@ -50,7 +50,7 @@ router.get('/:itemSlug', function (req, res) {
 					breadcrumbs: req.breadcrumbs, 
 					user: req.user,
 					title: item.name + ' - Wishlists', 
-					occasionId: req.occasionId,
+					occasionSlug: req.occasionSlug,
 					wishlistSlug: req.wishlistSlug,
 					item: item, 
 					csrfToken: req.csrfToken()
@@ -77,7 +77,7 @@ router.put('/:itemSlug', urlencodedParser, function (req, res) {
 	}
 
 	var service = new ItemsService();
-	service.update(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.body.name, req.body.comments, req.body.link).then(
+	service.update(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.body.name, req.body.comments, req.body.link).then(
 		function (success) {
 			return res.send({message: 'Successfully updated the wishlist item.'});
 		}
@@ -92,7 +92,7 @@ router.put('/:itemSlug', urlencodedParser, function (req, res) {
 /* DELETE wishlist item.*/
 router.delete('/:itemSlug', function (req, res) {
 	var service = new ItemsService();
-	service.delete(req.occasionId, req.wishlistSlug, req.params.itemSlug).then(
+	service.delete(req.occasionSlug, req.wishlistSlug, req.params.itemSlug).then(
 		function (success) {
 			res.sendStatus(200);
 		}
@@ -106,7 +106,7 @@ router.delete('/:itemSlug', function (req, res) {
 
 router.put('/:itemSlug/claim', function (req, res) {
 	var service = new ItemsService();
-	service.claim(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
+	service.claim(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
 		res.status(200);
 		res.send({message: "You successfully claimed the wishlist item!"});
 	}).catch(e => {
@@ -118,7 +118,7 @@ router.put('/:itemSlug/claim', function (req, res) {
 
 router.put('/:itemSlug/unclaim', function (req, res) {
 	var service = new ItemsService();
-	service.unclaim(req.occasionId, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
+	service.unclaim(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.user ? req.user._id : null).then(() => {
 		res.status(200);
 		res.send({message: "You successfully unclaimed the wishlist item!"});
 	}).catch(e => {

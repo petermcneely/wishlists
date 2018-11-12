@@ -16,12 +16,12 @@ function update() {
 	return false;
 }
 
-function doDelete(occasionId) {
+function doDelete(occasionSlug) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
-				window.location.replace("/occasions/" + occasionId);
+				window.location.replace("/occasions/" + occasionSlug);
 			}
 			else if (this.status == 500 || this.status == 404) {
 				document.getElementById("message").textContent = this.responseText;	

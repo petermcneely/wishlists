@@ -29,9 +29,9 @@ var sendEmail = function (content) {
 		});
 		 
 		return sg.API(request).then(function (response) {
-			console.log(response.statusCode);
-	  		console.log(response.body);
-	  		console.log(response.headers);
+			// console.log(response.statusCode);
+	  // 		console.log(response.body);
+	  // 		console.log(response.headers);
 		});
 	}
 }

@@ -1,3 +1,5 @@
+'use strict'
+
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
@@ -38,12 +40,10 @@ router.post('/sign-up',
         }).then(() => {
           res.status(200).send({message: 'Please verify your email address before logging in.'});
         }).catch((e) => {
-          console.log(e);
           res.status(500).send({message: 'An internal error has occurred.'});
         });
       }
     }).catch(function (error) {
-      console.log(error);
       res.status(500).json({message: "An internal error has occurred."});
     });
 	});
@@ -101,7 +101,6 @@ router.post('/forgot-password', function (req, res) {
     }).then(() => {
       res.status(200).send({message: 'Successfully sent you and email!'});
     }).catch((e) => {
-      console.log(e);
       res.status(500).send({message: 'An internal error has occurred.'});
     });
   }.bind(this)).catch(function (e) {
@@ -114,7 +113,6 @@ router.post('/change-password', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), 
   service.changePassword(req.body.currentPassword, req.body.newPassword, req.body.retypePassword, req.user ? req.user._id : null).then(function (response) {
     res.status(200).send({message: "Successfully changed your password!"});
   }.bind(this)).catch(function (e) {
-    console.log(e);
     res.status(500).send({message: 'An internal error has occurred.'});
   }.bind(this));
 });
@@ -125,7 +123,6 @@ router.put('/change-email', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), func
   service.changeEmail(req.body.newEmail, req.user._id).then(function (response) {
       res.status(200).send({message: 'Successfully changed your email!'});
   }.bind(this)).catch(function (e) {
-    console.log(e);
     res.status(500).send({message: 'An internal error has occurred.'});
   }.bind(this));
 });
@@ -137,7 +134,6 @@ router.get('/verify/:token', function (req, res) {
       partials: {page: '../users/verify'}
     });
   }.bind(this)).catch(function (e) {
-    console.log(e);
     res.status(500).render('errors/500');
   });
 });
