@@ -33,7 +33,6 @@ router.post('/sign-up',
         var sendService = require('../services/emails/sendService');
         var signUpFactory = require('../services/emails/users/signUpFactory');
         sendService.sendEmail({
-          from: 'pete.mcneely@gmail.com',
           to: req.body.email,
           subject: signUpFactory.getSubjectLine(),
           html: signUpFactory.getBody(req.body.email, req.protocol + '://' + req.get('Host') + '/users/verify/' + responses[1].toString('hex'))
@@ -94,7 +93,6 @@ router.post('/forgot-password', function (req, res) {
     var sendService = require('../services/emails/sendService');
     var forgotPasswordFactory = require('../services/emails/users/forgotPasswordFactory');
     sendService.sendEmail({
-      from: 'pete.mcneely@gmail.com',
       to: req.body.email,
       subject: forgotPasswordFactory.getSubjectLine(),
       html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in')

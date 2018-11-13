@@ -141,7 +141,6 @@ router.post('/:occasionSlug/share', urlencodedParser, ensure.ensureLoggedIn({red
 	usersService.findById(req.user._id).then(function (user) {
 		if (user) {
 			sendService.sendEmail({
-				from: user.email,
 				to: req.body.emails,
 				subject: shareFactory.getSubjectLine(),
 				html: shareFactory.getBody(user.email, req.protocol + '://' + req.get('Host') + '/occasions/' + req.params.occasionSlug)
