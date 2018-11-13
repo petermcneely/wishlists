@@ -1,10 +1,9 @@
 'use strict'
 
-var config = require('../config/development');
 const MongoClient = require('mongodb').MongoClient;
 
 module.exports = function (tableName) {
-	let url = config.mongoHost + ':' + config.mongoPort;
+	let url = "mongodb://" + process.env.MONGO_USERNAME + ":" + process.env.MONGO_PASSWORD + "@" + process.env.MONGO_URL;
 	return MongoClient.connect(url, { useNewUrlParser: true}).then(function (client) {
 		const db = client.db('wishlists');
 		return {
