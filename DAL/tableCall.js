@@ -17,6 +17,7 @@ module.exports = class TableCall {
 			}).catch(e => {
 				console.log(e);
 				if (this.client) this.client.close();
+				return Promise.reject(e);
 			});
 		});
 	}

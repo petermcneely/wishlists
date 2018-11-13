@@ -70,7 +70,7 @@ var createOccasionShares = function (occasionSlug, emails) {
 			slug: occasionSlug
 		}, 
 		{ 
-			$push: {
+			$addToSet: {
 				shares: { 
 					$each: emails 
 				} 
@@ -109,17 +109,24 @@ var deleteOccasionShare = function (occasionSlug, email) {
 
 var createWishlist = function (userId, name, occasionSlug) {
 	return tcInstance.call(collection => {
-		return collection.updateOne({
-			slug: occasionSlug
-		}, 
-		{ 
-			$push: { 
-				wishlists: { 
-					name: name,
-					slug: slugme(name), 
-					userId: new mongodb.ObjectID(userId) 
-				} 
-			} 
+		return getWishlist(occasionSlug, slugme(name)).then(occasion => {
+			if (occasion.wishlists && occasion.wishlists.length) {
+				return Promise.resolve({message: "A wishlist with that name already exists."});
+			}
+			else {
+				return collection.updateOne({
+					slug: occasionSlug
+				}, 
+				{ 
+					$addToSet: { 
+						wishlists: { 
+							name: name,
+							slug: slugme(name), 
+							userId: new mongodb.ObjectID(userId) 
+						} 
+					} 
+				});
+			}
 		});
 	});
 }
@@ -196,20 +203,27 @@ var deleteWishlist = function (occasionSlug, userId, slug) {
 
 var createItem = function (occasionSlug, wishlistSlug, name, comments, link) {
 	return tcInstance.call(collection => {
-		return collection.updateOne({
-			slug: occasionSlug,
-			"wishlists.slug": wishlistSlug
-		}, 
-		{
-			$push: {
-				"wishlists.$.items": {
-					name: name, 
-					comments: comments, 
-					link: link,
-					slug: slugme(name)
-				}
+		return getItem(occasionSlug, wishlistSlug, slugme(name)).then(item => {
+			if (item) {
+				return Promise.resolve({message: "An item with that name already exists."});
 			}
-		});
+			else {
+				return collection.updateOne({
+					slug: occasionSlug,
+					"wishlists.slug": wishlistSlug
+				}, 
+				{
+					$addToSet: {
+						"wishlists.$.items": {
+							name: name, 
+							comments: comments, 
+							link: link,
+							slug: slugme(name)
+						}
+					}
+				});
+			}
+		});		
 	});
 }
 
@@ -244,7 +258,7 @@ var getItem = function (occasionSlug, wishlistSlug, itemSlug) {
 				slug: 1
 			}
 		}).then(occasion => {
-			if (occasion && occasion.wishlists && occasion.wishlists.length) {
+			if (occasion && occasion.wishlists && occasion.wishlists.length && occasion.wishlists[0].items) {
 				for (var i = 0; i < occasion.wishlists[0].items.length; ++i) {
 					if (occasion.wishlists[0].items[i].slug === itemSlug) {
 						return Promise.resolve({
@@ -258,7 +272,7 @@ var getItem = function (occasionSlug, wishlistSlug, itemSlug) {
 					}
 				}
 			}
-			return Promise.reject();
+			return Promise.resolve();
 		});
 	});
 }
