@@ -18,7 +18,7 @@ var occasionsRouter = require('./routes/occasions');
 var app = express();
 
 var store = new MongoDBStore({
-	uri: 'mongodb://localhost:27017/wishlists',
+	uri: "mongodb://" + process.env.MONGO_USERNAME + ":" + process.env.MONGO_PASSWORD + "@" + process.env.MONGO_URL,
 	collection: 'sessions'
 });
 
@@ -28,8 +28,7 @@ store.on('connected', function () {
 
 // Catch errors
 store.on('error', function(error) {
-  assert.ifError(error);
-  assert.ok(false);
+  console.log(error);
 });
 
 app.use(logger('dev'));
