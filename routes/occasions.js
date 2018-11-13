@@ -134,7 +134,7 @@ router.post('/:occasionSlug/share', urlencodedParser, ensure.ensureLoggedIn({red
 
 	var sendService = require('../services/emails/sendService');
 	var shareFactory = require('../services/emails/occasions/shareFactory');
-	var UsersService = require('../services/UsersService');
+	var UsersService = require('../services/usersService');
 	
 	var usersService = new UsersService();
 
