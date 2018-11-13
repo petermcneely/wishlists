@@ -63,7 +63,9 @@ module.exports = class UsersService {
 		return this.hashPassword(newPassword).then(hash => {
 			var date = new Date();
 			date.setDate(date.getDate() + 1);
-			return dal.updateUser({email: email}, {password: hash, passwordExpiry: date});
+            return dal.updateUser({ email: email }, { password: hash, passwordExpiry: date }).then(() => {
+                return newPassword;
+            });
 		});
 	}
 
