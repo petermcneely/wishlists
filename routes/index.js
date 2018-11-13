@@ -8,7 +8,7 @@ var OccasionsService = require('../services/occasionsService');
 router.get('/', function(req, res, next) {
   	res.render('templates/shell', {
   		partials: {page: '../home/index'},
-  		title: 'Wishlists',
+        title: process.env.TITLE,
   		user: req.user
   	});
 });

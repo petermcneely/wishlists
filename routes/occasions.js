@@ -12,8 +12,9 @@ router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
 /* GET new occasion. */
 router.get('/new', function (req, res, next) {
 	res.render('templates/shell', {
-		partials: {page: '../occasions/new'}, 
-		title: 'New Occasion - Wishlists', 
+        partials: { page: '../occasions/new' }, 
+        subTitle: 'New Occasion - ',
+		title: process.env.TITLE, 
 		breadcrumbs: req.breadcrumbs, 
 		user: req.user,
 		csrfToken: req.csrfToken()})
@@ -46,7 +47,8 @@ router.get('/', function(req, res, next) {
   		function (success) {
   			res.render('templates/shell', { 
   				partials: {page: '../occasions/index'}, 
-  				title: 'Occasions - Wishlists', 
+                subTitle: 'Occasions - ',
+                title: process.env.TITLE, 
   				breadcrumbs: req.breadcrumbs, 
   				user: req.user,
   				occasions: success
@@ -71,8 +73,9 @@ router.get('/:occasionSlug', function (req, res) {
 					partials: {page: '../occasions/details', 
 					wishlists: '../wishlists/index'}, 
 					breadcrumbs: req.breadcrumbs, 
-					user: req.user,
-					title: occasion.name + ' - Wishlists', 
+                    user: req.user,
+                    subTitle: occasion.name + ' - ',
+                    title: process.env.TITLE, 
 					occasion: occasion, 
 					csrfToken: req.csrfToken()
 				});

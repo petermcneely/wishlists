@@ -14,8 +14,9 @@ router.get('/new', function (req, res, next) {
 	res.render('templates/shell', {
 		partials: {page: '../wishlists/new'}, 
 		breadcrumbs: req.breadcrumbs, 
-		user: req.user,
-		title: 'New Wishlist - Wishlists', 
+        user: req.user,
+        subTitle: 'New Wishlist - ',
+        title: process.env.TITLE, 
 		occasionSlug: req.occasionSlug, 
 		csrfToken: req.csrfToken()
 	});
@@ -52,8 +53,9 @@ router.get('/:wishlistSlug', function (req, res) {
 					partials: {page: '../wishlists/details', 
 					items: '../items/index'}, 
 					breadcrumbs: req.breadcrumbs, 
-					user: req.user,
-					title: wishlist.name + ' - Wishlists', 
+                    user: req.user,
+                    subTitle: wishlist.name + ' - ',
+                    title: process.env.TITLE, 
 					wishlist: wishlist, 
 					csrfToken: req.csrfToken()});
 			}
