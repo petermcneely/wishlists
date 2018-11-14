@@ -7,7 +7,7 @@ var sendEmail = function (content) {
 		content.to.forEach(function (e) {
 			let newContent = {
 				to: e,
-				from: content.from,
+				from: content.from || process.env.SENDGRID_FROM,
 				subject: content.subject,
 				html: content.html
 			};
@@ -17,7 +17,7 @@ var sendEmail = function (content) {
 	}
 	else {
 		let toEmail = new helper.Email(content.to);
-		let fromEmail = new helper.Email(content.from);
+        let fromEmail = new helper.Email(content.from || process.env.SENDGRID_FROM);
 		let body = new helper.Content('text/html', content.html);
 		let mail = new helper.Mail(fromEmail, content.subject, toEmail, body);
 
@@ -28,11 +28,7 @@ var sendEmail = function (content) {
 		  body: mail.toJSON()
 		});
 		 
-		return sg.API(request).then(function (response) {
-			// console.log(response.statusCode);
-	  // 		console.log(response.body);
-	  // 		console.log(response.headers);
-		});
+        return sg.API(request);
 	}
 }
 

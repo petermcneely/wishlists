@@ -13,7 +13,9 @@ router.get('/sign-up',
     }
     else {
   		res.render('templates/shell', {
-  			partials: {page: '../users/signUp'},
+            partials: { page: '../users/signUp' },
+            subTitle: 'Sign Up - ',
+            title: process.env.TITLE,
   			user: req.user,
   			csrfToken: req.csrfToken()
   		});
@@ -33,7 +35,6 @@ router.post('/sign-up',
         var sendService = require('../services/emails/sendService');
         var signUpFactory = require('../services/emails/users/signUpFactory');
         sendService.sendEmail({
-          from: 'pete.mcneely@gmail.com',
           to: req.body.email,
           subject: signUpFactory.getSubjectLine(),
           html: signUpFactory.getBody(req.body.email, req.protocol + '://' + req.get('Host') + '/users/verify/' + responses[1].toString('hex'))
@@ -51,7 +52,9 @@ router.post('/sign-up',
 router.get('/sign-in',
   function(req, res) {
     res.render('templates/shell', {
-    	partials: {page: '../users/signIn'},
+        partials: { page: '../users/signIn' },
+        subTitle: 'Sign In - ',
+        title: process.env.TITLE,
     	user: req.user,
     	csrfToken: req.csrfToken()
     });
@@ -78,14 +81,21 @@ router.get('/profile',
   ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
   function(req, res){
     res.render('templates/shell', {
-    	partials: {page: '../users/profile'},
+        partials: { page: '../users/profile' },
+        subTitle: 'Profile - ',
+        title: process.env.TITLE,
     	user: req.user,
       csrfToken: req.csrfToken()
     });
   });
 
 router.get('/forgot-password', (req, res) => {
-  res.render('templates/shell', {partials: {page: '../users/forgotPassword'}, csrfToken: req.csrfToken()});
+    res.render('templates/shell', {
+        partials: { page: '../users/forgotPassword' },
+        subTitle: 'Forgot Password - ',
+        title: process.env.TITLE,
+        csrfToken: req.csrfToken()
+    });
 });
 
 router.post('/forgot-password', function (req, res) {
@@ -94,7 +104,6 @@ router.post('/forgot-password', function (req, res) {
     var sendService = require('../services/emails/sendService');
     var forgotPasswordFactory = require('../services/emails/users/forgotPasswordFactory');
     sendService.sendEmail({
-      from: 'pete.mcneely@gmail.com',
       to: req.body.email,
       subject: forgotPasswordFactory.getSubjectLine(),
       html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in')
@@ -131,7 +140,9 @@ router.get('/verify/:token', function (req, res) {
   var service = new UserService();
   service.verify(req.params.token).then(function (response) {
     res.render('templates/shell', {
-      partials: {page: '../users/verify'}
+        partials: { page: '../users/verify' },
+        subTitle: 'Verified - ',
+        title: process.env.TITLE,
     });
   }.bind(this)).catch(function (e) {
     res.status(500).render('errors/500');
