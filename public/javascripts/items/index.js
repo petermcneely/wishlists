@@ -8,7 +8,7 @@ function claim(itemSlug) {
 			actionButton.classList.add("btn-danger");
 			actionButton.setAttribute("onclick", "unclaim('" + itemSlug + "')");
 			actionButton.textContent = "Unclaim";
-			document.getElementById("status").textContent = "Claimed";
+			document.getElementById("status-" + itemSlug).textContent = "Claimed";
 		}
 	};
 	xhttp.open("PUT", window.location.href + "/items/" + itemSlug + "/claim", true);
@@ -26,7 +26,7 @@ function unclaim(itemSlug) {
 			actionButton.classList.add("btn-success");
 			actionButton.setAttribute("onclick", "claim('" + itemSlug + "')");
 			actionButton.textContent = "Claim";
-			document.getElementById("status").textContent = "Unclaimed";
+			document.getElementById("status-" + itemSlug).textContent = "Unclaimed";
 		}
 	};
 	xhttp.open("PUT", window.location.href + "/items/" + itemSlug + "/unclaim", true);

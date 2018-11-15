@@ -34,7 +34,7 @@
 						<td><span class="fa fa-chevron-right"></span></td>
 						{{/wishlist.owns}}
 						{{^wishlist.owns}}
-						<td id="status">{{#claimed}}Claimed{{/claimed}}{{^claimed}}Unclaimed{{/claimed}}</td>
+						<td id="status-{{slug}}">{{#claimed}}Claimed{{/claimed}}{{^claimed}}Unclaimed{{/claimed}}</td>
 						{{#wishlist.sharedWithUser}}
 						<td>
 							{{^claimed}}
