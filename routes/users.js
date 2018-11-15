@@ -74,6 +74,7 @@ router.get('/sign-out',
   ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
   function(req, res){
     req.logout();
+    req.session = null;
     res.redirect('/');
   });
 

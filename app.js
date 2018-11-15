@@ -18,8 +18,9 @@ var occasionsRouter = require('./routes/occasions');
 var app = express();
 
 var store = new MongoDBStore({
-	uri: "mongodb://" + process.env.MONGO_USERNAME + ":" + process.env.MONGO_PASSWORD + "@" + process.env.MONGO_URL,
-	collection: 'sessions'
+	uri: process.env.MONGO_URL,
+	collection: 'sessions',
+	unset: 'destroy'
 });
 
 store.on('connected', function () {

@@ -3,7 +3,7 @@
 const MongoClient = require('mongodb').MongoClient;
 
 module.exports = function (tableName) {
-	let url = "mongodb://" + process.env.MONGO_USERNAME + ":" + process.env.MONGO_PASSWORD + "@" + process.env.MONGO_URL;
+	let url = process.env.MONGO_URL;
 	return MongoClient.connect(url, { useNewUrlParser: true}).then(function (client) {
 		const db = client.db('wishlists');
 		return {

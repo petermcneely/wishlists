@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 'use strict'
 
-require('dotenv').config();
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config();  
+}
 
 /**
  * Module dependencies.
  */
 
 var app = require('../app');
-var debug = require('debug')('wishlists:server');
 var http = require('http');
 const databaseIndexes = require('../DAL/dbIndexes');
 
@@ -91,7 +92,10 @@ databaseIndexes().then(response => {
     var bind = typeof addr === 'string'
       ? 'pipe ' + addr
       : 'port ' + addr.port;
-    debug('Listening on ' + bind);
+    if (process.env.NODE_ENV == 'development') {
+      let debug = require('debug')('wishlists:server');
+      debug('Listening on ' + bind);
+    }
   }
 }).catch(e => {
   console.log(e)
