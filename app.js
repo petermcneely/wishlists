@@ -19,8 +19,8 @@ var app = express();
 
 var store = new MongoDBStore({
 	uri: process.env.MONGO_URL,
-	collection: 'sessions',
-	unset: 'destroy'
+	databaseName: 'wishlists',
+	collection: 'sessions'
 });
 
 store.on('connected', function () {
@@ -47,7 +47,8 @@ app.use(require('express-session')({
 	cookie: { maxAge: 1000 * 60 * 60 * 24 * 7},
 	store: store,
 	resave: true,
-	saveUninitialized: true
+	saveUninitialized: false,
+	unset: 'destroy'
 }));
 
 app.use(authConfig.initialize());
