@@ -14,21 +14,23 @@
   {{/user}}
 
   <div class="table-responsive">
-    <table class="table table-striped">
+    <table class="table table-striped table-hover">
       <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col">Details</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
         {{#occasion.wishlists}}
-          <tr scope="row">
+          <tr scope="row" onclick="goTo('{{occasion.slug}}', '{{slug}}')">
             <td>{{name}}</td>
-            <td><a href="{{occasion.slug}}/wishlists/{{slug}}"><span class="fa fa-eye fa-2x"></span></a></td>
+            <td><span class="fa fa-chevron-right"></span></td>
           </tr>
         {{/occasion.wishlists}}
       </tbody>
     </table>
   </div>
 </div>
+
+<script type="text/javascript" src="/javascripts/wishlists/index.js"></script>

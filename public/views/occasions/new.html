@@ -1,17 +1,23 @@
-<h1>New Occasion</h1>
+<h1 class="text-center">New Occasion</h1>
 <p id="message"></p>
-<form class="form-inline" method="POST">
-  <div class="form-group mx-sm-3">
-    <label class="form-label mx-sm-3" for="name">Name</label>
-    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Birthday" autofocus/>
+<div class="row">
+  <div class="offset-md-4 col-md-4">
+    <form method="POST">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label class="form-label" for="name">Name</label>
+          <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Birthday" autofocus required/>
+        </div>
+        <div class="form-group col-md-6">
+        	<label class="form-label" for="occurrence">Occurrence Date</label>
+        	<input class="form-control" id="occurrence" name="occurrence" type="date" />
+        </div>
+      </div>
+      <button class="btn btn-success" type="submit">Create</button>
+      <button class="btn btn-danger" type="button" onclick="return cancel()">Cancel</button>
+      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+    </form>
   </div>
-  <div class="form-group mx-sm-3">
-  	<label class="form-label mx-sm-3" for="occurrence">Occurrence Date</label>
-  	<input class="form-control" id="occurrence" name="occurrence" type="date" />
-  </div>
-  <input class="btn btn-success mx-sm-3" type="submit" value="Create" />
-  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel()" />
-  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-</form>
+</div>
 
 <script type="text/javascript" src="/javascripts/occasions/new.js"></script>

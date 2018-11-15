@@ -1,25 +1,28 @@
-<h1>Current Wishlist Item</h1>
+<h1 class="text-center">Current Wishlist Item</h1>
 <div id="message" class="invisible"><span id="messageText"></span><span class="fa fa-times close" onclick="removeAlert()"></span></div>
-<form class="form-inline" onsubmit="return update()">
-  <div class="form-group mx-sm-3">
-    <label class="form-label mx-sm-3" for="name">Name</label>
-    <input class="form-control" id="name" name="name" type="text" value="{{item.name}}" autofocus {{^item.owns}}readonly{{/item.owns}}/>
+<div class="row">
+  <div class="offset-md-4 col-md-4">
+    <form onsubmit="return update()">
+      <div class="form-group">
+        <label class="form-label" for="name">Name</label>
+        <input class="form-control" id="name" name="name" type="text" value="{{item.name}}" autofocus {{^item.owns}}readonly{{/item.owns}} required/>
+      </div>
+      <div class="form-group">
+      	<label class="form-label" for="comments">Comments</label>
+      	<input class="form-control" id="comments" name="comments" type="text" value="{{item.comments}}" {{^item.owns}}readonly{{/item.owns}}>
+      </div>
+      <div class="form-group">
+      	<label class="form-label" for="link">Link</label>
+      	<input class="form-control" id="link" name="link" type="text" value="{{item.link}}" {{^item.owns}}readonly{{/item.owns}}>
+      </div>
+      {{#item.owns}}
+      <input class="btn btn-success" type="submit" value="Update"/>
+      <input class="btn btn-danger" type="button" value="Delete" onclick="return doDelete('{{occasionSlug}}', '{{wishlistSlug}}')"/>
+      <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+      {{/item.owns}}
+    </form>
   </div>
-  <div class="form-group mx-sm-3">
-  	<label class="form-label mx-sm-3" for="comments">Comments</label>
-  	<input class="form-control" id="comments" name="comments" type="text" value="{{item.comments}}" {{^item.owns}}readonly{{/item.owns}}>
-  </div>
-  <div class="form-group mx-sm-3">
-  	<label class="form-label mx-sm-3" for="link">Link</label>
-  	<input class="form-control" id="link" name="link" type="text" value="{{item.link}}" {{^item.owns}}readonly{{/item.owns}}>
-  </div>
-  {{#item.owns}}
-  <input class="btn btn-success mx-sm-3" type="submit" value="Update"/>
-  <input class="btn btn-danger mx-sm-3" type="button" value="Delete" onclick="return doDelete('{{occasionSlug}}', '{{wishlistSlug}}')"/>
-  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
-  {{/item.owns}}
-</form>
-<br/>
+</div>
 
 <script type="text/javascript" src="/javascripts/items/details.js"></script>
 <script type="text/javascript" src="/javascripts/helpers/alertHandler.js"></script>

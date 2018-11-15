@@ -21,7 +21,7 @@ function doDelete(occasionSlug) {
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
-				window.location.replace("/occasions/" + occasionSlug);
+				window.location.href = "/occasions/" + occasionSlug;
 			}
 			else if (this.status == 500 || this.status == 404) {
 				document.getElementById("message").textContent = this.responseText;	

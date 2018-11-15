@@ -1,13 +1,17 @@
-<h1>New Wishlist</h1>
+<h1 class="text-center">New Wishlist</h1>
 <p id="message"></p>
-<form class="form-inline" method="POST">
-  <div class="form-group mx-sm-3">
-    <label class="form-label mx-sm-3" for="name">Name</label>
-    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Wishlist" autofocus/>
-  </div>
-  <input class="btn btn-success mx-sm-3" type="submit" value="Create" />
-  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasion.slug}}')" />
-  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-</form>
+<div class="row">
+	<div class="offset-md-4 col-md-4">
+		<form method="POST">
+		  <div class="form-group">
+		    <label class="form-label" for="name">Name</label>
+		    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Wishlist" autofocus required/>
+		  </div>
+		  <input class="btn btn-success" type="submit" value="Create" />
+		  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasionSlug}}')" />
+		  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+		</form>
+	</div>
+</div>
 
 <script type="text/javascript" src="/javascripts/wishlists/new.js"></script>

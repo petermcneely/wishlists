@@ -1,21 +1,25 @@
-<h1>New Wishlist Item</h1>
+<h1 class="text-center">New Wishlist Item</h1>
 <p id="message"></p>
-<form class="form-inline" method="POST">
-  <div class="form-group mx-sm-3">
-    <label class="form-label mx-sm-3" for="name">Name</label>
-    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Item" autofocus/>
+<div class="row">
+  <div class="offset-md-4 col-md-4">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label" for="name">Name</label>
+        <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Item" autofocus required/>
+      </div>
+      <div class="form-group">
+      	<label class="form-label" for="comments">Comments</label>
+      	<input class="form-control" id="comments" name="comments" type="text" placeholder="The blue one">
+      </div>
+      <div class="form-group">
+      	<label class="form-label" for="link">Link</label>
+      	<input class="form-control" id="link" name="link" type="text" placeholder="https://link.com">
+      </div>
+      <input class="btn btn-success" type="submit" value="Create" />
+      <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasionSlug}}', '{{wishlistSlug}}')" />
+      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+    </form>
   </div>
-  <div class="form-group mx-sm-3">
-  	<label class="form-label mx-sm-3" for="comments">Comments</label>
-  	<input class="form-control" id="comments" name="comments" type="text" placeholder="The blue one">
-  </div>
-  <div class="form-group mx-sm-3">
-  	<label class="form-label mx-sm-3" for="link">Link</label>
-  	<input class="form-control" id="link" name="link" type="text" placeholder="https://link.com">
-  </div>
-  <input class="btn btn-success mx-sm-3" type="submit" value="Create" />
-  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasionSlug}}', '{{wishlistSlug}}')" />
-  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-</form>
+</div>
 
 <script type="text/javascript" src="/javascripts/items/new.js"></script>

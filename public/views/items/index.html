@@ -4,14 +4,16 @@
 	<a href='{{wishlist.slug}}/items/new'>Create New</a>
 	{{/wishlist.owns}}
 	<div class="table-responsive">
-		<table class="table table-striped">
+		<table class="table table-striped {{#wishlist.owns}}table-hover{{/wishlist.owns}}">
 			<thead>
 				<tr>
 					<th scope="col">Name</th>
 					<th scope="col">Comments</th>
 					<th scope="col">Link</th>
-					<th scope="col">Details</th>
 					{{#user}}
+					{{#wishlist.owns}}
+					<th scope="col"></th>
+					{{/wishlist.owns}}
 					{{^wishlist.owns}}
 					<th scope="col">Status</th>
 					{{#wishlist.sharedWithUser}}
@@ -23,12 +25,14 @@
 			</thead>
 			<tbody>
 				{{#wishlist.items}}
-					<tr scope="row">
+					<tr scope="row" onclick="goTo('{{wishlist.owns}}', '{{wishlist.slug}}', '{{slug}}')">
 						<td>{{name}}</td>
 						<td>{{comments}}</td>
 						<td><a href='{{link}}' target="_blank">{{link}}</a></td>
-						<td><a href='{{wishlist.slug}}/items/{{slug}}'><span class="fa fa-eye fa-2x"></span></a></td>
 						{{#user._id}}
+						{{#wishlist.owns}}
+						<td><span class="fa fa-chevron-right"></span></td>
+						{{/wishlist.owns}}
 						{{^wishlist.owns}}
 						<td id="status">{{#claimed}}Claimed{{/claimed}}{{^claimed}}Unclaimed{{/claimed}}</td>
 						{{#wishlist.sharedWithUser}}

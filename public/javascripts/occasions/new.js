@@ -1,3 +1,3 @@
 function cancel() {
-	window.location.replace("/occasions");
+	window.location.href = "/occasions";
 }

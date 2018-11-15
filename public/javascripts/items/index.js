@@ -33,3 +33,9 @@ function unclaim(itemSlug) {
 	xhttp.setRequestHeader("X-CSRF-TOKEN", document.getElementById("_csrf").value);
 	xhttp.send();
 }
+
+function goTo(owns, wishlistSlug, itemSlug) {
+	if (owns === 'true') {
+		window.location.href = wishlistSlug + '/items/' + itemSlug;	
+	}
+}
