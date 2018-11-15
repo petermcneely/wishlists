@@ -38,10 +38,10 @@
 						{{#wishlist.sharedWithUser}}
 						<td>
 							{{^claimed}}
-							<button class="btn btn-success" id="actionButton" onclick="claim('{{slug}}')">Claim</button>
+							<button class="btn btn-success" id="actionButton-{{slug}}" onclick="claim('{{slug}}')">Claim</button>
 							{{/claimed}}
 							{{#claimedByUser}}
-							<button class="btn btn-danger" id="actionButton" onclick="unclaim('{{slug}}')">Unclaim</button>
+							<button class="btn btn-danger" id="actionButton-{{slug}}" onclick="unclaim('{{slug}}')">Unclaim</button>
 							{{/claimedByUser}}
 						</td>
 						{{/wishlist.sharedWithUser}}

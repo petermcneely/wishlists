@@ -3,7 +3,7 @@ function claim(itemSlug) {
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && (this.status == 200 || this.status == 500)) {
 			showAlert(JSON.parse(this.response).message, this.status);
-			var actionButton = document.getElementById("actionButton");
+			var actionButton = document.getElementById("actionButton-" + itemSlug);
 			actionButton.classList.remove("btn-success");
 			actionButton.classList.add("btn-danger");
 			actionButton.setAttribute("onclick", "unclaim('" + itemSlug + "')");
@@ -21,7 +21,7 @@ function unclaim(itemSlug) {
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && (this.status == 200 || this.status == 500)) {
 			showAlert(JSON.parse(this.response).message, this.status);
-			var actionButton = document.getElementById("actionButton");
+			var actionButton = document.getElementById("actionButton-" + itemSlug);
 			actionButton.classList.remove("btn-danger");
 			actionButton.classList.add("btn-success");
 			actionButton.setAttribute("onclick", "claim('" + itemSlug + "')");
