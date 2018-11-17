@@ -27,16 +27,17 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new ItemsService();
-	service.create(req.occasionSlug, req.wishlistSlug, req.body.name, req.body.comments, req.body.link).then(
-		function (success) {
-			res.redirect('/occasions/' + req.occasionSlug + '/wishlists/' + req.wishlistSlug);
+	service.create(req.occasionSlug, req.wishlistSlug, req.body.name, req.body.comments, req.body.link).then(success => {
+		if (success && success.error) {
+			res.status(500).send({message: success.error});
 		}
-	).catch(
-		function (error) {
-			res.status(500);
-			res.render('errors/500', {error: error});
+		else {
+			res.sendStatus(200);
 		}
-	);
+	}).catch(error => {
+		res.status(500);
+		res.render('errors/500', {error: error});
+	});
 });
 
 /* GET wishlist item. */

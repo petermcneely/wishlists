@@ -11,14 +11,27 @@ var slugme = function (input) {
 }
 
 var createOccasion = function (userId, name, occurrence) {
-	return tcInstance.call(collection => {
-		return collection.insertOne({
-			userId: new mongodb.ObjectID(userId),
-			name: name, 
-			slug: slugme(name),
-			occurrence: new Date(occurrence)
+	let slug = slugme(name);
+	if (slug === "") {
+		return Promise.resolve({error: "That name is not allowed."});
+	}
+	else {
+		return getOccasion(slug).then(occasion => {
+			if (occasion) {
+				return Promise.resolve({error: "An occasion with that name already exists."});
+			}
+			else {
+				return tcInstance.call(collection => {
+					return collection.insertOne({
+						userId: new mongodb.ObjectID(userId),
+						name: name, 
+						slug: slug,
+						occurrence: new Date(occurrence)
+					});
+				});
+			}
 		});
-	});
+	}
 }
 
 var getOccasions = function () {
@@ -108,27 +121,33 @@ var deleteOccasionShare = function (occasionSlug, email) {
 }
 
 var createWishlist = function (userId, name, occasionSlug) {
-	return tcInstance.call(collection => {
-		return getWishlist(occasionSlug, slugme(name)).then(occasion => {
-			if (occasion.wishlists && occasion.wishlists.length) {
-				return Promise.resolve({message: "A wishlist with that name already exists."});
+	let slug = slugme(name);
+	if (slug === "") {
+		return Promise.resolve({error: "That name is not allowed."});
+	}
+	else {
+		return getWishlist(occasionSlug, slug).then(occasion => {
+			if (occasion && occasion.wishlists && occasion.wishlists.length) {
+				return Promise.resolve({error: "A wishlist with that name already exists."});
 			}
 			else {
-				return collection.updateOne({
-					slug: occasionSlug
-				}, 
-				{ 
-					$addToSet: { 
-						wishlists: { 
-							name: name,
-							slug: slugme(name), 
-							userId: new mongodb.ObjectID(userId) 
+				return tcInstance.call(collection => {
+					return collection.updateOne({
+						slug: occasionSlug
+					}, 
+					{ 
+						$addToSet: { 
+							wishlists: { 
+								name: name,
+								slug: slug, 
+								userId: new mongodb.ObjectID(userId) 
+							} 
 						} 
-					} 
+					});
 				});
 			}
 		});
-	});
+	}
 }
 
 var getWishlists = function (occasionSlug) {
@@ -202,29 +221,35 @@ var deleteWishlist = function (occasionSlug, userId, slug) {
 }
 
 var createItem = function (occasionSlug, wishlistSlug, name, comments, link) {
-	return tcInstance.call(collection => {
-		return getItem(occasionSlug, wishlistSlug, slugme(name)).then(item => {
+	let slug = slugme(name);
+	if (slug === "") {
+		return Promise.resolve({error: "That name is not allowed."});
+	}
+	else {
+		return getItem(occasionSlug, wishlistSlug, slug).then(item => {
 			if (item) {
-				return Promise.resolve({message: "An item with that name already exists."});
+				return Promise.resolve({error: "An item with that name already exists."});
 			}
 			else {
-				return collection.updateOne({
-					slug: occasionSlug,
-					"wishlists.slug": wishlistSlug
-				}, 
-				{
-					$addToSet: {
-						"wishlists.$.items": {
-							name: name, 
-							comments: comments, 
-							link: link,
-							slug: slugme(name)
+				return tcInstance.call(collection => {
+					return collection.updateOne({
+						slug: occasionSlug,
+						"wishlists.slug": wishlistSlug
+					}, 
+					{
+						$addToSet: {
+							"wishlists.$.items": {
+								name: name, 
+								comments: comments, 
+								link: link,
+								slug: slug
+							}
 						}
-					}
+					});
 				});
 			}
-		});		
-	});
+		});
+	}
 }
 
 var getItems = function (occasionSlug, wishlistSlug, userId) {

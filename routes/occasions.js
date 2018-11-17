@@ -28,16 +28,17 @@ router.post('/new', urlencodedParser, function(req, res) {
 	}
 
   	var service = new OccasionsService();
-	service.create(req.user._id, req.body.name, req.body.occurrence).then(
-		function (success) {
-			res.redirect('/occasions');
+	service.create(req.user._id, req.body.name, req.body.occurrence).then(success => {
+		if (success && success.error) {
+			res.status(500).send({message: success.error});
 		}
-	).catch(
-		function (error) {
-			res.status(500);
-			res.render('errors/500', {error: error});
+		else {
+			res.sendStatus(200);
 		}
-	);
+	}).catch(error => {
+		res.status(500);
+		res.render('errors/500', {error: error});
+	});
 });
 
 /* GET home page. */

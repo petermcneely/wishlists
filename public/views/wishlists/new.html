@@ -1,17 +1,25 @@
 <h1 class="text-center">New Wishlist</h1>
-<p id="message"></p>
+<div class="row">
+  <div class="offset-md-4 col-md-4">
+    <div id="message" class="invisible">
+      <span id="messageText"></span>
+      <span class="fa fa-times close" onclick="removeAlert()"></span>
+    </div>
+  </div>
+</div>
 <div class="row">
 	<div class="offset-md-4 col-md-4">
-		<form method="POST">
+		<form onsubmit="return create('{{occasionSlug}}');">
 		  <div class="form-group">
 		    <label class="form-label" for="name">Name</label>
 		    <input class="form-control" id="name" name="name" type="text" placeholder="ex: My Wishlist" autofocus required/>
 		  </div>
 		  <input class="btn btn-success" type="submit" value="Create" />
 		  <input class="btn btn-danger" type="button" value="Cancel" onclick="return cancel('{{occasionSlug}}')" />
-		  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+		  <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
 		</form>
 	</div>
 </div>
 
 <script type="text/javascript" src="/javascripts/wishlists/new.js"></script>
+<script type="text/javascript" src="/javascripts/helpers/alertHandler.js"></script>
