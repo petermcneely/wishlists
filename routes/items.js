@@ -76,20 +76,21 @@ router.get('/:itemSlug', function (req, res) {
 router.put('/:itemSlug', urlencodedParser, function (req, res) {
 	if (!req.body || (!req.body.name && !req.body.comments && !req.body.link)) {
 		res.status(400);
-		return res.render('errors/400', {message: 'An updated name, comments, or link must be sent to update the wishlist item.'});
+		res.render('errors/400', {message: 'An updated name, comments, or link must be sent to update the wishlist item.'});
 	}
 
 	var service = new ItemsService();
-	service.update(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.body.name, req.body.comments, req.body.link).then(
-		function (success) {
-			return res.send({message: 'Successfully updated the wishlist item.'});
+	service.update(req.occasionSlug, req.wishlistSlug, req.params.itemSlug, req.body.name, req.body.comments, req.body.link).then(success => {
+		if (success && success.error) {
+			res.status(500).send({message: success.error});
 		}
-	).catch(
-		function (error) {
-			res.status(500);
-			return res.send({message: error});
+		else {
+			res.send({message: 'Successfully updated the wishlist item.'});
 		}
-	);
+	}).catch(error => {
+		res.status(500);
+		res.send({message: error});
+	});
 });
 
 /* DELETE wishlist item.*/

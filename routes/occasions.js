@@ -102,16 +102,17 @@ router.put('/:occasionSlug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'
 	}
 
 	var service = new OccasionsService();
-	service.update(req.user._id, req.params.occasionSlug, req.body.name, req.body.occurrence).then(
-		function (success) {
-			return res.send({message: 'Successfully updated the occasion.'});
+	service.update(req.user._id, req.params.occasionSlug, req.body.name, req.body.occurrence).then(success => {
+		if (success && success.error) {
+			res.status(500).send({message: success.error});
 		}
-	).catch(
-		function (error) {
-			res.status(500);
-			res.send({message: error});
+		else {
+			res.send({message: "Successfully updated the occasion."});
 		}
-	);
+	}).catch(error => {
+		res.status(500);
+		res.send({message: error});
+	});
 });
 
 

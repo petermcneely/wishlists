@@ -81,16 +81,17 @@ router.put('/:wishlistSlug', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'
 	}
 
 	var service = new WishlistsService();
-	service.update(req.user._id, req.occasionSlug, req.params.wishlistSlug, req.body.name).then(
-		function (success) {
-			return res.send({message: 'Successfully updated the wishlist.'});
+	service.update(req.user._id, req.occasionSlug, req.params.wishlistSlug, req.body.name).then(success => {
+		if (success && success.error) {
+			res.status(500).send({message: success.error});
 		}
-	).catch(
-		function (error) {
-			res.status(500);
-			res.send({message: error});
+		else {
+			res.send({message: 'Successfully updated the wishlist.'});
 		}
-	);
+	}).catch(error => {
+		res.status(500);
+		res.send({message: error});
+	});
 });
 
 /* DELETE wishlist.*/
