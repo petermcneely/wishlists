@@ -62,11 +62,19 @@ router.get('/sign-in',
   
 router.post('/sign-in', function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
-    if (err || !user) { res.status(401).send("Invalid/unverified email or invalid password.");}
-    req.logIn(user, function (err) {
-      if (err) { next(err); }
-      res.sendStatus(200);
-    })
+    if (err || !user) { 
+      res.status(401).send("Invalid/unverified email or invalid password.");
+    }
+    else {
+      req.logIn(user, function (err) {
+        if (err) { 
+          next(err); 
+        }
+        else {
+          res.sendStatus(200);  
+        }
+      });
+    }
   })(req, res, next);
 });
   
