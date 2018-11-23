@@ -12,7 +12,12 @@ module.exports = class TableCall {
 		return collection(this.tableName).then(obj => {
 			this.client = obj.client;
 			return cb(obj.collection).then(result => {
-				this.client.close();
+				if (this.client) {
+					this.client.close();
+				}
+				else {
+					console.log("No client?");
+				}
 				return result;
 			}).catch(e => {
 				console.log(e);
