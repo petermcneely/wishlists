@@ -44,6 +44,14 @@ module.exports = class WishlistsService {
 				wishlist.occasion = {
 					slug: occasion.slug
 				};
+
+				if (wishlist.items && wishlist.items.length) {
+					for (let i = 0; i < wishlist.items.length; ++i) {
+						if (wishlist.items[i].claimed) {
+							wishlist.items[i].claimedByUser = wishlist.items[i].claimed.by.equals(userId);
+						}
+					}
+				}
 				return wishlist;
 			}
 			else {
