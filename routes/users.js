@@ -1,159 +1,170 @@
-'use strict'
+'use strict';
 
-var express = require('express');
-var router = express.Router();
-var passport = require('passport');
-var UserService = require('../services/usersService');
-var ensure = require('connect-ensure-login');
+const express = require('express');
+// eslint-disable-next-line new-cap
+const router = express.Router();
+const passport = require('passport');
+const UserService = require('../services/usersService');
+const ensure = require('connect-ensure-login');
 
 router.get('/sign-up',
-	function (req, res) {
-    if (req.isAuthenticated && req.isAuthenticated()) {
-      res.redirect('profile');
-    }
-    else {
-  		res.render('templates/shell', {
-            partials: { page: '../users/signUp' },
-            subTitle: 'Sign Up - ',
-            title: process.env.TITLE,
-  			user: req.user,
-  			csrfToken: req.csrfToken()
-  		});
-    }
-	});
-
-router.post('/sign-up',
-	function (req, res) {
-		var service = new UserService();
-
-    Promise.all([service.createUser(req.body.email, req.body.password, req.body.retypePassword), service.encryptVerificationParameters(req.body.email)]).then(function (responses) {
-      if (responses[0] && responses[0].message) {
-        res.status(500).json({message: responses[0].message});
-      }
-      else
-      {
-        var sendService = require('../services/emails/sendService');
-        var signUpFactory = require('../services/emails/users/signUpFactory');
-        sendService.sendEmail({
-          to: req.body.email,
-          subject: signUpFactory.getSubjectLine(),
-          html: signUpFactory.getBody(req.body.email, req.protocol + '://' + req.get('Host') + '/users/verify/' + responses[1].toString('hex'))
-        }).then(() => {
-          res.status(200).send({message: 'Please verify your email address before logging in.'});
-        }).catch((e) => {
-          res.status(500).send({message: 'An internal error has occurred.'});
+    function(req, res) {
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        res.redirect('profile');
+      } else {
+        res.render('templates/shell', {
+          partials: {page: '../users/signUp'},
+          subTitle: 'Sign Up - ',
+          title: process.env.TITLE,
+          user: req.user,
+          csrfToken: req.csrfToken(),
         });
       }
-    }).catch(function (error) {
-      res.status(500).json({message: "An internal error has occurred."});
     });
-	});
+
+router.post('/sign-up',
+    function(req, res) {
+      const service = new UserService();
+
+      Promise.all([
+        service.createUser(
+            req.body.email,
+            req.body.password,
+            req.body.retypePassword),
+        service.encryptVerificationParameters(
+            req.body.email)]).then(function(responses) {
+        if (responses[0] && responses[0].message) {
+          res.status(500).json({message: responses[0].message});
+        } else {
+          const sendService = require('../services/emails/sendService');
+          // eslint-disable-next-line max-len
+          const signUpFactory = require('../services/emails/users/signUpFactory');
+          sendService.sendEmail({
+            to: req.body.email,
+            subject: signUpFactory.getSubjectLine(),
+            html: signUpFactory.getBody(req.body.email, req.protocol + '://' + req.get('Host') + '/users/verify/' + responses[1].toString('hex')),
+          }).then(() => {
+            // eslint-disable-next-line max-len
+            res.status(200).send({message: 'Please verify your email address before logging in.'});
+          }).catch((e) => {
+            res.status(500).send({message: 'An internal error has occurred.'});
+          });
+        }
+      }).catch(function(error) {
+        res.status(500).json({message: 'An internal error has occurred.'});
+      });
+    });
 
 router.get('/sign-in',
-  function(req, res) {
-    res.render('templates/shell', {
-        partials: { page: '../users/signIn' },
+    function(req, res) {
+      res.render('templates/shell', {
+        partials: {page: '../users/signIn'},
         subTitle: 'Sign In - ',
         title: process.env.TITLE,
-    	user: req.user,
-    	csrfToken: req.csrfToken()
+        user: req.user,
+        csrfToken: req.csrfToken(),
+      });
     });
-  });
-  
-router.post('/sign-in', function (req, res, next) {
-  passport.authenticate('local', function (err, user, info) {
-    if (err || !user) { 
-      res.status(401).send("Invalid/unverified email or invalid password.");
-    }
-    else {
-      req.logIn(user, function (err) {
-        if (err) { 
-          next(err); 
-        }
-        else {
-          res.sendStatus(200);  
+
+router.post('/sign-in', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err || !user) {
+      res.status(401).send('Invalid/unverified email or invalid password.');
+    } else {
+      req.logIn(user, function(err) {
+        if (err) {
+          next(err);
+        } else {
+          res.sendStatus(200);
         }
       });
     }
   })(req, res, next);
 });
-  
+
 router.get('/sign-out',
-  ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
-  function(req, res){
-    req.logout();
-    req.session = null;
-    res.redirect('/');
-  });
+    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    function(req, res) {
+      req.logout();
+      req.session = null;
+      res.redirect('/');
+    });
 
 router.get('/profile',
-  ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
-  function(req, res){
-    res.render('templates/shell', {
-        partials: { page: '../users/profile' },
+    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    function(req, res) {
+      res.render('templates/shell', {
+        partials: {page: '../users/profile'},
         subTitle: 'Profile - ',
         title: process.env.TITLE,
-    	user: req.user,
-      csrfToken: req.csrfToken()
+        user: req.user,
+        csrfToken: req.csrfToken(),
+      });
     });
-  });
 
 router.get('/forgot-password', (req, res) => {
-    res.render('templates/shell', {
-        partials: { page: '../users/forgotPassword' },
-        subTitle: 'Forgot Password - ',
-        title: process.env.TITLE,
-        csrfToken: req.csrfToken()
-    });
+  res.render('templates/shell', {
+    partials: {page: '../users/forgotPassword'},
+    subTitle: 'Forgot Password - ',
+    title: process.env.TITLE,
+    csrfToken: req.csrfToken(),
+  });
 });
 
-router.post('/forgot-password', function (req, res) {
-  var service = new UserService();
-  service.overwritePassword(req.body.email).then(function (password) {
-    var sendService = require('../services/emails/sendService');
-    var forgotPasswordFactory = require('../services/emails/users/forgotPasswordFactory');
+router.post('/forgot-password', function(req, res) {
+  const service = new UserService();
+  service.overwritePassword(req.body.email).then(function(password) {
+    const sendService = require('../services/emails/sendService');
+    const forgotPasswordFactory =
+    require('../services/emails/users/forgotPasswordFactory');
     sendService.sendEmail({
       to: req.body.email,
       subject: forgotPasswordFactory.getSubjectLine(),
-      html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in')
+      html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in'),
     }).then(() => {
       res.status(200).send({message: 'Successfully sent you and email!'});
     }).catch((e) => {
       res.status(500).send({message: 'An internal error has occurred.'});
     });
-  }.bind(this)).catch(function (e) {
+  }).catch(function(e) {
     res.render('errors/500');
   });
 });
 
-router.post('/change-password', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function (req, res) {
-  var service = new UserService();
-  service.changePassword(req.body.currentPassword, req.body.newPassword, req.body.retypePassword, req.user ? req.user._id : null).then(function (response) {
-    res.status(200).send({message: "Successfully changed your password!"});
-  }.bind(this)).catch(function (e) {
-    res.status(500).send({message: 'An internal error has occurred.'});
-  }.bind(this));
-});
+router.post('/change-password',
+    ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function(req, res) {
+      const service = new UserService();
+      service.changePassword(req.body.currentPassword, req.body.newPassword,
+          req.body.retypePassword, req.user ? req.user._id : null)
+          .then(function(response) {
+            res.status(200).send(
+                {message: 'Successfully changed your password!'});
+          }).catch(function(e) {
+            res.status(500).send({message: 'An internal error has occurred.'});
+          });
+    });
 
 // Assumes that a change in email with a verified user is a verified change.
-router.put('/change-email', ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function (req, res) {
-  var service = new UserService();
-  service.changeEmail(req.body.newEmail, req.user._id).then(function (response) {
-      res.status(200).send({message: 'Successfully changed your email!'});
-  }.bind(this)).catch(function (e) {
-    res.status(500).send({message: 'An internal error has occurred.'});
-  }.bind(this));
-});
-
-router.get('/verify/:token', function (req, res) {
-  var service = new UserService();
-  service.verify(req.params.token).then(function (response) {
-    res.render('templates/shell', {
-        partials: { page: '../users/verify' },
-        subTitle: 'Verified - ',
-        title: process.env.TITLE,
+router.put('/change-email',
+    ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function(req, res) {
+      const service = new UserService();
+      service.changeEmail(req.body.newEmail, req.user._id)
+          .then(function(response) {
+            res.status(200).send({message: 'Successfully changed your email!'});
+          }).catch(function(e) {
+            res.status(500).send({message: 'An internal error has occurred.'});
+          });
     });
-  }.bind(this)).catch(function (e) {
+
+router.get('/verify/:token', function(req, res) {
+  const service = new UserService();
+  service.verify(req.params.token).then(function(response) {
+    res.render('templates/shell', {
+      partials: {page: '../users/verify'},
+      subTitle: 'Verified - ',
+      title: process.env.TITLE,
+    });
+  }).catch(function(e) {
     res.status(500).render('errors/500');
   });
 });

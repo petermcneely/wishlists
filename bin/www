@@ -1,29 +1,29 @@
 #!/usr/bin/env node
-'use strict'
+'use strict';
 
-require('dotenv').config();  
+require('dotenv').config();
 
 /**
  * Module dependencies.
  */
 
-var app = require('../app');
-var http = require('http');
+const app = require('../app');
+const http = require('http');
 const databaseIndexes = require('../DAL/dbIndexes');
 
-databaseIndexes().then(response => {
+databaseIndexes().then((response) => {
   /**
  * Get port from environment and store in Express.
  */
 
-  var port = normalizePort(process.env.PORT || '3000');
+  const port = normalizePort(process.env.PORT || '3000');
   app.set('port', port);
 
   /**
    * Create HTTP server.
    */
 
-  var server = http.createServer(app);
+  const server = http.createServer(app);
 
   /**
    * Listen on provided port, on all network interfaces.
@@ -35,10 +35,11 @@ databaseIndexes().then(response => {
 
   /**
    * Normalize a port into a number, string, or false.
+   * @param {string} val The port to normalize
+   * @return {int} the normalized port number.
    */
-
   function normalizePort(val) {
-    var port = parseInt(val, 10);
+    const port = parseInt(val, 10);
 
     if (isNaN(port)) {
       // named pipe
@@ -55,16 +56,16 @@ databaseIndexes().then(response => {
 
   /**
    * Event listener for HTTP server "error" event.
+   * @param {object} error The error object
    */
-
   function onError(error) {
     if (error.syscall !== 'listen') {
       throw error;
     }
 
-    var bind = typeof port === 'string'
-      ? 'Pipe ' + port
-      : 'Port ' + port;
+    const bind = typeof port === 'string' ?
+      'Pipe ' + port :
+      'Port ' + port;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -84,17 +85,16 @@ databaseIndexes().then(response => {
   /**
    * Event listener for HTTP server "listening" event.
    */
-
   function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-      ? 'pipe ' + addr
-      : 'port ' + addr.port;
+    const addr = server.address();
+    const bind = typeof addr === 'string' ?
+      'pipe ' + addr :
+      'port ' + addr.port;
     if (process.env.NODE_ENV == 'development') {
-      let debug = require('debug')('wishlists:server');
+      const debug = require('debug')('wishlists:server');
       debug('Listening on ' + bind);
     }
   }
-}).catch(e => {
-  console.log(e)
+}).catch((e) => {
+  console.log(e);
 });
