@@ -28,7 +28,7 @@
 					<tr scope="row" onclick="goTo('{{wishlist.owns}}', '{{wishlist.slug}}', '{{slug}}')">
 						<td>{{name}}</td>
 						<td>{{comments}}</td>
-						<td><a href='{{link}}' target="_blank">{{link}}</a></td>
+						<td>{{#link}}<a href='{{link}}' target="_blank">Click me!</a>{{/link}}</td>
 						{{#user._id}}
 						{{#wishlist.owns}}
 						<td><span class="fa fa-chevron-right"></span></td>
