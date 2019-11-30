@@ -134,8 +134,10 @@ router.post('/forgot-password', function(req, res) {
 router.post('/change-password',
     ensure.ensureLoggedIn({redirectTo: 'sign-in'}), function(req, res) {
       const service = new UserService();
-      service.changePassword(req.body.currentPassword, req.body.newPassword,
-          req.body.retypePassword, req.user ? req.user._id : null)
+      service.changePassword(
+          req.body.newPassword,
+          req.body.retypePassword,
+          req.user ? req.user._id : null)
           .then(function(response) {
             res.status(200).send(
                 {message: 'Successfully changed your password!'});
