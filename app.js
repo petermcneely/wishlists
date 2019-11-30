@@ -1,31 +1,29 @@
-'use strict'
+'use strict';
 
-var express = require('express');
-var expressSession = require('express-session');
-var MongoDBStore = require('connect-mongodb-session')(expressSession);
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var csrf = require('csurf');
-var logger = require('morgan');
-var engines = require('consolidate');
-var breadcrumbMaker = require('./utils/breadcrumbMaker');
-var authConfig = require('./utils/authenticationConfig');
+const express = require('express');
+const expressSession = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(expressSession);
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const logger = require('morgan');
+const engines = require('consolidate');
+const breadcrumbMaker = require('./utils/breadcrumbMaker');
+const authConfig = require('./utils/authenticationConfig');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const occasionsRouter = require('./routes/occasions');
+const app = express();
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var occasionsRouter = require('./routes/occasions');
-
-var app = express();
-
-var store = new MongoDBStore({
-	uri: process.env.MONGO_URL,
-	databaseName: 'wishlists',
-	collection: 'sessions'
+const store = new MongoDBStore({
+  uri: process.env.MONGO_URL,
+  databaseName: 'wishlists',
+  collection: 'sessions',
 });
 
-store.on('connected', function () {
-	store.client;
-})
+store.on('connected', function() {
+  store.client;
+});
 
 // Catch errors
 store.on('error', function(error) {
@@ -34,7 +32,7 @@ store.on('error', function(error) {
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(csrf({cookie: true}));
 app.use(breadcrumbMaker(['javascripts', 'stylesheets', 'views', 'images']));
@@ -43,12 +41,12 @@ app.set('views', path.join(__dirname, 'public/views'));
 app.engine('html', engines.mustache);
 app.set('view engine', 'html');
 app.use(require('express-session')({
-	secret: process.env.SESSION_SECRET,
-	cookie: { maxAge: 1000 * 60 * 60 * 24 * 7},
-	store: store,
-	resave: true,
-	saveUninitialized: false,
-	unset: 'destroy'
+  secret: process.env.SESSION_SECRET,
+  cookie: {maxAge: 1000 * 60 * 60 * 24 * 7},
+  store: store,
+  resave: true,
+  saveUninitialized: false,
+  unset: 'destroy',
 }));
 
 app.use(authConfig.initialize());
