@@ -27,10 +27,21 @@ function newComment() {
 }
 
 /**
- * Updates an comment
- * @param {string} commentOid unique identifier of the comment
+ * Sets the comment values for the edit modal
+ * @param {string} commentOid The unique identifier of the comment
+ * @param {string} body The body of the comment
+ * @param {string} showOwner Whether or not the comment should be shown to the user
  */
-function updateComment(commentOid) {
+function setValues(commentOid, body, showOwner) {
+  document.getElementById('update-id').value = commentOid;
+  document.getElementById('update-body').value = body;
+  document.getElementById('update-show-owner').value = showOwner;
+}
+
+/**
+ * Updates an comment
+ */
+function updateComment() {
   const body = {
     body: document.getElementById('update-body').value,
     showOwner: document.getElementById('update-show-owner').value,
@@ -41,7 +52,7 @@ function updateComment(commentOid) {
       showAlert(JSON.parse(this.response).message, this.status);
     }
   };
-  xhttp.open('PUT', `${window.location.href}/comments/${commentOid}`, true);
+  xhttp.open('PUT', `${window.location.href}/comments/${document.getElementById('update-id')}`, true);
   xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   xhttp.setRequestHeader('X-CSRF-TOKEN',
       document.getElementById('_csrf').value);

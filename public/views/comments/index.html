@@ -8,8 +8,7 @@
     </div>
     <p class="mb-1">{{body}}</p>
     {{#owns}}
-    <input class="btn btn-success" type="button" data-toggle="modal" data-target="#editModal" value="Edit"/>
-    {{_id}}
+    <input class="btn btn-success" type="button" data-toggle="modal" data-target="#updateModal" value="Edit" onclick="setValues('{{_id}}', '{{body}}', '{{showOwner}}')"/>
     <button class="btn btn-danger" onclick="deleteComment('{{_id}}')">Delete</button>
     {{/owns}}
     {{/wishlist.comments}}
@@ -44,6 +43,37 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update your comment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <textarea class="form-control" id="update-body" name="update-body" placeholder="Write your comment here"></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="update-show-owner" name="update-show-owner">
+            <label class="form-check-label" for="update-show-owner">Show this comment to the wishlist owner</label>
+          </div>
+          <input type="hidden" id="update-id" name="update-id"/>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="updateComment()">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script type="text/javascript" src="/javascripts/comments/index.js"></script>
