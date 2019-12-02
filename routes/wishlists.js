@@ -4,6 +4,7 @@ const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const items = require('./items');
+const comments = require('./comments');
 const urlencodedParser = express.urlencoded({extended: true});
 const ensure = require('connect-ensure-login');
 const WishlistsService = require('../services/wishlistsService');
@@ -54,8 +55,10 @@ router.get('/:wishlistSlug', function(req, res) {
       function(wishlist) {
         if (wishlist) {
           res.render('templates/shell', {
-            partials: {page: '../wishlists/details',
-              items: '../items/index'},
+            partials: {
+              page: '../wishlists/details',
+              items: '../items/index',
+              comments: '../comments/index'},
             breadcrumbs: req.breadcrumbs,
             user: req.user,
             subTitle: wishlist.name + ' - ',
@@ -131,5 +134,14 @@ router.use('/:wishlistSlug/items', function(req, res, next) {
   }
   next();
 }, items);
+
+router.use('/:wishlistSlug/comments', (req, res, next) => {
+  req.wishlistSlug = req.params.wishlistSlug;
+  if (req.breadcrumbs) {
+    req.breadcrumbs[2].label = 'Wishlist';
+    req.breadcrumbs.splice(3, 1);
+  }
+  next();
+}, comments);
 
 module.exports = router;
