@@ -34,7 +34,7 @@ function newComment() {
 function setValues(commentOid, body, showOwner) {
   document.getElementById('update-id').value = commentOid;
   document.getElementById('update-body').value = body;
-  const showOwnerElem = document.getElementById('create-show-owner');
+  const showOwnerElem = document.getElementById('update-show-owner');
   if (showOwnerElem) {
     showOwnerElem.checked = showOwner;
   }
@@ -45,7 +45,7 @@ function setValues(commentOid, body, showOwner) {
  */
 function updateComment() {
   $('#updateModal').modal('hide');
-  const showOwnerElem = document.getElementById('create-show-owner');
+  const showOwnerElem = document.getElementById('update-show-owner');
   const body = {
     body: document.getElementById('update-body').value,
     showOwner: showOwnerElem ? showOwnerElem.checked : true,
