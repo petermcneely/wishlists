@@ -17,8 +17,8 @@
         <input class="btn btn-success mr-2" type="button" data-toggle="modal" data-target="#updateModal" value="Edit" onclick="setValues('{{_id}}', '{{body}}', '{{showOwner}}')"/>
         <input class="btn btn-danger" type="button" onclick="deleteComment('{{_id}}')" value="Delete"/>
       </div>
+      {{/owns}}
     </div>
-    {{/owns}}
     {{/wishlist.comments}}
   </div>
 </div>
