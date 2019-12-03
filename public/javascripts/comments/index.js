@@ -36,7 +36,7 @@ function setValues(commentOid, body, showOwner) {
   document.getElementById('update-body').value = body;
   const showOwnerElem = document.getElementById('update-show-owner');
   if (showOwnerElem) {
-    showOwnerElem.checked = showOwner;
+    showOwnerElem.checked = showOwner === 'true';
   }
 }
 
