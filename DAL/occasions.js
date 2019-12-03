@@ -485,7 +485,9 @@ const updateComment = (
     },
     {
       $set: {
-        'wishlists.$[outer].comments.$[inner]': updateObject,
+        'wishlists.$[outer].comments.$[inner].body': updateObject.body,
+        'wishlists.$[outer].comments.$[inner].showOwner': updateObject.showOwner,
+        'wishlists.$[outer].comments.$[inner].modifiedAt': updateObject.modifiedAt,
       },
     },
     {

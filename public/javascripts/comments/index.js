@@ -4,18 +4,17 @@
  */
 function newComment() {
   $('#createModal').modal('hide');
+  const showOwnerElem = document.getElementById('create-show-owner');
   const body = {
     body: document.getElementById('create-body').value,
-    showOwner: document.getElementById('create-show-owner').value,
+    showOwner: showOwnerElem ? showOwnerElem.checked : true,
   };
 
   const xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4) {
-      if (this.status == 200) {
+      if (this.status == 200 || this.status == 500 || this.status == 404) {
         location.reload();
-      } else if (this.status == 500 || this.status == 404) {
-        document.getElementById('message').textContent = this.responseText;
       }
     }
   };
@@ -35,24 +34,30 @@ function newComment() {
 function setValues(commentOid, body, showOwner) {
   document.getElementById('update-id').value = commentOid;
   document.getElementById('update-body').value = body;
-  document.getElementById('update-show-owner').value = showOwner;
+  const showOwnerElem = document.getElementById('create-show-owner');
+  if (showOwnerElem) {
+    showOwnerElem.checked = showOwner;
+  }
 }
 
 /**
  * Updates an comment
  */
 function updateComment() {
+  $('#updateModal').modal('hide');
+  const showOwnerElem = document.getElementById('create-show-owner');
   const body = {
     body: document.getElementById('update-body').value,
-    showOwner: document.getElementById('update-show-owner').value,
+    showOwner: showOwnerElem ? showOwnerElem.checked : true,
   };
   const xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && (this.status == 200 || this.status == 500)) {
-      showAlert(JSON.parse(this.response).message, this.status);
+      location.reload();
     }
   };
-  xhttp.open('PUT', `${window.location.href}/comments/${document.getElementById('update-id')}`, true);
+  const updateUrl = `${window.location.href}/comments/${document.getElementById('update-id').value}`;
+  xhttp.open('PUT', updateUrl, true);
   xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   xhttp.setRequestHeader('X-CSRF-TOKEN',
       document.getElementById('_csrf').value);

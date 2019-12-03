@@ -75,6 +75,8 @@ module.exports = class WishlistsService {
           for (let i = 0; i < wishlist.comments.length; ++i) {
             const currentComment = wishlist.comments[i];
             currentComment.owns = currentComment.userId.equals(userId);
+            currentComment.byOwner =
+              currentComment.userId.equals(wishlist.userId);
           }
         }
         return wishlist;
