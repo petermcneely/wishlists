@@ -282,21 +282,6 @@ const createItem = function(occasionSlug, wishlistSlug, name, comments, link) {
   }
 };
 
-const getItems = function(occasionSlug, wishlistSlug, userId) {
-  return tcInstance.call((collection) => {
-    return collection.find({
-      'slug': occasionSlug,
-      'wishlists.slug': wishlistSlug,
-    },
-    {
-      projection: {
-        'wishlists.$.items': 1,
-        'slug': 1,
-      },
-    });
-  });
-};
-
 const getItem = function(occasionSlug, wishlistSlug, itemSlug) {
   return tcInstance.call((collection) => {
     return collection.findOne({
@@ -463,6 +448,81 @@ const unclaimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
   });
 };
 
+const createComment = (occasionSlug, wishlistSlug, userId, body, showOwner) => {
+  return tcInstance.call((collection) => {
+    return collection.updateOne({
+      'slug': occasionSlug,
+      'wishlists.slug': wishlistSlug,
+    },
+    {
+      $addToSet: {
+        'wishlists.$.comments': {
+          _id: new mongodb.ObjectID(),
+          body: body,
+          showOwner: showOwner,
+          userId: new mongodb.ObjectID(userId),
+          createdAt: new Date(),
+        },
+      },
+    });
+  });
+};
+
+const updateComment = (
+    occasionSlug,
+    wishlistSlug,
+    commentOid,
+    updateObject) => {
+  return tcInstance.call((collection) => {
+    return collection.updateOne({
+      slug: occasionSlug,
+      wishlists: {
+        $elemMatch: {
+          'slug': wishlistSlug,
+          'comments._id': new mongodb.ObjectID(commentOid),
+        },
+      },
+    },
+    {
+      $set: {
+        'wishlists.$[outer].comments.$[inner].body': updateObject.body,
+        'wishlists.$[outer].comments.$[inner].showOwner': updateObject.showOwner,
+        'wishlists.$[outer].comments.$[inner].modifiedAt': updateObject.modifiedAt,
+      },
+    },
+    {
+      arrayFilters: [
+        {'outer.slug': wishlistSlug},
+        {'inner._id': new mongodb.ObjectID(commentOid)},
+      ],
+    });
+  });
+};
+
+const deleteComment = (occasionSlug, wishlistSlug, commentOid) => {
+  return tcInstance.call((collection) => {
+    return collection.updateOne({
+      slug: occasionSlug,
+      wishlists: {
+        $elemMatch: {
+          slug: wishlistSlug,
+        },
+      },
+    },
+    {
+      $pull: {
+        'wishlists.$[outer].comments': {
+          '_id': new mongodb.ObjectID(commentOid),
+        },
+      },
+    },
+    {
+      arrayFilters: [
+        {'outer.slug': wishlistSlug},
+      ],
+    });
+  });
+};
 
 module.exports = {
   createOccasion: createOccasion,
@@ -479,11 +539,13 @@ module.exports = {
   updateWishlist: updateWishlist,
   deleteWishlist: deleteWishlist,
   createItem: createItem,
-  getItems: getItems,
   getItem: getItem,
   updateItem: updateItem,
   deleteItem: deleteItem,
   claimItem: claimItem,
   unclaimItem: unclaimItem,
+  createComment: createComment,
+  updateComment: updateComment,
+  deleteComment: deleteComment,
 }
 ;

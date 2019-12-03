@@ -1,0 +1,91 @@
+<div class="container-fluid">
+  <h4>Comments&nbsp;<input class="btn btn-primary" type="button" data-toggle="modal" data-target="#createModal" value="Create New"/></h4>
+  <div class="list-group">
+    {{#wishlist.comments}}
+    <div class="list-group-item">
+      <p class="mb-1">
+        {{#byOwner}}
+        The wishlist owner wrote:
+        {{/byOwner}}
+        {{^byOwner}}
+        Someone wrote:
+        {{/byOwner}}
+        {{body}}
+      </p>
+      {{#owns}}
+      <div class="row">
+        <input class="btn btn-success mr-2" type="button" data-toggle="modal" data-target="#updateModal" value="Edit" onclick="setValues('{{_id}}', '{{body}}', '{{showOwner}}')"/>
+        <input class="btn btn-danger" type="button" onclick="deleteComment('{{_id}}')" value="Delete"/>
+      </div>
+    </div>
+    {{/owns}}
+    {{/wishlist.comments}}
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createModalLabel">Write a comment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <textarea class="form-control" id="create-body" name="create-body" placeholder="Write your comment here"></textarea>
+            </div>
+            {{^wishlist.owns}}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="create-show-owner" name="create-show-owner" checked>
+              <label class="form-check-label" for="create-show-owner">Show this comment to the wishlist owner</label>
+            </div>
+            {{/wishlist.owns}}
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="newComment()">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update your comment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <textarea class="form-control" id="update-body" name="update-body" placeholder="Write your comment here"></textarea>
+          </div>
+          {{^wishlist.owns}}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="update-show-owner" name="update-show-owner">
+            <label class="form-check-label" for="update-show-owner">Show this comment to the wishlist owner</label>
+          </div>
+          {{/wishlist.owns}}
+          <input type="hidden" id="update-id" name="update-id"/>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="updateComment()">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript" src="/javascripts/comments/index.js"></script>

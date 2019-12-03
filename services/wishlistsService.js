@@ -16,7 +16,7 @@ module.exports = class WishlistsService {
   }
 
   /**
-  * Gets the wishlists
+  * Gets the wishlist
   * @param {int} userId unique identifier of the requesting user
   * @param {string} occasionSlug unique identifier of the owning occasion
   * @param {string} slug unique slug of the wishlist in this occasion
@@ -51,12 +51,32 @@ module.exports = class WishlistsService {
           slug: occasion.slug,
         };
 
+        // Handle items.
         if (wishlist.items && wishlist.items.length) {
           for (let i = 0; i < wishlist.items.length; ++i) {
             if (wishlist.items[i].claimed) {
               wishlist.items[i].claimedByUser =
               wishlist.items[i].claimed.by.equals(userId);
             }
+          }
+        }
+
+        // Handle comments.
+        if (wishlist.comments && wishlist.comments.length) {
+          if (wishlist.owns) {
+            const comments = [];
+            for (let i = 0; i < wishlist.comments.length; ++i) {
+              if (wishlist.comments[i].showOwner) {
+                comments.push(wishlist.comments[i]);
+              }
+            }
+            wishlist.comments = comments;
+          }
+          for (let i = 0; i < wishlist.comments.length; ++i) {
+            const currentComment = wishlist.comments[i];
+            currentComment.owns = currentComment.userId.equals(userId);
+            currentComment.byOwner =
+              currentComment.userId.equals(wishlist.userId);
           }
         }
         return wishlist;
