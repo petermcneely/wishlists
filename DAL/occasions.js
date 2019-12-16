@@ -8,7 +8,7 @@ const tcInstance = new TableCall('occasions');
 
 const slugme = function(input) {
   return slugify(input,
-      {replacement: '-', remove: /[*+~.()'"!:@]/g, lower: true});
+      {replacement: '-', remove: /[/\\*+~.()'"!:@]/g, lower: true});
 };
 
 const createOccasion = function(userId, name, occurrence) {
