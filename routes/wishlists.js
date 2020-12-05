@@ -25,34 +25,44 @@ router.get('/new', function(req, res, next) {
 });
 
 /* POST new wishlist */
-router.post('/new', urlencodedParser, function(req, res) {
-  if (!req.body || !req.body.name) {
-    res.status(400);
-    res.render('errors/400',
-        {message: 'Missing the required name of the wishlist.'});
-  }
+router.post(
+    '/new',
+    urlencodedParser,
+    async function(req, res) {
+      if (!req.body || !req.body.name) {
+        res.status(400);
+        res.render('errors/400',
+            {message: 'Missing the required name of the wishlist.'});
+      }
 
-  const service = new WishlistsService();
-  service.create(req.user._id, req.occasionSlug, req.body.name)
-      .then((success) => {
+      try {
+        const service = new WishlistsService();
+        const success = await service.create(
+            req.user._id,
+            req.occasionSlug,
+            req.body.name);
         if (success && success.error) {
           res.status(500).send({message: success.error});
         } else {
           res.sendStatus(200);
         }
-      }).catch((error) => {
+      } catch (error) {
         res.status(500);
         res.render('errors/500', {error: error});
-      });
-});
+      }
+    });
 
 /* GET wishlist. */
-router.get('/:wishlistSlug', function(req, res) {
-  req.breadcrumbs[2].label = 'Wishlist';
-  const service = new WishlistsService();
-  service.get(req.user ? req.user._id : null,
-      req.occasionSlug, req.params.wishlistSlug).then(
-      function(wishlist) {
+router.get(
+    '/:wishlistSlug',
+    async function(req, res) {
+      req.breadcrumbs[2].label = 'Wishlist';
+
+      try {
+        const service = new WishlistsService();
+        const wishlist = await service.get(
+            req.user ? req.user._id : null,
+            req.occasionSlug, req.params.wishlistSlug);
         if (wishlist) {
           res.render('templates/shell', {
             partials: {
@@ -69,20 +79,18 @@ router.get('/:wishlistSlug', function(req, res) {
           res.status(404);
           res.render('errors/404');
         }
-      },
-  ).catch(
-      function(error) {
+      } catch (error) {
         res.status(500);
         res.render('errors/500', {error: error});
-      },
-  );
-});
+      }
+    });
 
 /* PUT updated wishlist. */
-router.put('/:wishlistSlug',
+router.put(
+    '/:wishlistSlug',
     ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}),
     urlencodedParser,
-    function(req, res) {
+    async function(req, res) {
       if (!req.body || !req.body.name) {
         res.status(400);
         res.render('errors/400',
@@ -90,40 +98,40 @@ router.put('/:wishlistSlug',
             {message: 'An updated name or occurrence date must be sent to update the wishlist.'});
       }
 
-      const service = new WishlistsService();
-      service.update(
-          req.user._id,
-          req.occasionSlug,
-          req.params.wishlistSlug,
-          req.body.name).then((success) => {
+      try {
+        const service = new WishlistsService();
+        const success = await service.update(
+            req.user._id,
+            req.occasionSlug,
+            req.params.wishlistSlug,
+            req.body.name);
         if (success && success.error) {
           res.status(500).send({message: success.error});
         } else {
           res.send({message: 'Successfully updated the wishlist.'});
         }
-      }).catch((error) => {
+      } catch (error) {
         res.status(500);
         res.send({message: error});
-      });
+      }
     });
 
 /* DELETE wishlist.*/
-router.delete('/:wishlistSlug',
-    ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}), function(req, res) {
-      const service = new WishlistsService();
-      service.delete(
-          req.user._id,
-          req.occasionSlug,
-          req.params.wishlistSlug).then(
-          function(success) {
-            res.sendStatus(200);
-          },
-      ).catch(
-          function(error) {
-            res.status(500);
-            res.render('errors/500', {error: error});
-          },
-      );
+router.delete(
+    '/:wishlistSlug',
+    ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}),
+    async function(req, res) {
+      try {
+        const service = new WishlistsService();
+        await service.delete(
+            req.user._id,
+            req.occasionSlug,
+            req.params.wishlistSlug);
+        res.sendStatus(200);
+      } catch (error) {
+        res.status(500);
+        res.render('errors/500', {error: error});
+      }
     });
 
 router.use('/:wishlistSlug/items', function(req, res, next) {
