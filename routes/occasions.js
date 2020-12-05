@@ -7,6 +7,10 @@ import wishlists from './wishlists';
 const urlencodedParser = urlencoded({ extended: true });
 import OccasionsService from '../services/occasionsService';
 import { ensureLoggedIn } from 'connect-ensure-login';
+import { sendEmail } from '../services/emails/sendService';
+import { getSubjectLine, getBody } from '../services/emails/occasions/shareFactory';
+import UsersService from '../services/usersService';
+import OccasionShareService from '../services/occasionSharesService';
 
 router.all('/new', ensureLoggedIn({ redirectTo: '/users/sign-in' }));
 
@@ -150,10 +154,6 @@ router.post(
     urlencodedParser,
     ensureLoggedIn({ redirectTo: '/users/sign-in' }),
     async function(req, res) {
-      const sendService = require('../services/emails/sendService');
-      const shareFactory = require('../services/emails/occasions/shareFactory');
-      const UsersService = require('../services/usersService').default;
-
       try {
         const usersService = new UsersService();
         const user = await usersService.findById(req.user._id);
@@ -166,15 +166,14 @@ router.post(
             url += '/occasions/';
             url += req.params.occasionSlug;
 
-            await sendService.sendEmail({
+            await sendEmail({
               to: req.body.emails,
-              subject: shareFactory.getSubjectLine(),
-              html: shareFactory.getBody(user.email, url),
+              subject: getSubjectLine(),
+              html: getBody(user.email, url),
             });
 
             try {
-              const OSS = require('../services/occasionSharesService').default;
-              const occasionSharesService = new OSS();
+              const occasionSharesService = new OccasionShareService();
               await occasionSharesService.create(
                   req.params.occasionSlug,
                   req.body.emails);

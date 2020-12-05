@@ -4,6 +4,7 @@ import { findByEmail as _findByEmail, findById as _findById, saveUser, updateUse
 import { hash as _hash } from 'bcrypt';
 import { cipher, decipher } from 'crypto-promise';
 import checkPassword from '../utils/passwordChecker';
+import { default as passwordGenerator } from 'generate-password';
 
 export default class UsersService {
   /**
@@ -97,7 +98,6 @@ export default class UsersService {
    * @return {string}
    */
   overwritePassword(email) {
-    const passwordGenerator = require('generate-password');
     const newPassword = passwordGenerator.generate(
         { length: 12, numbers: true, uppercase: true, strict: true });
     return this.hashPassword(newPassword).then((hash) => {

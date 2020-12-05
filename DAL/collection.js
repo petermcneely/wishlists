@@ -7,7 +7,10 @@ export default async function(tableName) {
   try {
     const client = await MongoClient.connect(
         url,
-        { useNewUrlParser: true });
+        {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        });
     const db = client.db('wishlists');
     return {
       collection: db.collection(tableName),

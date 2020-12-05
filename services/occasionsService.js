@@ -1,6 +1,7 @@
 'use strict';
 
 import { createOccasion, getOccasions, getOccasion, updateOccasion, deleteOccasion } from '../DAL/occasions';
+import UsersService from '../services/usersService';
 
 export default class OccasionsService {
   /**
@@ -32,7 +33,6 @@ export default class OccasionsService {
     const promises = [];
     promises.push(getOccasion(slug));
     if (userId) {
-      const UsersService = require('../services/usersService').default;
       const usersService = new UsersService();
       promises.push(usersService.findById(userId));
     }

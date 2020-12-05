@@ -1,5 +1,8 @@
 'use strict';
-import { mail as helper } from 'sendgrid';
+import { default as sendgrid, mail as helper } from 'sendgrid';
+import { default as debug } from 'debug';
+
+const serverDebug = debug('wishlists:server');
 
 export const sendEmail = function(content) {
   if (content && content.to && content.to.constructor === Array) {
@@ -22,7 +25,9 @@ export const sendEmail = function(content) {
     const body = new helper.Content('text/html', content.html);
     const mail = new helper.Mail(fromEmail, content.subject, toEmail, body);
 
-    const sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+    const sg = sendgrid(process.env.SENDGRID_API_KEY);
+    serverDebug(sg);
+    serverDebug(mail.toJSON());
     const request = sg.emptyRequest({
       method: 'POST',
       path: '/v3/mail/send',

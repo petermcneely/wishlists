@@ -3,9 +3,11 @@
 import { Router } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
-import { authenticate } from 'passport';
+import passport from 'passport';
 import UserService from '../services/usersService';
 import { ensureLoggedIn } from 'connect-ensure-login';
+import { sendEmail } from '../services/emails/sendService';
+import { getSubjectLine, getBody } from '../services/emails/users/signUpFactory';
 
 router.get('/sign-up',
     function(req, res) {
@@ -37,15 +39,12 @@ router.post(
         } else {
           const params = await service.encryptVerificationParameters(
               req.body.email);
-          const sendService = require('../services/emails/sendService');
-          // eslint-disable-next-line max-len
-          const signUpFactory = require('../services/emails/users/signUpFactory');
-          const subjectLine = signUpFactory.getSubjectLine();
-          const html = signUpFactory.getBody(
+          const subjectLine = getSubjectLine();
+          const html = getBody(
               req.body.email,
               req.protocol + '://' + req.get('Host') + '/users/verify/' + params.toString('hex'));
 
-          await sendService.sendEmail({
+          await sendEmail({
             to: req.body.email,
             subject: subjectLine,
             html: html,
@@ -71,7 +70,7 @@ router.get('/sign-in',
     });
 
 router.post('/sign-in', function(req, res, next) {
-  authenticate('local', function(err, user, info) {
+  passport.authenticate('local', function(err, user, info) {
     if (err || !user) {
       res.status(401).send('Invalid/unverified email or invalid password.');
     } else {
@@ -119,13 +118,10 @@ router.post('/forgot-password', async function(req, res) {
   try {
     const service = new UserService();
     const password = await service.overwritePassword(req.body.email);
-    const sendService = require('../services/emails/sendService');
-    const forgotPasswordFactory =
-    require('../services/emails/users/forgotPasswordFactory');
-    await sendService.sendEmail({
+    await sendEmail({
       to: req.body.email,
-      subject: forgotPasswordFactory.getSubjectLine(),
-      html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in'),
+      subject: getSubjectLine(),
+      html: getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in'),
     });
     res.status(200).send({ message: 'Successfully sent you and email!' });
   } catch (_) {
