@@ -1,9 +1,8 @@
 'use strict';
 
-const dal = require('../DAL/occasions');
+import { createOccasionShares, getOccasionShare } from '../DAL/occasions';
 
-module.exports = class OccasionSharesService {
-
+export default class OccasionSharesService {
   /**
    * Creates the occasion shares
    * @param {string} occasionSlug The slug of the occasion
@@ -11,7 +10,7 @@ module.exports = class OccasionSharesService {
    * @return {Promise}
    */
   create(occasionSlug, emails) {
-    return dal.createOccasionShares(occasionSlug, emails);
+    return createOccasionShares(occasionSlug, emails);
   }
 
   /**
@@ -21,7 +20,7 @@ module.exports = class OccasionSharesService {
    * @return {Promise}
    */
   get(occasionSlug, email) {
-    return dal.getOccasionShare(occasionSlug, email);
+    return getOccasionShare(occasionSlug, email);
   }
 
   /**

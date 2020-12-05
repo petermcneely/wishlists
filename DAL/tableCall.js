@@ -1,8 +1,8 @@
 'use strict';
 
-const collection = require('./collection');
+import collection from './collection';
 
-module.exports = class TableCall {
+export default class TableCall {
   /**
    * @param {string} tableName The name of the table to call.
    */

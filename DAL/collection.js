@@ -1,19 +1,20 @@
 'use strict';
 
-const MongoClient = require('mongodb').MongoClient;
+import { MongoClient } from 'mongodb';
 
-module.exports = function(tableName) {
+export default async function(tableName) {
   const url = process.env.MONGO_URL;
-  return MongoClient.connect(
-      url,
-      {useNewUrlParser: true}).then(function(client) {
+  try {
+    const client = await MongoClient.connect(
+        url,
+        { useNewUrlParser: true });
     const db = client.db('wishlists');
     return {
       collection: db.collection(tableName),
       client: client,
     };
-  }).catch(function(error) {
-    console.log('Can\'t connect to the mongo database hosted at ' + url );
+  } catch (error) {
+    console.log('Can\'t connect to the mongo database hosted at ' + url);
     console.log(error);
-  });
+  }
 };

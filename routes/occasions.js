@@ -1,24 +1,24 @@
 'use strict';
 
-const express = require('express');
+import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
-const router = express.Router();
-const wishlists = require('./wishlists');
-const urlencodedParser = express.urlencoded({extended: true});
-const OccasionsService = require('../services/occasionsService');
-const ensure = require('connect-ensure-login');
+const router = Router();
+import wishlists from './wishlists';
+const urlencodedParser = urlencoded({ extended: true });
+import OccasionsService from '../services/occasionsService';
+import { ensureLoggedIn } from 'connect-ensure-login';
 
-router.all('/new', ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}));
+router.all('/new', ensureLoggedIn({ redirectTo: '/users/sign-in' }));
 
 /* GET new occasion. */
 router.get('/new', function(req, res, next) {
   res.render('templates/shell', {
-    partials: {page: '../occasions/new'},
+    partials: { page: '../occasions/new' },
     subTitle: 'New Occasion - ',
     title: process.env.TITLE,
     breadcrumbs: req.breadcrumbs,
     user: req.user,
-    csrfToken: req.csrfToken()});
+    csrfToken: req.csrfToken() });
 });
 
 /* POST new occasion */
@@ -26,7 +26,7 @@ router.post('/new', urlencodedParser, async function(req, res) {
   if (!req.body || !req.body.name) {
     res.status(400);
     res.render('errors/400',
-        {message: 'Missing the required name of the occasion.'});
+        { message: 'Missing the required name of the occasion.' });
   }
 
   try {
@@ -37,13 +37,13 @@ router.post('/new', urlencodedParser, async function(req, res) {
         req.body.occurrence);
 
     if (success && success.error) {
-      res.status(500).send({message: success.error});
+      res.status(500).send({ message: success.error });
     } else {
       res.sendStatus(200);
     }
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -53,7 +53,7 @@ router.get('/', async function(req, res, next) {
     const service = new OccasionsService();
     const success = await service.index();
     res.render('templates/shell', {
-      partials: {page: '../occasions/index'},
+      partials: { page: '../occasions/index' },
       subTitle: 'Occasions - ',
       title: process.env.TITLE,
       breadcrumbs: req.breadcrumbs,
@@ -62,7 +62,7 @@ router.get('/', async function(req, res, next) {
     });
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -78,8 +78,8 @@ router.get('/:occasionSlug', async function(req, res) {
 
     if (occasion) {
       res.render('templates/shell', {
-        partials: {page: '../occasions/details',
-          wishlists: '../wishlists/index'},
+        partials: { page: '../occasions/details',
+          wishlists: '../wishlists/index' },
         breadcrumbs: req.breadcrumbs,
         user: req.user,
         subTitle: occasion.name + ' - ',
@@ -93,20 +93,20 @@ router.get('/:occasionSlug', async function(req, res) {
     }
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
 /* PUT updated occasion. */
 router.put(
     '/:occasionSlug',
-    ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}),
+    ensureLoggedIn({ redirectTo: '/users/sign-in' }),
     urlencodedParser,
     async function(req, res) {
       if (!req.body || (!req.body.name && !req.body.occurrence)) {
         res.status(400);
         // eslint-disable-next-line max-len
-        res.render('errors/400', {message: 'An updated name or occurrence date must be sent to update the occasion.'});
+        res.render('errors/400', { message: 'An updated name or occurrence date must be sent to update the occasion.' });
       }
 
       try {
@@ -117,20 +117,20 @@ router.put(
             req.body.name,
             req.body.occurrence);
         if (success && success.error) {
-          res.status(500).send({message: success.error});
+          res.status(500).send({ message: success.error });
         } else {
-          res.send({message: 'Successfully updated the occasion.'});
+          res.send({ message: 'Successfully updated the occasion.' });
         }
       } catch (error) {
         res.status(500);
-        res.send({message: error});
+        res.send({ message: error });
       }
     });
 
 /* DELETE occasion.*/
 router.delete(
     '/:occasionSlug',
-    ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}),
+    ensureLoggedIn({ redirectTo: '/users/sign-in' }),
     async function(req, res) {
       try {
         const service = new OccasionsService();
@@ -138,7 +138,7 @@ router.delete(
         res.sendStatus(200);
       } catch (error) {
         res.status(500);
-        res.render('errors/500', {error: error});
+        res.render('errors/500', { error: error });
       }
     });
 
@@ -148,11 +148,11 @@ router.delete(
 router.post(
     '/:occasionSlug/share',
     urlencodedParser,
-    ensure.ensureLoggedIn({redirectTo: '/users/sign-in'}),
+    ensureLoggedIn({ redirectTo: '/users/sign-in' }),
     async function(req, res) {
       const sendService = require('../services/emails/sendService');
       const shareFactory = require('../services/emails/occasions/shareFactory');
-      const UsersService = require('../services/usersService');
+      const UsersService = require('../services/usersService').default;
 
       try {
         const usersService = new UsersService();
@@ -160,40 +160,46 @@ router.post(
 
         if (user) {
           try {
+            let url = req.protocol;
+            url += '://';
+            url += req.get('Host');
+            url += '/occasions/';
+            url += req.params.occasionSlug;
+
             await sendService.sendEmail({
               to: req.body.emails,
               subject: shareFactory.getSubjectLine(),
-              html: shareFactory.getBody(user.email, req.protocol + '://' + req.get('Host') + '/occasions/' + req.params.occasionSlug),
+              html: shareFactory.getBody(user.email, url),
             });
 
             try {
-              const OSS = require('../services/occasionSharesService');
+              const OSS = require('../services/occasionSharesService').default;
               const occasionSharesService = new OSS();
               await occasionSharesService.create(
                   req.params.occasionSlug,
                   req.body.emails);
 
               res.status(200);
-              res.send({message: 'Successfully shared the occasion!'});
+              res.send({ message: 'Successfully shared the occasion!' });
             } catch (_) {
               res.status(500);
               // eslint-disable-next-line max-len
-              res.send({message: 'An internal error occurred but, your emails were sent!'});
+              res.send({ message: 'An internal error occurred but, your emails were sent!' });
             }
           } catch (_) {
             res.status(500);
             // eslint-disable-next-line max-len
-            res.send({message: 'An error occurred while sharing the occasion.'});
+            res.send({ message: 'An error occurred while sharing the occasion.' });
           }
         } else {
           res.status(500);
           // eslint-disable-next-line max-len
-          res.send({message: 'Cannot find the user trying to share the occasion.'});
+          res.send({ message: 'Cannot find the user trying to share the occasion.' });
         }
       } catch (error) {
         res.status(500);
         // eslint-disable-next-line max-len
-        res.send({message: 'Cannot find the user trying to share the occasion.'});
+        res.send({ message: 'Cannot find the user trying to share the occasion.' });
       }
     });
 
@@ -206,4 +212,4 @@ router.use('/:occasionSlug/wishlists', function(req, _, next) {
   next();
 }, wishlists);
 
-module.exports = router;
+export default router;

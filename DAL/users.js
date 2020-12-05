@@ -1,39 +1,31 @@
 'use strict';
 
-const mongodb = require('mongodb');
-const TableCall = require('./tableCall');
+import { ObjectID } from 'mongodb';
+import TableCall from './tableCall';
 
 const tcInstance = new TableCall('users');
 
-const findByEmail = function(email) {
+export const findByEmail = function(email) {
   return tcInstance.call((collection) => {
-    return collection.findOne({email: email});
+    return collection.findOne({ email: email });
   });
 };
 
-const findById =function(id) {
+export const findById =function(id) {
   return tcInstance.call((collection) => {
-    return collection.findOne({_id: new mongodb.ObjectID(id)});
+    return collection.findOne({ _id: new ObjectID(id) });
   });
 };
 
-const saveUser = function(email, hash) {
+export const saveUser = function(email, hash) {
   return tcInstance.call((collection) => {
     return collection.insertOne(
-        {email: email, password: hash, verified: false});
+        { email: email, password: hash, verified: false });
   });
 };
 
-const updateUser = function(query, where) {
+export const updateUser = function(query, where) {
   return tcInstance.call((collection) => {
-    return collection.updateOne(query, {$set: where});
+    return collection.updateOne(query, { $set: where });
   });
 };
-
-module.exports = {
-  findByEmail: findByEmail,
-  findById: findById,
-  saveUser: saveUser,
-  updateUser: updateUser,
-}
-;

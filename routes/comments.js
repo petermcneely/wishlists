@@ -1,17 +1,17 @@
 'use strict';
 
-const express = require('express');
+import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
-const router = express.Router();
-const urlencodedParser = express.urlencoded({extended: true});
-const CommentsService = require('../services/commentsService');
+const router = Router();
+const urlencodedParser = urlencoded({ extended: true });
+import CommentsService from '../services/commentsService';
 
 /* POST new comment */
 router.post('/new', urlencodedParser, async function(req, res) {
   if (!req.body || !req.body.body) {
     res.status(400);
     res.render('errors/400',
-        {message: 'Missing the required body of the comment.'});
+        { message: 'Missing the required body of the comment.' });
   }
 
   try {
@@ -24,13 +24,13 @@ router.post('/new', urlencodedParser, async function(req, res) {
         req.body.showOwner);
 
     if (response && response.error) {
-      res.status(500).send({message: response.error});
+      res.status(500).send({ message: response.error });
     } else {
       res.sendStatus(200);
     }
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -41,7 +41,7 @@ router.put('/:commentOid', urlencodedParser, async function(req, res) {
     res.status(400);
     // eslint-disable-next-line max-len
     const msg = 'An updated body or show owner selection must be sent to update the comment.';
-    res.render('errors/400', {message: msg});
+    res.render('errors/400', { message: msg });
   }
 
   try {
@@ -54,13 +54,13 @@ router.put('/:commentOid', urlencodedParser, async function(req, res) {
         req.body.showOwner);
 
     if (success && success.error) {
-      res.status(500).send({message: success.error});
+      res.status(500).send({ message: success.error });
     } else {
-      res.send({message: 'Successfully updated the comment.'});
+      res.send({ message: 'Successfully updated the comment.' });
     }
   } catch (error) {
     res.status(500);
-    res.send({message: error});
+    res.send({ message: error });
   }
 });
 
@@ -75,8 +75,8 @@ router.delete('/:commentOid', async function(req, res) {
     res.sendStatus(200);
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
-module.exports = router;
+export default router;

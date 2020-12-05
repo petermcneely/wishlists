@@ -1,9 +1,9 @@
 'use strict';
 
-const occasionDal = require('../DAL/occasions');
-const userDal = require('../DAL/users');
+import { createWishlist, getWishlist, updateWishlist, deleteWishlist } from '../DAL/occasions';
+import { findById } from '../DAL/users';
 
-module.exports = class WishlistsService {
+export default class WishlistsService {
   /**
   * @param {int} userId the id of the creating user.
   * @param {string} occasionSlug the unique identifier of
@@ -12,7 +12,7 @@ module.exports = class WishlistsService {
   * @return {Promise} Promise on creating a wishlist
   */
   create(userId, occasionSlug, name) {
-    return occasionDal.createWishlist(userId, name, occasionSlug);
+    return createWishlist(userId, name, occasionSlug);
   }
 
   /**
@@ -24,8 +24,8 @@ module.exports = class WishlistsService {
   */
   get(userId, occasionSlug, slug) {
     const promises = [
-      userDal.findById(userId),
-      occasionDal.getWishlist(occasionSlug, slug),
+      findById(userId),
+      getWishlist(occasionSlug, slug),
     ];
 
     return Promise.all(promises).then((results) => {
@@ -94,7 +94,7 @@ module.exports = class WishlistsService {
   * @return {Promise}
   */
   update(userId, occasionSlug, slug, newName) {
-    return occasionDal.updateWishlist(occasionSlug, userId, slug, newName);
+    return updateWishlist(occasionSlug, userId, slug, newName);
   }
 
   /**
@@ -104,7 +104,7 @@ module.exports = class WishlistsService {
   * @return {Promise}
   * */
   delete(userId, occasionSlug, slug) {
-    return occasionDal.deleteWishlist(occasionSlug, userId, slug);
+    return deleteWishlist(occasionSlug, userId, slug);
   }
 }
 ;

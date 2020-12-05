@@ -1,11 +1,11 @@
 'use strict';
 
-const express = require('express');
+import { Router } from 'express';
 // eslint-disable-next-line new-cap
-const router = express.Router();
-const passport = require('passport');
-const UserService = require('../services/usersService');
-const ensure = require('connect-ensure-login');
+const router = Router();
+import { authenticate } from 'passport';
+import UserService from '../services/usersService';
+import { ensureLoggedIn } from 'connect-ensure-login';
 
 router.get('/sign-up',
     function(req, res) {
@@ -13,7 +13,7 @@ router.get('/sign-up',
         res.redirect('profile');
       } else {
         res.render('templates/shell', {
-          partials: {page: '../users/signUp'},
+          partials: { page: '../users/signUp' },
           subTitle: 'Sign Up - ',
           title: process.env.TITLE,
           user: req.user,
@@ -33,7 +33,7 @@ router.post(
             req.body.retypePassword);
 
         if (response.message) {
-          res.status(500).json({message: response.message});
+          res.status(500).json({ message: response.message });
         } else {
           const params = await service.encryptVerificationParameters(
               req.body.email);
@@ -52,17 +52,17 @@ router.post(
           });
 
           // eslint-disable-next-line max-len
-          res.status(200).send({message: 'Please verify your email address before logging in.'});
+          res.status(200).send({ message: 'Please verify your email address before logging in.' });
         }
       } catch (_) {
-        res.status(500).send({message: 'An internal error has occurred.'});
+        res.status(500).send({ message: 'An internal error has occurred.' });
       }
     });
 
 router.get('/sign-in',
     function(req, res) {
       res.render('templates/shell', {
-        partials: {page: '../users/signIn'},
+        partials: { page: '../users/signIn' },
         subTitle: 'Sign In - ',
         title: process.env.TITLE,
         user: req.user,
@@ -71,7 +71,7 @@ router.get('/sign-in',
     });
 
 router.post('/sign-in', function(req, res, next) {
-  passport.authenticate('local', function(err, user, info) {
+  authenticate('local', function(err, user, info) {
     if (err || !user) {
       res.status(401).send('Invalid/unverified email or invalid password.');
     } else {
@@ -87,7 +87,7 @@ router.post('/sign-in', function(req, res, next) {
 });
 
 router.get('/sign-out',
-    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    ensureLoggedIn({ redirectTo: 'sign-in' }),
     function(req, res) {
       req.logout();
       req.session = null;
@@ -95,10 +95,10 @@ router.get('/sign-out',
     });
 
 router.get('/profile',
-    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    ensureLoggedIn({ redirectTo: 'sign-in' }),
     function(req, res) {
       res.render('templates/shell', {
-        partials: {page: '../users/profile'},
+        partials: { page: '../users/profile' },
         subTitle: 'Profile - ',
         title: process.env.TITLE,
         user: req.user,
@@ -108,7 +108,7 @@ router.get('/profile',
 
 router.get('/forgot-password', (req, res) => {
   res.render('templates/shell', {
-    partials: {page: '../users/forgotPassword'},
+    partials: { page: '../users/forgotPassword' },
     subTitle: 'Forgot Password - ',
     title: process.env.TITLE,
     csrfToken: req.csrfToken(),
@@ -127,7 +127,7 @@ router.post('/forgot-password', async function(req, res) {
       subject: forgotPasswordFactory.getSubjectLine(),
       html: forgotPasswordFactory.getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in'),
     });
-    res.status(200).send({message: 'Successfully sent you and email!'});
+    res.status(200).send({ message: 'Successfully sent you and email!' });
   } catch (_) {
     res.render('errors/500');
   }
@@ -135,7 +135,7 @@ router.post('/forgot-password', async function(req, res) {
 
 router.post(
     '/change-password',
-    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    ensureLoggedIn({ redirectTo: 'sign-in' }),
     async function(req, res) {
       try {
         const service = new UserService();
@@ -144,23 +144,23 @@ router.post(
             req.body.retypePassword,
             req.user ? req.user._id : null);
         res.status(200).send(
-            {message: 'Successfully changed your password!'});
+            { message: 'Successfully changed your password!' });
       } catch (_) {
-        res.status(500).send({message: 'An internal error has occurred.'});
+        res.status(500).send({ message: 'An internal error has occurred.' });
       }
     });
 
 // Assumes that a change in email with a verified user is a verified change.
 router.put(
     '/change-email',
-    ensure.ensureLoggedIn({redirectTo: 'sign-in'}),
+    ensureLoggedIn({ redirectTo: 'sign-in' }),
     async function(req, res) {
       try {
         const service = new UserService();
         await service.changeEmail(req.body.newEmail, req.user._id);
-        res.status(200).send({message: 'Successfully changed your email!'});
+        res.status(200).send({ message: 'Successfully changed your email!' });
       } catch (_) {
-        res.status(500).send({message: 'An internal error has occurred.'});
+        res.status(500).send({ message: 'An internal error has occurred.' });
       }
     });
 
@@ -171,7 +171,7 @@ router.get(
         const service = new UserService();
         await service.verify(req.params.token);
         res.render('templates/shell', {
-          partials: {page: '../users/verify'},
+          partials: { page: '../users/verify' },
           subTitle: 'Verified - ',
           title: process.env.TITLE,
         });
@@ -180,4 +180,4 @@ router.get(
       }
     });
 
-module.exports = router;
+export default router;

@@ -13,8 +13,16 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018
+        "ecmaVersion": 2018,
+        "sourceType": "module"
     },
     "rules": {
+      "object-curly-spacing": ["error", "always", { "arraysInObjects": false }],
+      "max-len": ["error", { "code": 120 }],
+      "require-jsdoc": ["error", {
+        "require": {
+            "FunctionDeclaration": false
+        }
+    }]
     }
 }

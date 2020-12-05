@@ -1,15 +1,15 @@
 'use strict';
 
-const express = require('express');
+import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
-const router = express.Router();
-const urlencodedParser = express.urlencoded({extended: true});
-const ItemsService = require('../services/itemsService');
+const router = Router();
+const urlencodedParser = urlencoded({ extended: true });
+import ItemsService from '../services/itemsService';
 
 /* GET new wishlist item. */
 router.get('/new', function(req, res, next) {
   res.render('templates/shell', {
-    partials: {page: '../items/new'},
+    partials: { page: '../items/new' },
     breadcrumbs: req.breadcrumbs,
     user: req.user,
     subTitle: 'New Wishlist Item - ',
@@ -25,7 +25,7 @@ router.post('/new', urlencodedParser, async function(req, res) {
   if (!req.body || !req.body.name) {
     res.status(400);
     res.render('errors/400',
-        {message: 'Missing the required name of the wishlist item.'});
+        { message: 'Missing the required name of the wishlist item.' });
   }
 
   try {
@@ -38,13 +38,13 @@ router.post('/new', urlencodedParser, async function(req, res) {
         req.body.link);
 
     if (success && success.error) {
-      res.status(500).send({message: success.error});
+      res.status(500).send({ message: success.error });
     } else {
       res.sendStatus(200);
     }
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -62,7 +62,7 @@ router.get('/:itemSlug', async function(req, res) {
 
     if (item) {
       res.render('templates/shell', {
-        partials: {page: '../items/details'},
+        partials: { page: '../items/details' },
         breadcrumbs: req.breadcrumbs,
         user: req.user,
         subTitle: item.name + ' - ',
@@ -78,7 +78,7 @@ router.get('/:itemSlug', async function(req, res) {
     }
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -88,7 +88,7 @@ router.put('/:itemSlug', urlencodedParser, async function(req, res) {
     res.status(400);
     // eslint-disable-next-line max-len
     const msg = 'An updated name, comments, or link must be sent to update the wishlist item.';
-    res.render('errors/400', {message: msg});
+    res.render('errors/400', { message: msg });
   }
 
   try {
@@ -102,13 +102,13 @@ router.put('/:itemSlug', urlencodedParser, async function(req, res) {
         req.body.link);
 
     if (success && success.error) {
-      res.status(500).send({message: success.error});
+      res.status(500).send({ message: success.error });
     } else {
-      res.send({message: 'Successfully updated the wishlist item.'});
+      res.send({ message: 'Successfully updated the wishlist item.' });
     }
   } catch (error) {
     res.status(500);
-    res.send({message: error});
+    res.send({ message: error });
   }
 });
 
@@ -124,7 +124,7 @@ router.delete('/:itemSlug', async function(req, res) {
     res.sendStatus(200);
   } catch (error) {
     res.status(500);
-    res.render('errors/500', {error: error});
+    res.render('errors/500', { error: error });
   }
 });
 
@@ -138,10 +138,10 @@ router.put('/:itemSlug/claim', async function(req, res) {
         req.user ? req.user._id : null);
 
     res.status(200);
-    res.send({message: 'You successfully claimed the wishlist item!'});
+    res.send({ message: 'You successfully claimed the wishlist item!' });
   } catch (error) {
     res.status(500);
-    res.send({message: 'An error occurred while claiming the wishlist item.'});
+    res.send({ message: 'An error occurred while claiming the wishlist item.' });
     console.log(error);
   }
 });
@@ -156,13 +156,13 @@ router.put('/:itemSlug/unclaim', async function(req, res) {
         req.user ? req.user._id : null);
 
     res.status(200);
-    res.send({message: 'You successfully unclaimed the wishlist item!'});
+    res.send({ message: 'You successfully unclaimed the wishlist item!' });
   } catch (error) {
     res.status(500);
     res.send(
-        {message: 'An error occurred while unclaiming the wishlist item.'});
+        { message: 'An error occurred while unclaiming the wishlist item.' });
     console.log(e);
   }
 });
 
-module.exports = router;
+export default router;

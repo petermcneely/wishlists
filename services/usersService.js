@@ -1,11 +1,11 @@
 'use strict';
 
-const dal = require('../DAL/users');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto-promise');
-const checkPassword = require('../utils/passwordChecker');
+import { findByEmail as _findByEmail, findById as _findById, saveUser, updateUser } from '../DAL/users';
+import { hash as _hash } from 'bcrypt';
+import { cipher, decipher } from 'crypto-promise';
+import checkPassword from '../utils/passwordChecker';
 
-module.exports = class UsersService {
+export default class UsersService {
   /**
    * Creates a new UserService
    */
@@ -21,7 +21,7 @@ module.exports = class UsersService {
   * @return {Promise}
   */
   findByEmail(email) {
-    return dal.findByEmail(email);
+    return _findByEmail(email);
   }
 
   /**
@@ -30,7 +30,7 @@ module.exports = class UsersService {
   * @return {Promise}
   */
   findById(id) {
-    return dal.findById(id);
+    return _findById(id);
   }
 
   /**
@@ -42,20 +42,20 @@ module.exports = class UsersService {
    */
   createUser(email, password, retypePassword) {
     if (password !== retypePassword) {
-      return Promise.resolve({message: 'Passwords do not match.'});
+      return Promise.resolve({ message: 'Passwords do not match.' });
     }
 
     const message = this.checkPassword(password);
     if (message) {
-      return Promise.resolve({message: message});
+      return Promise.resolve({ message: message });
     } else {
-      return dal.findByEmail(email).then((user) => {
+      return _findByEmail(email).then((user) => {
         if (user) {
           return Promise.resolve(
-              {message: 'A user with that email already exists.'});
+              { message: 'A user with that email already exists.' });
         } else {
           return this.hashPassword(password).then((hash) => {
-            return dal.saveUser(email, hash).then((result) => {
+            return saveUser(email, hash).then((result) => {
               return result.insertedId;
             });
           });
@@ -70,7 +70,7 @@ module.exports = class UsersService {
    * @return {string}
    */
   hashPassword(password) {
-    return bcrypt.hash(password, 10);
+    return _hash(password, 10);
   }
 
   /**
@@ -78,7 +78,7 @@ module.exports = class UsersService {
    * @return {string}
    */
   encryptVerificationParameters(email) {
-    return crypto.cipher('aes256', process.env.CRYPTO_SECRET)(email);
+    return cipher('aes256', process.env.CRYPTO_SECRET)(email);
   }
 
   /**
@@ -86,7 +86,7 @@ module.exports = class UsersService {
    * @return {string}
    */
   decryptVerificationParameters(encrypted) {
-    return crypto.decipher(
+    return decipher(
         'aes256', process.env.CRYPTO_SECRET)(encrypted, 'hex');
   }
 
@@ -99,12 +99,12 @@ module.exports = class UsersService {
   overwritePassword(email) {
     const passwordGenerator = require('generate-password');
     const newPassword = passwordGenerator.generate(
-        {length: 12, numbers: true, uppercase: true, strict: true});
+        { length: 12, numbers: true, uppercase: true, strict: true });
     return this.hashPassword(newPassword).then((hash) => {
       const date = new Date();
       date.setDate(date.getDate() + 1);
-      return dal.updateUser(
-          {email: email}, {password: hash, passwordExpiry: date}).then(() => {
+      return updateUser(
+          { email: email }, { password: hash, passwordExpiry: date }).then(() => {
         return newPassword;
       });
     });
@@ -119,16 +119,16 @@ module.exports = class UsersService {
    */
   changePassword(newPassword, newRetypePassword, userId) {
     if (newPassword !== newRetypePassword) {
-      return Promise.resolve({message: 'Passwords do not match.'});
+      return Promise.resolve({ message: 'Passwords do not match.' });
     }
 
     const message = this.checkPassword(newPassword);
     if (message) {
-      return Promise.resolve({message: message});
+      return Promise.resolve({ message: message });
     } else {
       return this.hashPassword(newPassword).then((hash) => {
-        return dal.updateUser(
-            {_id: userId}, {password: hash, passwordExpiry: null});
+        return updateUser(
+            { _id: userId }, { password: hash, passwordExpiry: null });
       });
     }
   }
@@ -140,7 +140,7 @@ module.exports = class UsersService {
    * @return {Promise}
    */
   changeEmail(email, userId) {
-    return dal.updateUser({_id: userId}, {email: email});
+    return updateUser({ _id: userId }, { email: email });
   }
 
   /**
@@ -150,7 +150,7 @@ module.exports = class UsersService {
   verify(token) {
     return this.decryptVerificationParameters(token).then((email) => {
       if (email.toString()) {
-        return dal.updateUser({email: email.toString()}, {verified: true});
+        return updateUser({ email: email.toString() }, { verified: true });
       } else {
         return Promise.reject(new Error('No valid token was sent to verify.'));
       }

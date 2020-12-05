@@ -1,7 +1,7 @@
 'use strict';
-const helper = require('sendgrid').mail;
+import { mail as helper } from 'sendgrid';
 
-const sendEmail = function(content) {
+export const sendEmail = function(content) {
   if (content && content.to && content.to.constructor === Array) {
     const promises = [];
     content.to.forEach(function(e) {
@@ -32,8 +32,4 @@ const sendEmail = function(content) {
     // eslint-disable-next-line new-cap
     return sg.API(request);
   }
-};
-
-module.exports = {
-  sendEmail: sendEmail,
 };

@@ -1,12 +1,12 @@
 'use strict';
 
-const passport = require('passport');
-const Strategy = require('passport-local').Strategy;
-const UsersService = require('../services/usersService');
-const bcrypt = require('bcrypt');
+import passport, { use, serializeUser, deserializeUser } from 'passport';
+import { Strategy } from 'passport-local';
+import UsersService from '../services/usersService';
+import { compare } from 'bcrypt';
 
 // Configure the local strategy for use by Passport.
-passport.use(new Strategy({usernameField: 'email'},
+use(new Strategy({ usernameField: 'email' },
     function(email, password, cb) {
       const service = new UsersService();
       service.findByEmail(email).then(
@@ -24,7 +24,7 @@ passport.use(new Strategy({usernameField: 'email'},
               return cb('Your email is unverified.');
             }
 
-            bcrypt.compare(password, user.password, function(err, res) {
+            compare(password, user.password, function(err, res) {
               if (err) {
                 return cb(err);
               }
@@ -44,11 +44,11 @@ passport.use(new Strategy({usernameField: 'email'},
 
 
 // Configure Passport authenticated session persistence.
-passport.serializeUser(function(user, cb) {
+serializeUser(function(user, cb) {
   cb(null, user._id);
 });
 
-passport.deserializeUser(function(id, cb) {
+deserializeUser(function(id, cb) {
   const service = new UsersService();
   service.findById(id).then(
       function(user) {
@@ -60,4 +60,4 @@ passport.deserializeUser(function(id, cb) {
   );
 });
 
-module.exports = passport;
+export default passport;

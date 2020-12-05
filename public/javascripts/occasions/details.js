@@ -98,7 +98,7 @@ function sendEmails(emails) {
   xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   xhttp.setRequestHeader('X-CSRF-TOKEN',
       document.getElementById('_csrf').value);
-  xhttp.send(JSON.stringify({emails: emails}));
+  xhttp.send(JSON.stringify({ emails: emails }));
 }
 
 function ok() {
