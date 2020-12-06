@@ -16,7 +16,7 @@ const emailContent = async (content) => {
   });
 
   return await sg.API(request);
-}
+};
 
 const sendEmail = async (req) => {
   if (req && req.to && req.to.constructor === Array) {

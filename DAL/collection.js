@@ -9,7 +9,7 @@ export default async function(tableName) {
         url,
         {
           useNewUrlParser: true,
-          useUnifiedTopology: true
+          useUnifiedTopology: true,
         });
     const db = client.db('wishlists');
     return {
