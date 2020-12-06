@@ -28,7 +28,7 @@ store.on('connected', function() {
 
 // Catch errors
 store.on('error', function(error) {
-  console.log(error);
+  console.error(error);
 });
 
 app.use(logger('dev'));

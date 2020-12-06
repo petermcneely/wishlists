@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "nodemon -r dotenv/config --inspect --exec babel-node bin/www.js"
+    "start": "babel-node bin/www.js",
+    "dev": "nodemon -r dotenv/config --exec babel-node bin/www.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
@@ -34,6 +35,6 @@
     "@babel/preset-env": "^7.12.7",
     "eslint": "^6.7.2",
     "eslint-config-google": "^0.14.0",
-    "opn": "latest"
+    "open": "latest"
   }
 }

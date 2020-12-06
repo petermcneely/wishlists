@@ -165,7 +165,7 @@ router.post(
             url += req.get('Host');
             url += '/occasions/';
             url += req.params.occasionSlug;
-            console.log(url);
+            console.error(url);
             await sendEmail({
               to: req.body.emails,
               subject: getSubjectLine(),
@@ -186,7 +186,7 @@ router.post(
               res.send({ message: 'An internal error occurred but, your emails were sent!' });
             }
           } catch (e) {
-            console.log(e);
+            console.error(e);
             res.status(500);
             // eslint-disable-next-line max-len
             res.send({ message: 'An error occurred while sharing the occasion.' });

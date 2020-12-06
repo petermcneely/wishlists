@@ -1,6 +1,9 @@
 'use strict';
 
 import collection from './collection';
+import { default as debug } from 'debug';
+
+const serverDebug = debug('wishlists:server');
 
 export default class TableCall {
   /**
@@ -24,11 +27,11 @@ export default class TableCall {
       if (this.client) {
         this.client.close();
       } else {
-        console.log('No client?');
+        serverDebug('No client?');
       }
       return result;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       if (this.client) this.client.close();
       throw e;
     }

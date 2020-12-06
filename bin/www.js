@@ -72,7 +72,6 @@ const normalizePort = (val) => {
           'pipe ' + addr :
           'port ' + addr.port;
         if (process.env.NODE_ENV == 'development') {
-          console.log(`apparently listening on ${bind}`);
           serverDebug(`Listening on ${bind}`);
         }
       });

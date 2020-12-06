@@ -142,7 +142,7 @@ router.put('/:itemSlug/claim', async function(req, res) {
   } catch (error) {
     res.status(500);
     res.send({ message: 'An error occurred while claiming the wishlist item.' });
-    console.log(error);
+    console.error(error);
   }
 });
 
@@ -161,7 +161,7 @@ router.put('/:itemSlug/unclaim', async function(req, res) {
     res.status(500);
     res.send(
         { message: 'An error occurred while unclaiming the wishlist item.' });
-    console.log(e);
+    console.error(e);
   }
 });
 
