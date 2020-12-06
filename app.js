@@ -13,9 +13,10 @@ import passport from './utils/authenticationConfig.js';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import occasionsRouter from './routes/occasions.js';
-import path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 const MongoDBStore = connectMongoDBSession(expressSession);
@@ -40,8 +41,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(csrf({ cookie: true }));
 app.use(breadcrumbMaker(['javascripts', 'stylesheets', 'views', 'images']));
-app.use(express.static(join(dirname, 'public')));
-app.set('views', join(dirname, 'public/views'));
+app.use(express.static(join(__dirname, 'public')));
+app.set('views', join(__dirname, 'public/views'));
 app.engine('html', mustache);
 app.set('view engine', 'html');
 app.use(expressSession({
