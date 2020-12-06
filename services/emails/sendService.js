@@ -15,6 +15,7 @@ const emailContent = async (content) => {
     body: mail.toJSON(),
   });
 
+  /* eslint-disable new-cap */
   return await sg.API(request);
 };
 
