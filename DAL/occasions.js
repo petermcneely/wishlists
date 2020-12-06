@@ -1,9 +1,10 @@
 'use strict';
 
-import { ObjectID } from 'mongodb';
+import pkg from 'mongodb';
 import slugify from 'slugify';
 import TableCall from './tableCall.js';
 
+const { ObjectID } = pkg;
 const tcInstance = new TableCall('occasions');
 
 export const slugme = function(input) {

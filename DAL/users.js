@@ -1,8 +1,9 @@
 'use strict';
 
-import { ObjectID } from 'mongodb';
+import pkg from 'mongodb';
 import TableCall from './tableCall.js';
 
+const { ObjectID } = pkg;
 const tcInstance = new TableCall('users');
 
 export const findByEmail = function(email) {

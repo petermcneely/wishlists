@@ -1,6 +1,7 @@
 'use strict';
 
 import pkg from 'mongodb';
+
 const { MongoClient } = pkg;
 
 export default async function(tableName) {
