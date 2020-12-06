@@ -4,9 +4,9 @@
 /**
  * Module dependencies.
  */
-import app from '../app';
+import app from './app';
 import { createServer } from 'http';
-import databaseIndexes from '../DAL/dbIndexes';
+import databaseIndexes from './DAL/dbIndexes';
 import { default as debug } from 'debug';
 
 const serverDebug = debug('wishlists:server');
