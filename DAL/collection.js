@@ -1,6 +1,7 @@
 'use strict';
 
-import { MongoClient } from 'mongodb';
+import pkg from 'mongodb';
+const { MongoClient } = pkg;
 
 export default async function(tableName) {
   const url = process.env.MONGO_URL;
