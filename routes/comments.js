@@ -5,6 +5,30 @@ import { Router, urlencoded } from 'express';
 const router = Router();
 const urlencodedParser = urlencoded({ extended: true });
 import CommentsService from '../services/commentsService.js';
+import WishlistsService from '../services/wishlistsService.js';
+import UsersService from '../services/usersService.js';
+import { sendEmail } from '../services/emails/sendService.js';
+
+const notifyOwner = async (showOwner, commentingUserId, occasionSlug, wishlistSlug, comment, isUpdate = false) => {
+  if (showOwner) {
+    const wishlistsService = new WishlistsService();
+    const wishlist = await wishlistsService.get(
+        commentingUserId,
+        occasionSlug,
+        wishlistSlug);
+
+    if (JSON.stringify(wishlist.userId) !== JSON.stringify(commentingUserId)) {
+      const usersService = new UsersService();
+      const owner = await usersService.findById(wishlist.userId);
+
+      await sendEmail({
+        to: owner.email,
+        subject: isUpdate ? "Someone updated their comment on your wishlist" : "A new comment was posted on your wishlist",
+        html: `<p>Someone wrote: ${comment}</p><p>View your wishlist to reply</p>`,
+      });
+    }
+  }
+};
 
 /* POST new comment */
 router.post('/new', urlencodedParser, async function(req, res) {
@@ -22,12 +46,20 @@ router.post('/new', urlencodedParser, async function(req, res) {
         req.user._id,
         req.body.body,
         req.body.showOwner);
-
+    
     if (response && response.error) {
       res.status(500).send({ message: response.error });
     } else {
       res.sendStatus(200);
     }
+
+    await notifyOwner(
+      req.body.showOwner,
+      req.user._id,
+      req.occasionSlug,
+      req.wishlistSlug,
+      req.body.body);
+
   } catch (error) {
     res.status(500);
     res.render('errors/500', { error: error });
@@ -58,6 +90,15 @@ router.put('/:commentOid', urlencodedParser, async function(req, res) {
     } else {
       res.send({ message: 'Successfully updated the comment.' });
     }
+
+    await notifyOwner(
+      req.body.showOwner,
+      req.user._id,
+      req.occasionSlug,
+      req.wishlistSlug,
+      req.body.body,
+      true);
+      
   } catch (error) {
     res.status(500);
     res.send({ message: error });
