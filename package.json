@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "babel-node bin/www.js",
-    "dev": "nodemon -r dotenv/config --exec babel-node bin/www.js"
+    "start": "babel-node www.js",
+    "dev": "nodemon -r dotenv/config --exec babel-node www.js"
   },
   "dependencies": {
     "@babel/core": "^7.12.9",
