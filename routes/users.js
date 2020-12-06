@@ -8,6 +8,7 @@ import UserService from '../services/usersService.js';
 import { ensureLoggedIn } from 'connect-ensure-login';
 import { sendEmail } from '../services/emails/sendService.js';
 import { getSubjectLine, getBody } from '../services/emails/users/signUpFactory.js';
+import { getURL } from '../utils/urlFactory.js';
 
 router.get('/sign-up',
     function(req, res) {
@@ -42,7 +43,7 @@ router.post(
           const subjectLine = getSubjectLine();
           const html = getBody(
               req.body.email,
-              req.protocol + '://' + req.get('Host') + '/users/verify/' + params.toString('hex'));
+              getURL(req, `/users/verify/${params.toString('hex')}`));
 
           await sendEmail({
             to: req.body.email,
@@ -121,7 +122,7 @@ router.post('/forgot-password', async function(req, res) {
     await sendEmail({
       to: req.body.email,
       subject: getSubjectLine(),
-      html: getBody(password, req.protocol + '://' + req.get('Host') + '/users/sign-in'),
+      html: getBody(password, getURL(req, '/users/sign-in')),
     });
     res.status(200).send({ message: 'Successfully sent you and email!' });
   } catch (_) {

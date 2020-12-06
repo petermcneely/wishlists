@@ -11,6 +11,7 @@ import { sendEmail } from '../services/emails/sendService.js';
 import { getSubjectLine, getBody } from '../services/emails/occasions/shareFactory.js';
 import UsersService from '../services/usersService.js';
 import OccasionShareService from '../services/occasionSharesService.js';
+import { getURL } from '../utils/urlFactory.js';
 
 router.all('/new', ensureLoggedIn({ redirectTo: '/users/sign-in' }));
 
@@ -160,16 +161,10 @@ router.post(
 
         if (user) {
           try {
-            let url = req.protocol;
-            url += '://';
-            url += req.get('Host');
-            url += '/occasions/';
-            url += req.params.occasionSlug;
-            console.error(url);
             await sendEmail({
               to: req.body.emails,
               subject: getSubjectLine(),
-              html: getBody(user.email, url),
+              html: getBody(user.email, getURL(req, `/occasions/${req.params.occasionSlug}`)),
             });
 
             try {
@@ -182,13 +177,11 @@ router.post(
               res.send({ message: 'Successfully shared the occasion!' });
             } catch (_) {
               res.status(500);
-              // eslint-disable-next-line max-len
               res.send({ message: 'An internal error occurred but, your emails were sent!' });
             }
           } catch (e) {
             console.error(e);
             res.status(500);
-            // eslint-disable-next-line max-len
             res.send({ message: 'An error occurred while sharing the occasion.' });
           }
         } else {

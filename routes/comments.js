@@ -8,8 +8,17 @@ import CommentsService from '../services/commentsService.js';
 import WishlistsService from '../services/wishlistsService.js';
 import UsersService from '../services/usersService.js';
 import { sendEmail } from '../services/emails/sendService.js';
+import { getBody, getSubjectLine } from '../services/emails/comments/notifyOwnerFactory.js';
+import { getURL } from '../utils/urlFactory.js';
 
-const notifyOwner = async (showOwner, commentingUserId, occasionSlug, wishlistSlug, comment, isUpdate = false) => {
+const notifyOwner = async (
+  url,
+  showOwner,
+  commentingUserId,
+  occasionSlug,
+  wishlistSlug,
+  comment,
+  isUpdate = false) => {
   if (showOwner) {
     const wishlistsService = new WishlistsService();
     const wishlist = await wishlistsService.get(
@@ -23,8 +32,8 @@ const notifyOwner = async (showOwner, commentingUserId, occasionSlug, wishlistSl
 
       await sendEmail({
         to: owner.email,
-        subject: isUpdate ? "Someone updated their comment on your wishlist" : "A new comment was posted on your wishlist",
-        html: `<p>Someone wrote: ${comment}</p><p>View your wishlist to reply</p>`,
+        subject: getSubjectLine(isUpdate),
+        html: getBody(comment, url),
       });
     }
   }
@@ -54,6 +63,7 @@ router.post('/new', urlencodedParser, async function(req, res) {
     }
 
     await notifyOwner(
+      getURL(req, `/occasions/${req.occasionSlug}/wishlists/${req.wishlistSlug}`),
       req.body.showOwner,
       req.user._id,
       req.occasionSlug,
@@ -92,6 +102,7 @@ router.put('/:commentOid', urlencodedParser, async function(req, res) {
     }
 
     await notifyOwner(
+      getURL(req, `/occasions/${req.occasionSlug}/wishlists/${req.wishlistSlug}`),
       req.body.showOwner,
       req.user._id,
       req.occasionSlug,
