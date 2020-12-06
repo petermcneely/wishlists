@@ -8,11 +8,11 @@ import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
 import logger from 'morgan';
 import { mustache } from 'consolidate';
-import breadcrumbMaker from './utils/breadcrumbMaker';
-import passport from './utils/authenticationConfig';
-import indexRouter from './routes/index';
-import usersRouter from './routes/users';
-import occasionsRouter from './routes/occasions';
+import breadcrumbMaker from './utils/breadcrumbMaker.js';
+import passport from './utils/authenticationConfig.js';
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import occasionsRouter from './routes/occasions.js';
 const app = express();
 
 const MongoDBStore = connectMongoDBSession(expressSession);
