@@ -3,11 +3,11 @@
 import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
-import items from './items';
-import comments from './comments';
+import items from './items.js';
+import comments from './comments.js';
 const urlencodedParser = urlencoded({ extended: true });
 import { ensureLoggedIn } from 'connect-ensure-login';
-import WishlistsService from '../services/wishlistsService';
+import WishlistsService from '../services/wishlistsService.js';
 
 router.all('/new', ensureLoggedIn({ redirectTo: '/users/sign-in' }));
 

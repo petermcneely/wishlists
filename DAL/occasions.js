@@ -2,7 +2,7 @@
 
 import { ObjectID } from 'mongodb';
 import slugify from 'slugify';
-import TableCall from './tableCall';
+import TableCall from './tableCall.js';
 
 const tcInstance = new TableCall('occasions');
 

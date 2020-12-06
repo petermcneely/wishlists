@@ -1,6 +1,6 @@
 'use strict';
 
-import TableCall from './tableCall';
+import TableCall from './tableCall.js';
 const occasions = new TableCall('occasions');
 const users = new TableCall('users');
 

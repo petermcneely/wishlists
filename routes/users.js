@@ -4,10 +4,10 @@ import { Router } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
 import passport from 'passport';
-import UserService from '../services/usersService';
+import UserService from '../services/usersService.js';
 import { ensureLoggedIn } from 'connect-ensure-login';
-import { sendEmail } from '../services/emails/sendService';
-import { getSubjectLine, getBody } from '../services/emails/users/signUpFactory';
+import { sendEmail } from '../services/emails/sendService.js';
+import { getSubjectLine, getBody } from '../services/emails/users/signUpFactory.js';
 
 router.get('/sign-up',
     function(req, res) {

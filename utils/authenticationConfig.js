@@ -2,7 +2,7 @@
 
 import passport from 'passport';
 import { Strategy } from 'passport-local';
-import UsersService from '../services/usersService';
+import UsersService from '../services/usersService.js';
 import { compare } from 'bcrypt';
 import { default as debug } from 'debug';
 

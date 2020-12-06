@@ -1,9 +1,9 @@
 'use strict';
 
-import { findByEmail as _findByEmail, findById as _findById, saveUser, updateUser } from '../DAL/users';
+import { findByEmail as _findByEmail, findById as _findById, saveUser, updateUser } from '../DAL/users.js';
 import { hash as _hash } from 'bcrypt';
 import { cipher, decipher } from 'crypto-promise';
-import checkPassword from '../utils/passwordChecker';
+import checkPassword from '../utils/passwordChecker.js';
 import { default as passwordGenerator } from 'generate-password';
 
 export default class UsersService {

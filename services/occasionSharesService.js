@@ -1,6 +1,6 @@
 'use strict';
 
-import { createOccasionShares, getOccasionShare } from '../DAL/occasions';
+import { createOccasionShares, getOccasionShare } from '../DAL/occasions.js';
 
 export default class OccasionSharesService {
   /**

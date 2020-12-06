@@ -1,7 +1,7 @@
 'use strict';
 
-import { createOccasion, getOccasions, getOccasion, updateOccasion, deleteOccasion } from '../DAL/occasions';
-import UsersService from '../services/usersService';
+import { createOccasion, getOccasions, getOccasion, updateOccasion, deleteOccasion } from '../DAL/occasions.js';
+import UsersService from '../services/usersService.js';
 
 export default class OccasionsService {
   /**

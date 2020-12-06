@@ -1,6 +1,6 @@
 'use strict';
 
-import { createComment, updateComment, deleteComment } from '../DAL/occasions';
+import { createComment, updateComment, deleteComment } from '../DAL/occasions.js';
 
 export default class CommentsService {
   /**

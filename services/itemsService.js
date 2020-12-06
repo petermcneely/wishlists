@@ -1,6 +1,6 @@
 'use strict';
 
-import { createItem, getItem, updateItem, deleteItem, claimItem, unclaimItem } from '../DAL/occasions';
+import { createItem, getItem, updateItem, deleteItem, claimItem, unclaimItem } from '../DAL/occasions.js';
 
 export default class ItemsService {
   /**

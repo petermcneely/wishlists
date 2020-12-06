@@ -1,7 +1,7 @@
 'use strict';
 
 import { ObjectID } from 'mongodb';
-import TableCall from './tableCall';
+import TableCall from './tableCall.js';
 
 const tcInstance = new TableCall('users');
 

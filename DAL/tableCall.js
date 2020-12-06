@@ -1,6 +1,6 @@
 'use strict';
 
-import collection from './collection';
+import collection from './collection.js';
 import { default as debug } from 'debug';
 
 const serverDebug = debug('wishlists:server');

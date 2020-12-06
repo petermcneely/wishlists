@@ -1,7 +1,7 @@
 'use strict';
 
-import { createWishlist, getWishlist, updateWishlist, deleteWishlist } from '../DAL/occasions';
-import { findById } from '../DAL/users';
+import { createWishlist, getWishlist, updateWishlist, deleteWishlist } from '../DAL/occasions.js';
+import { findById } from '../DAL/users.js';
 
 export default class WishlistsService {
   /**

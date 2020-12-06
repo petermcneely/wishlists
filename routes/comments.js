@@ -4,7 +4,7 @@ import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
 const urlencodedParser = urlencoded({ extended: true });
-import CommentsService from '../services/commentsService';
+import CommentsService from '../services/commentsService.js';
 
 /* POST new comment */
 router.post('/new', urlencodedParser, async function(req, res) {

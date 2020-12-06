@@ -3,14 +3,14 @@
 import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
-import wishlists from './wishlists';
+import wishlists from './wishlists.js';
 const urlencodedParser = urlencoded({ extended: true });
-import OccasionsService from '../services/occasionsService';
+import OccasionsService from '../services/occasionsService.js';
 import { ensureLoggedIn } from 'connect-ensure-login';
-import { sendEmail } from '../services/emails/sendService';
-import { getSubjectLine, getBody } from '../services/emails/occasions/shareFactory';
-import UsersService from '../services/usersService';
-import OccasionShareService from '../services/occasionSharesService';
+import { sendEmail } from '../services/emails/sendService.js';
+import { getSubjectLine, getBody } from '../services/emails/occasions/shareFactory.js';
+import UsersService from '../services/usersService.js';
+import OccasionShareService from '../services/occasionSharesService.js';
 
 router.all('/new', ensureLoggedIn({ redirectTo: '/users/sign-in' }));
 

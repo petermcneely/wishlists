@@ -4,7 +4,7 @@ import { Router, urlencoded } from 'express';
 // eslint-disable-next-line new-cap
 const router = Router();
 const urlencodedParser = urlencoded({ extended: true });
-import ItemsService from '../services/itemsService';
+import ItemsService from '../services/itemsService.js';
 
 /* GET new wishlist item. */
 router.get('/new', function(req, res, next) {
