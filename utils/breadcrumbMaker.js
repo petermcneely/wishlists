@@ -31,4 +31,4 @@ function breadcrumbMaker(ignoreDirectories) {
   };
 }
 
-module.exports = breadcrumbMaker;
+export default breadcrumbMaker;
