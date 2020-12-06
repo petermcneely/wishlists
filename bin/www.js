@@ -4,7 +4,6 @@
 /**
  * Module dependencies.
  */
-import dotenv from 'dotenv';
 import app from '../app';
 import { createServer } from 'http';
 import databaseIndexes from '../DAL/dbIndexes';
@@ -34,7 +33,6 @@ const normalizePort = (val) => {
 };
 
 (async () => {
-  dotenv.config();
   await databaseIndexes();
   const port = normalizePort(process.env.PORT || '3000');
   app.set('port', port);
