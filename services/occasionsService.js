@@ -1,8 +1,9 @@
 'use strict';
 
-const dal = require('../DAL/occasions');
+import { createOccasion, getOccasions, getOccasion, updateOccasion, deleteOccasion } from '../DAL/occasions';
+import UsersService from '../services/usersService';
 
-module.exports = class OccasionsService {
+export default class OccasionsService {
   /**
    * Creates the occasion
    * @param {int} userId: the id of the creating user
@@ -11,7 +12,7 @@ module.exports = class OccasionsService {
    * @return {Promise}
    */
   create(userId, name, occurrence) {
-    return dal.createOccasion(userId, name, occurrence);
+    return createOccasion(userId, name, occurrence);
   }
 
   /**
@@ -19,7 +20,7 @@ module.exports = class OccasionsService {
    * @return {Promise}
    */
   index() {
-    return dal.getOccasions();
+    return getOccasions();
   }
 
   /**
@@ -30,9 +31,8 @@ module.exports = class OccasionsService {
   */
   get(userId, slug) {
     const promises = [];
-    promises.push(dal.getOccasion(slug));
+    promises.push(getOccasion(slug));
     if (userId) {
-      const UsersService = require('../services/usersService');
       const usersService = new UsersService();
       promises.push(usersService.findById(userId));
     }
@@ -74,7 +74,7 @@ module.exports = class OccasionsService {
     if (occurrence) {
       updateObject.occurrence = new Date(occurrence);
     }
-    return dal.updateOccasion({slug: slug, userId: userId}, updateObject);
+    return updateOccasion({ slug: slug, userId: userId }, updateObject);
   }
 
   /**
@@ -84,7 +84,7 @@ module.exports = class OccasionsService {
   * @return {Promise}
   */
   delete(userId, slug) {
-    return dal.deleteOccasion({slug: slug, userId: userId});
+    return deleteOccasion({ slug: slug, userId: userId });
   }
 }
 ;

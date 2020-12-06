@@ -1,45 +1,38 @@
 'use strict';
 
-const passport = require('passport');
-const Strategy = require('passport-local').Strategy;
-const UsersService = require('../services/usersService');
-const bcrypt = require('bcrypt');
+import passport from 'passport';
+import { Strategy } from 'passport-local';
+import UsersService from '../services/usersService';
+import { compare } from 'bcrypt';
+import { default as debug } from 'debug';
+
+const serverDebug = debug('wishlists:server');
 
 // Configure the local strategy for use by Passport.
-passport.use(new Strategy({usernameField: 'email'},
-    function(email, password, cb) {
-      const service = new UsersService();
-      service.findByEmail(email).then(
-          function(user) {
-            if (!user) {
-              return cb(null, false);
-            }
+passport.use(new Strategy.Strategy({ usernameField: 'email' },
+    async (email, password, cb) => {
+      try {
+        const service = new UsersService();
+        const user = await service.findByEmail(email);
+        serverDebug(user);
+        if (!user) {
+          return cb(null, false);
+        }
 
-            const now = new Date();
-            if (user.passwordExpiry && user.passwordExpiry < now) {
-              return cb('Your password has expired.');
-            }
+        const now = new Date();
+        if (user.passwordExpiry && user.passwordExpiry < now) {
+          return cb('Your password has expired.');
+        }
 
-            if (!user.verified) {
-              return cb('Your email is unverified.');
-            }
+        if (!user.verified) {
+          return cb('Your email is unverified.');
+        }
 
-            bcrypt.compare(password, user.password, function(err, res) {
-              if (err) {
-                return cb(err);
-              }
-              if (!res) {
-                return cb(null, false);
-              }
-              return cb(null, user);
-            });
-          },
-          function(err) {
-            if (err) {
-              return cb(err);
-            }
-          },
-      );
+        const res = compare(password, user.password);
+        return cb(null, res ? user : false);
+      } catch (error) {
+        return cb(error);
+      }
     }));
 
 
@@ -60,4 +53,4 @@ passport.deserializeUser(function(id, cb) {
   );
 });
 
-module.exports = passport;
+export default passport;

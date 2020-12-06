@@ -1,39 +1,40 @@
 'use strict';
-const helper = require('sendgrid').mail;
+import { default as sendgrid, mail as helper } from 'sendgrid';
 
-const sendEmail = function(content) {
-  if (content && content.to && content.to.constructor === Array) {
+const emailContent = async (content) => {
+  const toEmail = new helper.Email(content.to);
+  const fromEmail = new helper.Email(
+      content.from || process.env.SENDGRID_FROM);
+  const body = new helper.Content('text/html', content.html);
+  const mail = new helper.Mail(fromEmail, content.subject, toEmail, body);
+
+  const sg = sendgrid(process.env.SENDGRID_API_KEY);
+  const request = sg.emptyRequest({
+    method: 'POST',
+    path: '/v3/mail/send',
+    body: mail.toJSON(),
+  });
+
+  /* eslint-disable new-cap */
+  return await sg.API(request);
+};
+
+const sendEmail = async (req) => {
+  if (req && req.to && req.to.constructor === Array) {
     const promises = [];
-    content.to.forEach(function(e) {
+    req.to.forEach((e) => {
       const newContent = {
         to: e,
-        from: content.from || process.env.SENDGRID_FROM,
-        subject: content.subject,
-        html: content.html,
+        from: req.from || process.env.SENDGRID_FROM,
+        subject: req.subject,
+        html: req.html,
       };
-      promises.push(this.sendEmail(newContent));
-    // eslint-disable-next-line no-invalid-this
-    }.bind(this));
-    return Promise.all(promises);
-  } else {
-    const toEmail = new helper.Email(content.to);
-    const fromEmail = new helper.Email(
-        content.from || process.env.SENDGRID_FROM);
-    const body = new helper.Content('text/html', content.html);
-    const mail = new helper.Mail(fromEmail, content.subject, toEmail, body);
-
-    const sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-    const request = sg.emptyRequest({
-      method: 'POST',
-      path: '/v3/mail/send',
-      body: mail.toJSON(),
+      promises.push(emailContent(newContent));
     });
-
-    // eslint-disable-next-line new-cap
-    return sg.API(request);
+    return await Promise.all(promises);
+  } else {
+    await emailContent(req);
   }
 };
 
-module.exports = {
-  sendEmail: sendEmail,
-};
+export { sendEmail };

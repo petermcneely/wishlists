@@ -1,29 +1,29 @@
 'use strict';
 
-const mongodb = require('mongodb');
-const slugify = require('slugify');
-const TableCall = require('./tableCall');
+import { ObjectID } from 'mongodb';
+import slugify from 'slugify';
+import TableCall from './tableCall';
 
 const tcInstance = new TableCall('occasions');
 
-const slugme = function(input) {
+export const slugme = function(input) {
   return slugify(input,
-      {replacement: '-', remove: /[/\\*+~.()'"!:@]/g, lower: true});
+      { replacement: '-', remove: /[/\\*+~.()'"!:@]/g, lower: true });
 };
 
-const createOccasion = function(userId, name, occurrence) {
+export const createOccasion = function(userId, name, occurrence) {
   const slug = slugme(name);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else {
     return getOccasion(slug).then((occasion) => {
       if (occasion) {
         return Promise.resolve(
-            {error: 'An occasion with that name already exists.'});
+            { error: 'An occasion with that name already exists.' });
       } else {
         return tcInstance.call((collection) => {
           return collection.insertOne({
-            userId: new mongodb.ObjectID(userId),
+            userId: new ObjectID(userId),
             name: name,
             slug: slug,
             occurrence: new Date(occurrence),
@@ -34,7 +34,7 @@ const createOccasion = function(userId, name, occurrence) {
   }
 };
 
-const getOccasions = function() {
+export const getOccasions = function() {
   return tcInstance.call((collection) => {
     return collection.find({
 
@@ -47,7 +47,7 @@ const getOccasions = function() {
   });
 };
 
-const getOccasion = function(slug) {
+export const getOccasion = function(slug) {
   return tcInstance.call((collection) => {
     return collection.findOne({
       slug: slug,
@@ -55,12 +55,12 @@ const getOccasion = function(slug) {
   });
 };
 
-const updateOccasionHelper = function(query, where) {
+export const updateOccasionHelper = function(query, where) {
   return tcInstance.call((collection) => {
     where.slug = slugme(where.name);
     return collection.updateOne({
       slug: query.slug,
-      userId: new mongodb.ObjectID(query.userId),
+      userId: new ObjectID(query.userId),
     },
     {
       $set: where,
@@ -68,15 +68,15 @@ const updateOccasionHelper = function(query, where) {
   });
 };
 
-const updateOccasion = function(query, where) {
+export const updateOccasion = function(query, where) {
   const slug = slugme(where.name);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else if (slug !== query.slug) {
     return getOccasion(slug).then((occasion) => {
       if (occasion) {
         return Promise.resolve(
-            {error: 'An occasion with that name already exists.'});
+            { error: 'An occasion with that name already exists.' });
       } else {
         return updateOccasionHelper(query, where);
       }
@@ -86,16 +86,16 @@ const updateOccasion = function(query, where) {
   }
 };
 
-const deleteOccasion = function(query) {
+export const deleteOccasion = function(query) {
   return tcInstance.call((collection) => {
     return collection.deleteOne({
       slug: query.slug,
-      userId: new mongodb.ObjectID(query.userId),
+      userId: new ObjectID(query.userId),
     });
   });
 };
 
-const createOccasionShares = function(occasionSlug, emails) {
+export const createOccasionShares = function(occasionSlug, emails) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -110,7 +110,7 @@ const createOccasionShares = function(occasionSlug, emails) {
   });
 };
 
-const getOccasionShare = function(occasionSlug, email) {
+export const getOccasionShare = function(occasionSlug, email) {
   return tcInstance.call((collection) => {
     return collection.findOne({
       slug: occasionSlug,
@@ -125,7 +125,7 @@ const getOccasionShare = function(occasionSlug, email) {
   });
 };
 
-const deleteOccasionShare = function(occasionSlug, email) {
+export const deleteOccasionShare = function(occasionSlug, email) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -138,15 +138,15 @@ const deleteOccasionShare = function(occasionSlug, email) {
   });
 };
 
-const createWishlist = function(userId, name, occasionSlug) {
+export const createWishlist = function(userId, name, occasionSlug) {
   const slug = slugme(name);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else {
     return getWishlist(occasionSlug, slug).then((occasion) => {
       if (occasion && occasion.wishlists && occasion.wishlists.length) {
         return Promise.resolve(
-            {error: 'A wishlist with that name already exists.'});
+            { error: 'A wishlist with that name already exists.' });
       } else {
         return tcInstance.call((collection) => {
           return collection.updateOne({
@@ -157,7 +157,7 @@ const createWishlist = function(userId, name, occasionSlug) {
               wishlists: {
                 name: name,
                 slug: slug,
-                userId: new mongodb.ObjectID(userId),
+                userId: new ObjectID(userId),
               },
             },
           });
@@ -167,7 +167,7 @@ const createWishlist = function(userId, name, occasionSlug) {
   }
 };
 
-const getWishlists = function(occasionSlug) {
+export const getWishlists = function(occasionSlug) {
   return tcInstance.call((collection) => {
     return collection.findOne({
       slug: occasionSlug,
@@ -181,7 +181,7 @@ const getWishlists = function(occasionSlug) {
   });
 };
 
-const getWishlist = function(occasionSlug, wishlistSlug) {
+export const getWishlist = function(occasionSlug, wishlistSlug) {
   return tcInstance.call((collection) => {
     return collection.findOne({
       slug: occasionSlug,
@@ -201,22 +201,22 @@ const getWishlist = function(occasionSlug, wishlistSlug) {
   });
 };
 
-const updateWishlist = function(occasionSlug, userId, wishlistSlug, newName) {
+export const updateWishlist = function(occasionSlug, userId, wishlistSlug, newName) {
   const slug = slugme(newName);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else if (slug !== wishlistSlug) {
     return getWishlist(occasionSlug, slug).then((occasion) => {
       if (occasion && occasion.wishlists) {
         return Promise.resolve(
-            {error: 'A wishlist with that name already exists.'});
+            { error: 'A wishlist with that name already exists.' });
       } else {
         return tcInstance.call((collection) => {
           return collection.updateOne({
             slug: occasionSlug,
             wishlists: {
               $elemMatch: {
-                userId: new mongodb.ObjectID(userId),
+                userId: new ObjectID(userId),
                 slug: wishlistSlug,
               },
             },
@@ -235,11 +235,11 @@ const updateWishlist = function(occasionSlug, userId, wishlistSlug, newName) {
   }
 };
 
-const deleteWishlist = function(occasionSlug, userId, slug) {
+export const deleteWishlist = function(occasionSlug, userId, slug) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       'slug': occasionSlug,
-      'wishlists.userId': new mongodb.ObjectID(userId),
+      'wishlists.userId': new ObjectID(userId),
     },
     {
       $pull: {
@@ -251,15 +251,15 @@ const deleteWishlist = function(occasionSlug, userId, slug) {
   });
 };
 
-const createItem = function(occasionSlug, wishlistSlug, name, comments, link) {
+export const createItem = function(occasionSlug, wishlistSlug, name, comments, link) {
   const slug = slugme(name);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else {
     return getItem(occasionSlug, wishlistSlug, slug).then((item) => {
       if (item) {
         return Promise.resolve(
-            {error: 'An item with that name already exists.'});
+            { error: 'An item with that name already exists.' });
       } else {
         return tcInstance.call((collection) => {
           return collection.updateOne({
@@ -282,7 +282,7 @@ const createItem = function(occasionSlug, wishlistSlug, name, comments, link) {
   }
 };
 
-const getItem = function(occasionSlug, wishlistSlug, itemSlug) {
+export const getItem = function(occasionSlug, wishlistSlug, itemSlug) {
   return tcInstance.call((collection) => {
     return collection.findOne({
       'slug': occasionSlug,
@@ -318,7 +318,7 @@ const getItem = function(occasionSlug, wishlistSlug, itemSlug) {
   });
 };
 
-const updateItemHelper = function(
+export const updateItemHelper = function(
     occasionSlug, wishlistSlug, itemSlug, updateObject) {
   return tcInstance.call((collection) => {
     updateObject.slug = slugme(updateObject.name);
@@ -338,23 +338,23 @@ const updateItemHelper = function(
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
-        {'inner.slug': itemSlug},
+        { 'outer.slug': wishlistSlug },
+        { 'inner.slug': itemSlug },
       ],
     });
   });
 };
 
-const updateItem = function(
+export const updateItem = function(
     occasionSlug, wishlistSlug, itemSlug, updateObject) {
   const slug = slugme(updateObject.name);
   if (slug === '') {
-    return Promise.resolve({error: 'That name is not allowed.'});
+    return Promise.resolve({ error: 'That name is not allowed.' });
   } else if (slug !== itemSlug) {
     return getItem(occasionSlug, wishlistSlug, slug).then((item) => {
       if (item) {
         return Promise.resolve(
-            {error: 'An item with that name already exists.'});
+            { error: 'An item with that name already exists.' });
       } else {
         return updateItemHelper(
             occasionSlug, wishlistSlug, itemSlug, updateObject);
@@ -365,7 +365,7 @@ const updateItem = function(
   }
 };
 
-const deleteItem = function(occasionSlug, wishlistSlug, itemSlug) {
+export const deleteItem = function(occasionSlug, wishlistSlug, itemSlug) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -384,13 +384,13 @@ const deleteItem = function(occasionSlug, wishlistSlug, itemSlug) {
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
+        { 'outer.slug': wishlistSlug },
       ],
     });
   });
 };
 
-const claimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
+export const claimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -404,21 +404,21 @@ const claimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
     {
       $set: {
         'wishlists.$[outer].items.$[inner].claimed': {
-          by: new mongodb.ObjectID(userId),
+          by: new ObjectID(userId),
           at: new Date(),
         },
       },
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
-        {'inner.slug': itemSlug},
+        { 'outer.slug': wishlistSlug },
+        { 'inner.slug': itemSlug },
       ],
     });
   });
 };
 
-const unclaimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
+export const unclaimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -428,7 +428,7 @@ const unclaimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
           items: {
             $elemMatch: {
               'slug': itemSlug,
-              'claimed.by': new mongodb.ObjectID(userId),
+              'claimed.by': new ObjectID(userId),
             },
           },
         },
@@ -441,14 +441,14 @@ const unclaimItem = function(occasionSlug, wishlistSlug, itemSlug, userId) {
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
-        {'inner.slug': itemSlug},
+        { 'outer.slug': wishlistSlug },
+        { 'inner.slug': itemSlug },
       ],
     });
   });
 };
 
-const createComment = (occasionSlug, wishlistSlug, userId, body, showOwner) => {
+export const createComment = (occasionSlug, wishlistSlug, userId, body, showOwner) => {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       'slug': occasionSlug,
@@ -457,10 +457,10 @@ const createComment = (occasionSlug, wishlistSlug, userId, body, showOwner) => {
     {
       $addToSet: {
         'wishlists.$.comments': {
-          _id: new mongodb.ObjectID(),
+          _id: new ObjectID(),
           body: body,
           showOwner: showOwner,
-          userId: new mongodb.ObjectID(userId),
+          userId: new ObjectID(userId),
           createdAt: new Date(),
         },
       },
@@ -468,38 +468,38 @@ const createComment = (occasionSlug, wishlistSlug, userId, body, showOwner) => {
   });
 };
 
-const updateComment = (
+export const updateComment = (
     occasionSlug,
     wishlistSlug,
     commentOid,
-    updateObject) => {
+    toUpdate) => {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
       wishlists: {
         $elemMatch: {
           'slug': wishlistSlug,
-          'comments._id': new mongodb.ObjectID(commentOid),
+          'comments._id': new ObjectID(commentOid),
         },
       },
     },
     {
       $set: {
-        'wishlists.$[outer].comments.$[inner].body': updateObject.body,
-        'wishlists.$[outer].comments.$[inner].showOwner': updateObject.showOwner,
-        'wishlists.$[outer].comments.$[inner].modifiedAt': updateObject.modifiedAt,
+        'wishlists.$[outer].comments.$[inner].body': toUpdate.body,
+        'wishlists.$[outer].comments.$[inner].showOwner': toUpdate.showOwner,
+        'wishlists.$[outer].comments.$[inner].modifiedAt': toUpdate.modifiedAt,
       },
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
-        {'inner._id': new mongodb.ObjectID(commentOid)},
+        { 'outer.slug': wishlistSlug },
+        { 'inner._id': new ObjectID(commentOid) },
       ],
     });
   });
 };
 
-const deleteComment = (occasionSlug, wishlistSlug, commentOid) => {
+export const deleteComment = (occasionSlug, wishlistSlug, commentOid) => {
   return tcInstance.call((collection) => {
     return collection.updateOne({
       slug: occasionSlug,
@@ -512,40 +512,14 @@ const deleteComment = (occasionSlug, wishlistSlug, commentOid) => {
     {
       $pull: {
         'wishlists.$[outer].comments': {
-          '_id': new mongodb.ObjectID(commentOid),
+          '_id': new ObjectID(commentOid),
         },
       },
     },
     {
       arrayFilters: [
-        {'outer.slug': wishlistSlug},
+        { 'outer.slug': wishlistSlug },
       ],
     });
   });
 };
-
-module.exports = {
-  createOccasion: createOccasion,
-  getOccasions: getOccasions,
-  getOccasion: getOccasion,
-  updateOccasion: updateOccasion,
-  deleteOccasion: deleteOccasion,
-  createOccasionShares: createOccasionShares,
-  getOccasionShare: getOccasionShare,
-  deleteOccasionShare: deleteOccasionShare,
-  createWishlist: createWishlist,
-  getWishlists: getWishlists,
-  getWishlist: getWishlist,
-  updateWishlist: updateWishlist,
-  deleteWishlist: deleteWishlist,
-  createItem: createItem,
-  getItem: getItem,
-  updateItem: updateItem,
-  deleteItem: deleteItem,
-  claimItem: claimItem,
-  unclaimItem: unclaimItem,
-  createComment: createComment,
-  updateComment: updateComment,
-  deleteComment: deleteComment,
-}
-;

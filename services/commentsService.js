@@ -1,8 +1,8 @@
 'use strict';
 
-const dal = require('../DAL/occasions');
+import { createComment, updateComment, deleteComment } from '../DAL/occasions';
 
-module.exports = class CommentsService {
+export default class CommentsService {
   /**
    * Creates the comment
    * @param {string} occasionSlug The slug of the occasion
@@ -14,7 +14,7 @@ module.exports = class CommentsService {
    * @return {Promise}
    */
   create(occasionSlug, wishlistSlug, userId, body, showOwner) {
-    return dal.createComment(
+    return createComment(
         occasionSlug, wishlistSlug, userId, body, showOwner);
   }
 
@@ -38,7 +38,7 @@ module.exports = class CommentsService {
       updateObject.body = body;
     }
 
-    return dal.updateComment(
+    return updateComment(
         occasionSlug, wishlistSlug, commentOid, updateObject);
   }
 
@@ -50,6 +50,6 @@ module.exports = class CommentsService {
    * @return {Promise}
    */
   delete(occasionSlug, wishlistSlug, commentOid) {
-    return dal.deleteComment(occasionSlug, wishlistSlug, commentOid);
+    return deleteComment(occasionSlug, wishlistSlug, commentOid);
   }
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(password) {
+export default function(password) {
   const lengthRequirement = 8;
 
   if (!password || password.length < lengthRequirement) {

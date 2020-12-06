@@ -1,20 +1,21 @@
 'use strict';
 
-const express = require('express');
-const expressSession = require('express-session');
-const MongoDBStore = require('connect-mongodb-session')(expressSession);
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
-const logger = require('morgan');
-const engines = require('consolidate');
-const breadcrumbMaker = require('./utils/breadcrumbMaker');
-const authConfig = require('./utils/authenticationConfig');
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const occasionsRouter = require('./routes/occasions');
+import express from 'express';
+import expressSession from 'express-session';
+import { default as connectMongoDBSession } from 'connect-mongodb-session';
+import { join } from 'path';
+import cookieParser from 'cookie-parser';
+import csrf from 'csurf';
+import logger from 'morgan';
+import { mustache } from 'consolidate';
+import breadcrumbMaker from './utils/breadcrumbMaker';
+import passport from './utils/authenticationConfig';
+import indexRouter from './routes/index';
+import usersRouter from './routes/users';
+import occasionsRouter from './routes/occasions';
 const app = express();
 
+const MongoDBStore = connectMongoDBSession(expressSession);
 const store = new MongoDBStore({
   uri: process.env.MONGO_URL,
   databaseName: 'wishlists',
@@ -27,33 +28,33 @@ store.on('connected', function() {
 
 // Catch errors
 store.on('error', function(error) {
-  console.log(error);
+  console.error(error);
 });
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(csrf({cookie: true}));
+app.use(csrf({ cookie: true }));
 app.use(breadcrumbMaker(['javascripts', 'stylesheets', 'views', 'images']));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'public/views'));
-app.engine('html', engines.mustache);
+app.use(express.static(join(__dirname, 'public')));
+app.set('views', join(__dirname, 'public/views'));
+app.engine('html', mustache);
 app.set('view engine', 'html');
-app.use(require('express-session')({
+app.use(expressSession({
   secret: process.env.SESSION_SECRET,
-  cookie: {maxAge: 1000 * 60 * 60 * 24 * 7},
+  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
   store: store,
   resave: true,
   saveUninitialized: false,
   unset: 'destroy',
 }));
 
-app.use(authConfig.initialize());
-app.use(authConfig.session());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/occasions', occasionsRouter);
 
-module.exports = app;
+export default app;

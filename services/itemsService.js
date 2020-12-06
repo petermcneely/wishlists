@@ -1,8 +1,8 @@
 'use strict';
 
-const dal = require('../DAL/occasions');
+import { createItem, getItem, updateItem, deleteItem, claimItem, unclaimItem } from '../DAL/occasions';
 
-module.exports = class ItemsService {
+export default class ItemsService {
   /**
   * Creates an item
   * @param {string} occasionSlug The slug of the occasion
@@ -13,7 +13,7 @@ module.exports = class ItemsService {
   * @return {Promise}
   */
   create(occasionSlug, wishlistSlug, name, comments, link) {
-    return dal.createItem(occasionSlug, wishlistSlug, name, comments, link);
+    return createItem(occasionSlug, wishlistSlug, name, comments, link);
   }
 
   /**
@@ -25,7 +25,7 @@ module.exports = class ItemsService {
    * @return {Promise}
    */
   get(occasionSlug, wishlistSlug, itemSlug, userId) {
-    return dal.getItem(occasionSlug, wishlistSlug, itemSlug)
+    return getItem(occasionSlug, wishlistSlug, itemSlug)
         .then((response) => {
           if (response) {
             response.item.owns = response.userId.equals(userId);
@@ -57,7 +57,7 @@ module.exports = class ItemsService {
       updateObject.link = link;
     }
 
-    return dal.updateItem(occasionSlug, wishlistSlug, itemSlug, updateObject);
+    return updateItem(occasionSlug, wishlistSlug, itemSlug, updateObject);
   }
 
   /**
@@ -68,7 +68,7 @@ module.exports = class ItemsService {
    * @return {Promise}
    */
   delete(occasionSlug, wishlistSlug, itemSlug) {
-    return dal.deleteItem(occasionSlug, wishlistSlug, itemSlug);
+    return deleteItem(occasionSlug, wishlistSlug, itemSlug);
   }
 
   /**
@@ -80,7 +80,7 @@ module.exports = class ItemsService {
    * @return {Promise}
    */
   claim(occasionSlug, wishlistSlug, itemSlug, userId) {
-    return dal.claimItem(occasionSlug, wishlistSlug, itemSlug, userId);
+    return claimItem(occasionSlug, wishlistSlug, itemSlug, userId);
   }
 
   /**
@@ -92,7 +92,7 @@ module.exports = class ItemsService {
    * @return {Promise}
    */
   unclaim(occasionSlug, wishlistSlug, itemSlug, userId) {
-    return dal.unclaimItem(occasionSlug, wishlistSlug, itemSlug, userId);
+    return unclaimItem(occasionSlug, wishlistSlug, itemSlug, userId);
   }
 }
 ;

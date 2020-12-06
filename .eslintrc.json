@@ -2,7 +2,7 @@
     "env": {
         "browser": true,
         "commonjs": true,
-        "es6": true,
+        "es2020": true,
         "node": true
     },
     "extends": [
@@ -13,8 +13,15 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018
+        "sourceType": "module"
     },
     "rules": {
+      "object-curly-spacing": ["error", "always", { "arraysInObjects": false }],
+      "max-len": ["error", { "code": 120 }],
+      "require-jsdoc": ["error", {
+        "require": {
+            "FunctionDeclaration": false
+        }
+    }]
     }
 }
